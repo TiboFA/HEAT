@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.11.2</title>
+<title>HEAT — version jouable v0.12</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -273,6 +273,7 @@ svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius
  border-radius:8px;padding:0 4px;font-style:normal;line-height:15px;box-shadow:0 0 0 2px rgba(13,13,13,.92)}
 .tag.rendu{border-color:rgba(25,158,112,.55);color:var(--s-reel)}
 .tag.lourd{border-color:rgba(214,158,46,.6);color:#d69e2e;font-weight:700}
+.tag.extreme{border-color:rgba(229,121,121,.65);color:var(--s-fric-tx);font-weight:700}
 .c2adv{margin-top:5px;font-size:9px;color:var(--s-fric-tx);border-top:1px solid var(--grid);padding-top:4px}
 .badv{border-left:2px solid var(--s-fric);padding:4px 0 5px 8px;margin:5px 0;font-size:11px}
 .badv span{color:var(--muted);font-size:10px;margin-left:6px}
@@ -387,8 +388,18 @@ svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius
 .verdict{font-size:15px;line-height:1.55;color:var(--ink-2);border-left:3px solid var(--s-traj);padding-left:12px}
 .verdict b{color:var(--ink)}
 .again{border:0;border-radius:9px;padding:12px 20px;font-weight:700;background:var(--ink);color:#0b0b0b;cursor:pointer}
-@media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}}
+@media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}
+  /* sideL passe au-dessus de la carte et devient large : les leviers s'y répartissent
+     en grille plutôt que de s'empiler un par ligne sur toute la largeur. #handL est mis
+     seul sur sa ligne (flex-basis 100 %) pour ne pas se faire écraser par la doctrine :
+     sans ça, les deux se partagent la même ligne et la grille n'a plus la place de faire
+     plus d'une colonne sur les écrans étroits. */
+  .sideL #handL{flex-basis:100%}
+  .sideL .hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}}
 @media (max-width:1180px){.board{grid-template-columns:1fr}.sideL,.sideR{max-height:none}.mb{grid-template-columns:1fr}.opts{grid-template-columns:1fr}
+  /* en dessous de 1180px le plateau devient une seule colonne : sideR passe lui
+     aussi sur toute la largeur, sous la carte — même traitement en grille. */
+  .sideR .hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
   /* l'accueil ne fait que 820 px : ses deux cartes de camp tiennent côte à côte bien plus longtemps */
   .camps .opts{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.camps .opts{grid-template-columns:1fr}}
@@ -711,10 +722,10 @@ u.gl:hover{text-decoration-color:var(--ink)}
     <summary>Réglages — difficulté et doctrine</summary>
     <div class="ct" style="margin-top:6px">Difficulté <span>elle ne règle que l'adversaire — vous avez le catalogue entier dès le premier niveau</span></div>
     <div class="opts four" id="optLvl">
-      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3 actions par tour contre vos 4. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
-      <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 4 actions par tour, comme vous, avec les revenus pour les payer.</span></button>
-      <button class="opt" data-v="3"><b>Réaliste</b><span>6 actions par tour contre vos 4. C'est le niveau sur lequel le jeu est calibré.</span></button>
-      <button class="opt" data-v="4"><b>Expert</b><span>7 actions par tour contre vos 4, et de quoi les financer toutes.</span></button>
+      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3 points de puissance par tour, contre 3 à 6 pour vous selon votre crédibilité (4,5 au départ). Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
+      <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 5 points de puissance par tour, avec les revenus pour les payer — votre propre budget reste entre 3 et 6 selon votre crédibilité.</span></button>
+      <button class="opt" data-v="3"><b>Réaliste</b><span>6,5 points de puissance par tour pour l'adversaire. C'est le niveau sur lequel le jeu est calibré.</span></button>
+      <button class="opt" data-v="4"><b>Expert</b><span>8 points de puissance par tour pour l'adversaire, et de quoi les financer tous.</span></button>
     </div>
     <div class="ct" style="margin-top:16px">Votre doctrine <span>elle décide quels leviers vous seront proposés</span></div>
     <div class="doc home" id="docHome"></div>
@@ -723,12 +734,15 @@ u.gl:hover{text-decoration-color:var(--ink)}
   <details class="hdet">
     <summary>Les règles, en détail</summary>
     <div class="rules">
-      <b>Quatre actions par tour</b>, et tous les leviers ne coûtent pas pareil. Un levier léger prend une action, un
-      <b>levier lourd</b> en prend deux &mdash; ceux qui, à eux seuls, déplacent la trajectoire, retournent l'opinion
-      mondiale ou descendent les plafonds. La carte le dit : <b>⚖ 2 actions</b>. Trente-sept leviers sur 112 sont lourds,
-      et le poids n'est pas décrété : il est mesuré en rejouant chaque levier seul sur un état de partie standard.
-      Vous arbitrez donc chaque tour entre deux grands coups, un grand et deux petits, ou quatre petits.
-      L'adversaire paie exactement le même prix. Cliquez une carte de votre main, puis un bloc sur la carte du monde.
+      <b>Un budget de puissance par tour</b>, et tous les leviers ne coûtent pas pareil. Chaque carte affiche son coût,
+      de 1 à 3,5 points par pas de 0,5 &mdash; la carte le dit : <b>⚖ 1,5 pt</b>. Trente-huit leviers sur 112 sont au
+      minimum (1 point), quarante et un sont <b>lourds</b> (2 points ou plus) et six sont <b>extrêmes</b> (3 points ou
+      plus) : ceux-là, à eux seuls, déplacent la trajectoire, retournent l'opinion mondiale ou descendent les plafonds.
+      Le coût n'est pas décrété, il est mesuré en rejouant chaque levier seul sur un état de partie standard.
+      Votre budget, lui, n'est pas fixe : il suit votre <b>crédibilité</b>, entre 3 points au plus bas et 6 au plus
+      haut (4,5 à crédibilité neutre). Être cru élargit ce que vous pouvez vous permettre de jouer dans le tour ; être
+      discrédité le resserre. Vous arbitrez donc chaque tour entre un ou deux grands coups, ou plusieurs petits.
+      L'adversaire paie la même monnaie, à un budget fixé par le niveau de difficulté. Cliquez une carte de votre main, puis un bloc sur la carte du monde.
       Une carte mondiale n'a pas de cible à désigner : un seul clic l'engage. Le <b>i</b> en haut de chaque carte ouvre sa fiche complète :
       mécanisme, ancrage réel daté, limite, contre-levier, et rendement attendu bloc par bloc.<br><br>
       <b>Rien n'est joué avant que vous validiez le tour.</b> Les leviers que vous engagez s'empilent dans le bandeau
@@ -750,7 +764,8 @@ u.gl:hover{text-decoration-color:var(--ink)}
       lui prenez, vous discréditer le crédite d'autant. Vous n'avez pas de levier de réparation — vous remontez quand
       l'autre se fait prendre. La somme n'est pas conservée : l'un perd 14, l'autre gagne 7, et un échange d'accusations
       abîme les deux camps.<br>
-      Elle pèse sur vos paris, jusqu'à 10 points de probabilité. Et surtout elle règle <b>la vitesse à laquelle le soutien
+      Elle pèse sur vos paris, jusqu'à 10 points de probabilité, et sur votre <b>budget de puissance</b> du tour, entre
+      3 et 6 points. Et surtout elle règle <b>la vitesse à laquelle le soutien
       perçu rattrape le soutien réel</b> : de 5 % par tour si l'adversaire a la parole, à 25 % si vous l'avez. C'est la
       vitesse à laquelle ce qui est vrai finit par se savoir.<br>
       Elle bouge aussi sans que personne ne la joue. Tous les quatre tours, la trajectoire tranche : elle a baissé, on
@@ -758,7 +773,7 @@ u.gl:hover{text-decoration-color:var(--ink)}
       émissions au camp actif, une échéance net zéro manquée coûte cher, et <b>un levier qui promet plus qu'il ne rend
       se paie en crédibilité</b>. Enfin la controverse s'oublie : chaque tour, les deux crédibilités reviennent un peu
       vers 50. Une avance ne se met pas en banque, elle s'entretient.<br><br>
-      <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas d'action.<br><br>
+      <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas de puissance.<br><br>
       <b>Le climat tient en une ligne :</b> température = 1,0 + 0,00058 × CO₂ cumulé depuis 2015.
       La partie va jusqu'en <b>2100</b> : la température affichée n'est pas une extrapolation, c'est celle que votre partie atteint.
       Sans aucune action, elle finit à <b>3,48 °C</b>, avec des émissions qui montent de 35,5 à environ 57 GtCO₂/an.
@@ -773,7 +788,7 @@ u.gl:hover{text-decoration-color:var(--ink)}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.11.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.12 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -2289,7 +2304,7 @@ function newGame(camp,level){
     tech:0, techPend:[], cum:0, T:T0,
     res:{actif:{cp:8,cap:6,att:3,cred:70}, att:{cp:3,cap:12,att:4,cred:60}},
     dmgBase:0,dmgAutres:0,morts:0, actifs:1000, evitees:0, report:0,
-    reveles:2, satur:false, actions:ACTIONS, plan:[],
+    reveles:2, satur:false, actions:0, plan:[],
     picE:0, picAn:null, seuilAn:null,
     adv:[], mien:[], rendus:[],          // ce que l'adversaire a joué, ce que vous avez joué : nommément, tour par tour
     hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:T_BASELINE,g:GHOST[0]}],
@@ -2300,35 +2315,32 @@ function newGame(camp,level){
   // dotation de départ de l'adversaire, à hauteur de ce qu'on lui demandera de jouer
   {const a=camp==="actif"?"att":"actif", N=NIVEAUX[level]||NIVEAUX[2];
    s.res[a].cp+=N.cp; s.res[a].cap+=N.cap;}
+  s.actions=budgetJoueur(s,camp);
   majDates(s);
   tirerEvenement(s); tirerDefi(s); refill(s); refillAI(s);
   jlog(s,"th","Tour 1 — 2015 à 2020");
   jlog(s,"t","Accord de Paris signé. La partie commence ici.");
   return s;
 }
-const MAIN=12, ACTIONS=4;   // actions par tour, dans la monnaie du poids des leviers
+const MAIN=12;
 /* ==================== les quatre niveaux ====================
    Un niveau ne décide plus de ce que VOUS avez en main : il décide de
-   l'adversaire, et de lui seul. Deux réglages, et le second existe parce que le
-   premier ne suffisait pas — l'ancien barème promettait jusqu'à six leviers par
-   tour à une intelligence artificielle qui n'avait de quoi en payer que quatre.
-   Le nombre annoncé dans l'agenda était donc faux d'un tiers au niveau Réaliste
-   et de moitié au niveau Expert.
+   l'adversaire, et de lui seul.
 
-     n   leviers joués par l'adversaire, en plus de son action gratuite
+     n   budget de puissance de l'adversaire, en plus de son action gratuite
      cp  supplément de capital politique par tour
      cap supplément de capital par tour
 
-   Les suppléments ne vont qu'au camp que vous ne jouez pas. */
-/* n : budget d'actions de l'adversaire, dans la même monnaie que les vôtres — un
-   levier lourd lui en coûte deux comme à vous. cp/cap : les revenus supplémentaires
-   qui lui permettent de dépenser ce budget. Les valeurs sont mesurées : à ce budget,
-   l'adversaire pose autant de leviers par tour qu'avant l'introduction du poids. */
+   Les suppléments ne vont qu'au camp que vous ne jouez pas. Votre propre
+   budget ne dépend plus du niveau : il suit votre crédibilité — voir
+   budgetJoueur(). Celui de l'adversaire reste fixe par niveau, dans la même
+   monnaie continue que le vôtre : n est mesuré pour reproduire, sur le
+   nouveau barème, le volume de jeu que produisait l'ancien budget entier. */
 const NIVEAUX=[null,
- {nom:"Découverte", n:3, cp:0, cap:0},
- {nom:"Standard",   n:4, cp:2, cap:3},
- {nom:"Réaliste",   n:6, cp:4, cap:7},
- {nom:"Expert",     n:7, cp:6, cap:11}
+ {nom:"Découverte", n:3,   cp:0, cap:0},
+ {nom:"Standard",   n:5,   cp:2, cap:3},
+ {nom:"Réaliste",   n:6.5, cp:4, cap:7},
+ {nom:"Expert",     n:8,   cp:6, cap:11}
 ];
 function NIV(s){ return NIVEAUX[s.level]||NIVEAUX[2]; }
 function nAdv(s){ return NIV(s).n; }
@@ -2441,34 +2453,71 @@ function remplir(s,main,camp){
     main.push(tire(s,cand,D).id);
   }
 }
-/* ==================== poids des leviers ====================
-   Quatre actions par tour, mais tous les leviers ne se valent pas. Un levier lourd
-   en consomme deux : on ne peut donc pas enchaîner quatre grands coups dans le même
-   tour. Il faut arbitrer — deux coups lourds, ou un lourd et deux légers, ou quatre
-   légers. Le passage de trois à quatre actions vient avec le poids : à trois, prendre
-   un levier lourd coûtait un tiers du tour, ce qui rendait les grands leviers
-   pratiquement injouables et pénalisait surtout le camp actif, dont le répertoire est
-   le plus lourd.
+/* ==================== puissance des leviers ====================
+   Le budget n'est plus un compte d'actions plates : c'est une somme continue,
+   mesurée levier par levier, par pas de 0,5 — de 1 (le minimum) à 3,5 (les
+   quelques leviers les plus extrêmes du catalogue). Jouer un levier de
+   puissance 1,5 laisse d'autant moins de budget pour le reste du tour qu'un
+   levier de puissance 1 ; il faut arbitrer entre un grand coup et plusieurs
+   petits, exactement comme avant, mais sans le couperet binaire léger/lourd
+   qui confondait des leviers d'ampleur très différente.
 
-   La liste n'est pas décrétée, elle est mesurée. Chaque levier a été rejoué seul sur
-   un état de partie standard, puis la partie avancée de cinq tours sans adversaire.
-   Est lourd celui qui, à lui seul, déplace la trajectoire de 0,06 °C ou plus, retourne
-   30 points d'opinion cumulés, descend 20 points de plafond, ou fait bouger l'indice
-   technologique de 12. Le sens ne compte pas : ce qui pèse, c'est l'ampleur de ce que
-   le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue. C'est
-   pourquoi A25 et T46, qui déplacent beaucoup d'opinion contre l'intérêt de leur
-   propre camp, sont lourds eux aussi. */
-const LOURDS=new Set([
-  "A02","A03","A04","A07","A09","A10","A11","A18",
-  "A19","A20","A25","A27","A29","A36","A39","A40",
-  "A41","A49","A51","A65","A67","A73","T04","T07",
-  "T17","T20","T22","T43","T44","T45","T46","T48",
-  "T51","T52","T66","T68","T73",
-]);
-function pds(c){ return LOURDS.has(typeof c==="string"?c:c.id) ? 2 : 1; }
-/* le poids que le plan consommera réellement : une entrée devenue injouable ne
+   La table n'est pas décrétée, elle est mesurée. Chaque levier a été rejoué
+   seul sur un état de partie standard, puis la partie avancée de cinq tours
+   sans adversaire. La puissance suit le plus grand de quatre rapports à un
+   seuil de référence — déplacement de trajectoire (0,06 °C), opinion mondiale
+   retournée (30 points cumulés), plafond de contrainte descendu (20 points),
+   indice technologique déplacé (12 points) — arrondi au demi-point le plus
+   proche, plancher à 1. Le sens ne compte pas : ce qui pèse, c'est l'ampleur
+   de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui
+   le joue. C'est pourquoi A25 et T46, qui déplacent beaucoup d'opinion contre
+   l'intérêt de leur propre camp, restent parmi les plus coûteux.
+
+   Cette table remplace l'ancien repère binaire (v0.9 à v0.11) : le même
+   calcul, rendu continu, distingue maintenant ce qui s'y confondait — A01 (2)
+   n'a jamais pesé comme A17 (1) sous l'étiquette commune « lourd », et A09 ou
+   A25 (3,5) sont d'un autre ordre que le reste des leviers qui portaient la
+   même marque. */
+const PUISSANCE={
+ A01:2, A02:2, A03:2, A04:2, A05:2, A07:3, A09:3.5, A10:2,
+ A11:2, A12:1, A15:1.5, A17:1, A18:2.5, A19:2, A20:2, A21:1.5,
+ A22:1, A25:3.5, A26:1.5, A27:2, A28:2, A29:2, A31:1, A33:1,
+ A35:1.5, A36:2, A37:1, A38:1, A39:2, A40:2, A41:1.5, A42:1,
+ A43:1.5, A44:1.5, A46:1.5, A47:1.5, A48:2, A49:2.5, A50:1, A51:2.5,
+ A52:1, A53:1, A54:1, A57:1, A59:1.5, A60:1, A61:1.5, A62:1,
+ A63:1, A64:1.5, A65:2.5, A66:1.5, A67:3, A70:1.5, A71:1, A72:1.5,
+ A73:2, T01:1.5, T02:1, T04:2.5, T05:1.5, T07:2.5, T08:1, T09:1,
+ T10:1.5, T11:1.5, T13:1.5, T17:2.5, T18:1, T19:1, T20:2, T21:1,
+ T22:2, T23:1.5, T24:2, T25:1.5, T26:1, T27:1, T28:1.5, T30:1.5,
+ T31:1.5, T33:1, T36:1, T38:1.5, T39:1, T40:1.5, T41:1, T43:2,
+ T44:2.5, T45:1.5, T46:2.5, T48:2, T49:1.5, T50:1, T51:2.5, T52:2,
+ T53:1, T60:1.5, T61:1, T62:1, T63:1.5, T64:1, T65:1, T66:2,
+ T67:1.5, T68:3, T69:1, T70:1.5, T71:1, T72:1, T73:3, T74:2,
+};
+function pds(c){ return PUISSANCE[typeof c==="string"?c:c.id] || 1; }
+/* le budget que le plan consommera réellement : une entrée devenue injouable ne
    coûte rien, et le bouton de validation ne doit pas la compter. */
 function poidsPlan(s){ return s.plan.reduce((a,e)=>a+((e.k==="attr"||e.ko)?0:pds(e.id)),0); }
+/* ==================== budget de puissance ====================
+   Le budget n'est plus fixe : il suit votre crédibilité. À 50 — le milieu de
+   l'échelle — vous disposez de BUD_BASE points ; chaque point de crédibilité
+   au-dessus ou en dessous de 50 en ajoute ou en retire BUD_K/50. Être cru
+   élargit ce qu'on peut se permettre de jouer ; être discrédité le resserre —
+   ce n'est pas une pénalité ajoutée exprès, c'est la même logique que le
+   reste de la partie : la crédibilité ouvre déjà des portes ailleurs
+   (vitesse d'opinion, probabilité des paris), elle en ouvre une ici aussi.
+   BUD_MIN/BUD_MAX ne servent que de garde-fou : la crédibilité étant bornée à
+   [0,100], la formule ne les atteint jamais en pratique.
+
+   BUD_BASE et BUD_K sont mesurés, pas décrétés : à crédibilité neutre, ils
+   reproduisent le volume de jeu que produisait l'ancien budget fixe de
+   quatre actions sur le nouveau barème continu. L'adversaire paie le même
+   prix, mais à budget fixe par niveau — voir NIVEAUX. */
+const BUD_BASE=4.5, BUD_K=1.5, BUD_MIN=3, BUD_MAX=6;
+function budgetPuissance(cred){ return Math.max(BUD_MIN, Math.min(BUD_MAX, BUD_BASE + BUD_K*(cred-50)/50)); }
+function budgetJoueur(s,camp){ return budgetPuissance(s.res[camp].cred); }
+/* affichage : 2 reste "2", 1.5 devient "1,5" */
+function fmtP(p){ return (Math.round(p*10)/10).toString().replace(".",","); }
 function epuise(s,c){
   const n=s.joues.filter(x=>x===c.id).length;
   return c.cible==="global" ? n>=1 : n>=3;
@@ -2647,7 +2696,7 @@ function simuler(){
   s.plan.forEach(e=>{
     if(e.k==="attr"){ if(!attribuer(cl,cl.camp)) e.ko="attribution devenue impossible"; return; }
     const c=card(e.id);
-    if(cl.actions<pds(c)){ e.ko = pds(c)>1 ? "levier lourd : il faut deux actions, il n'en reste "+cl.actions : "plus d'action disponible"; return; }
+    if(cl.actions<pds(c)){ e.ko = "il faut "+fmtP(pds(c))+" points de puissance, il n'en reste "+fmtP(cl.actions); return; }
     const r=jouable(cl,c,e.bk?B(cl,e.bk):null,cl.camp);
     if(r){ e.ko=r; return; }   // un réglage de doctrine ou un autre levier a rendu celui-ci injouable
     jouer(cl,e.id,e.bk,cl.camp,true); cl.actions-=pds(c);
@@ -2925,7 +2974,7 @@ function finTour(s){
   s.res[adv].cp+=N.cp; s.res[adv].cap+=N.cap;
   if(s.pubOff>0)s.res.att.att=Math.max(0,s.res.att.att-1);
   if(s.attOff>0)s.res.actif.att=Math.max(0,s.res.actif.att-1);
-  s.actions=ACTIONS; s.satur=false; s.attribue=0; s.docChg=0; s.plan=[];
+  s.actions=budgetJoueur(s,s.camp); s.satur=false; s.attribue=0; s.docChg=0; s.plan=[];
   s.coups=[]; s.coupsBlocs=[]; s.combos=[]; s.ecartees=[]; s.redraw=1;
   const nMain=s.hand.length, nIA=s.handAI.length;
   const ouvAv=new Set(pool(s,s.camp==="actif"?"actif":"att").map(c=>c.id));
@@ -2945,7 +2994,7 @@ function finTour(s){
   jlog(s,"a","Défi tiré — ★ "+s.defi.t+" : "+s.defi.d);
   const nTir=s.hand.length-nMain;
   jlog(s,"a","Main renouvelée — "+(nTir?nTir+(nTir>1?" leviers tirés":" levier tiré")+" selon votre doctrine, ":"")+s.hand.length+" en main ; l'adversaire en tient "+s.handAI.length+".");
-  jlog(s,"a",ACTIONS+" actions disponibles — un levier lourd en coûte deux — et renouvellement de main réarmé.");
+  jlog(s,"a",fmtP(s.actions)+" points de puissance disponibles — la crédibilité les fixe — et renouvellement de main réarmé.");
   // ce que la progression vient d'ouvrir : c'est la seule façon de voir le catalogue s'élargir
   const neufs=pool(s,s.camp==="actif"?"actif":"att").filter(c=>!ouvAv.has(c.id));
   if(neufs.length) jlog(s,"g","▸ <b>"+neufs.length+" nouveau"+(neufs.length>1?"x":"")+" levier"+(neufs.length>1?"s":"")+" ouvert"+(neufs.length>1?"s":"")+"</b> : "+neufs.map(c=>c.n).join(", ")+".");
@@ -2981,15 +3030,15 @@ function iaJoue(s){
   s.fx.push({t:"step",txt:(camp==="att"?"Le camp attentiste joue":"Le camp actif joue"),cls:camp==="att"?"r":"g"});
   const n = nAdv(s);
   jlog(s,"sh",camp==="att"?"Le camp attentiste joue":"Le camp actif joue");
-  jlog(s,"a","Niveau "+NIV(s).nom+" : l'adversaire dispose de "+n+" action"+(n>1?"s":"")+" ce tour — un levier lourd lui en coûte deux, comme à vous — plus son action gratuite, et les revenus nécessaires pour les payer.");
+  jlog(s,"a","Niveau "+NIV(s).nom+" : l'adversaire dispose de "+fmtP(n)+" points de puissance ce tour — dans la même monnaie que vous — plus son action gratuite, et les revenus nécessaires pour les payer.");
   // action gratuite : désattribution
   if(camp==="att"){ if(!attribuer(s,"att")) jlog(s,"a","L'adversaire ne peut pas désattribuer l'événement ce tour."); }
   else if(s.ev&&s.ev.attr&&s.attribue===0&&!s.satur){ attribuer(s,"actif"); }
   else jlog(s,"a","L'adversaire ne peut pas attribuer l'événement ce tour.");
   let joues=0, reste=n;
-  // l'adversaire paie le poids des leviers exactement comme le joueur : un levier
-  // lourd lui coûte deux de son budget. Il peut donc devoir renoncer à un grand coup
-  // faute de place, et son choix suivant tient compte de ce qu'il lui reste.
+  // l'adversaire paie la puissance des leviers exactement comme le joueur : un
+  // grand coup peut lui coûter le tiers de son budget ou plus. Il peut donc devoir
+  // y renoncer faute de place, et son choix suivant tient compte de ce qu'il lui reste.
   for(let garde=0; reste>0 && garde<12; garde++){
     const coup = camp==="att" ? choixAtt(s,reste) : choixActif(s,reste);
     if(!coup){ jlog(s,"a","L'adversaire s'arrête après "+joues+" coup"+(joues>1?"s":"")+" : plus rien de jouable dans sa main, ou plus assez d'actions pour ce qu'il lui reste."); break; }
@@ -3323,8 +3372,8 @@ function render(garde){
       return `<div data-tip="${RES_TIP.cred}"><span class="pill" style="background:var(--s-base)"></span>Crédibilité <span class="v">${r.cred}</span>`
         +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e:e<0?"−"+Math.abs(e):"à égalité"}${e?" sur l'adversaire":""}</span></div>`;})();
   const np=S.plan.length;
-  $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+poidsPlan(S)+" action"+(poidsPlan(S)>1?"s":"")+")"
-    : (s.actions>0 ? "Passer le tour ("+s.actions+" action"+(s.actions>1?"s":"")+" restante"+(s.actions>1?"s":"")+")" : "Terminer le tour");
+  $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
+    : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+" pt"+(s.actions>1?"s":"")+" restant"+(s.actions>1?"s":"")+")" : "Terminer le tour");
   $("#endturn").classList.toggle("armed",np>0);
   renderEvent(); renderAgenda(); renderDash(); renderMap(); renderPlan(); renderAdv(); renderHand(); renderDocPanel(); renderTraj(); renderLog(); renderPresse();
   bindTips(document);
@@ -3498,8 +3547,8 @@ function agenda(s){
   const adv = moi==="actif" ? "att" : "actif";
   const n=nAdv(s);
   out.push({cls:"adv", t:adv==="att"?"Le camp attentiste joue":"Le camp actif joue",
-    r:n+" levier"+(n>1?"s":"")+" + 1 gratuit",
-    tip:"Au niveau "+NIV(s).nom+", l'adversaire dispose de "+n+" action"+(n>1?"s":"")+" par tour — dans la même monnaie que les vôtres, un levier lourd lui en coûte deux — plus son action gratuite sur l'événement, et les revenus pour tout payer. Vous ne saurez ce qu'il joue qu'à la résolution : c'est la seule part du tour qui vous soit cachée."});
+    r:fmtP(n)+" pt"+(n>1?"s":"")+" + 1 gratuit",
+    tip:"Au niveau "+NIV(s).nom+", l'adversaire dispose de "+fmtP(n)+" points de puissance par tour — dans la même monnaie que les vôtres — plus son action gratuite sur l'événement, et les revenus pour tout payer. Vous ne saurez ce qu'il joue qu'à la résolution : c'est la seule part du tour qui vous soit cachée."});
   if(s.ev){
     if(s.ev.eff==="prix") out.push({cls:P(false),t:"Flambée des prix",r:"friction +8",
       tip:"L'événement de ce tour ajoute 8 de friction à tous les blocs où aucune compensation n'est installée. Une compensation posée avant la résolution en protège le bloc."});
@@ -3841,7 +3890,7 @@ function renderAdv(){
   const s=V(), adv = s.camp==="actif" ? "att" : "actif";
   const n=nAdv(s);
   const nom = adv==="att" ? "Climato-attentiste" : "Climato-actif";
-  $("#advEtat").innerHTML = n+" act./tour";
+  $("#advEtat").innerHTML = fmtP(n)+" pt/tour";
   const tous=s.adv||[];
   const dern=tous.filter(a=>a.turn===s.turn-1);
   const parBloc={}; tous.forEach(a=>{ if(a.bk) parBloc[a.bk]=(parBloc[a.bk]||0)+1; });
@@ -3869,7 +3918,7 @@ function renderAdv(){
      ${lignes}
      ${inst.length?`<div class="advt">Ce qu'il a laissé en place</div>`
         +inst.map(x=>`<div class="advi" data-tip="${x[2].replace(/"/g,"&quot;")}"><b>${x[0]}</b><span>${x[1]}</span></div>`).join(""):""}
-     <div class="advs">Ce tour-ci il dispose de <b>${n} action${n>1?"s":""}</b> — un levier lourd lui en coûte deux, comme à vous — plus son action gratuite, après vous. Vous ne saurez ce qu'il joue qu'à la résolution.</div>`;
+     <div class="advs">Ce tour-ci il dispose de <b>${fmtP(n)} point${n>1?"s":""} de puissance</b> — dans la même monnaie que vous — plus son action gratuite, après vous. Vous ne saurez ce qu'il joue qu'à la résolution.</div>`;
   bindTips($("#advPanel")); bindTips($("#advEtat"));
 }
 
@@ -4011,9 +4060,7 @@ function renderHand(){
     const cc=card(id), glob=cc.cible!=="bloc";
     // périmètre : combien de blocs acceptent ce levier en l'état
     const elig = glob ? null : s.blocs.filter(b=>!jouable(s,cc,b,s.camp));
-    const raison = s.actions<pds(cc) ? (pds(cc)>1
-          ? "levier lourd : deux actions nécessaires, il n'en reste "+s.actions
-          : "plus d'action ce tour")
+    const raison = s.actions<pds(cc) ? "il faut "+fmtP(pds(cc))+" points de puissance, il n'en reste "+fmtP(s.actions)
       : glob ? jouable(s,cc,null,s.camp) : (elig.length?null:motifBlocs(s,cc));
     const ko=!!raison;
     const kk=cout(s,cc,s.camp);
@@ -4030,9 +4077,14 @@ function renderHand(){
       <div class="eff">${gloss(cc.e)}</div>
       <div class="jauge" data-tip="<b>Influence de votre doctrine : ${af} %</b><br>Mesure l'accord entre ce levier et les quatre curseurs de votre doctrine.<br>Plus elle est haute, plus la carte a de chances de vous être proposée au tirage, et plus son effet est renforcé une fois jouée.<br>Une carte à faible influence reste jouable : elle rend simplement moins.">
         <span class="jl">doctrine</span><span class="jt"><i class="${af>=70?"hi":af>=40?"mid":"lo"}" style="width:${af}%"></i></span><b>${af} %</b></div>
-      <div class="meta">${pds(cc)>1
-        ?'<span class="tag lourd" data-tip="<b>Levier lourd — 2 actions sur les 3 du tour</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue : à lui seul il déplace la trajectoire, retourne l\'opinion mondiale ou descend les plafonds.<br><br>Vous ne pouvez en jouer qu\'un par tour, accompagné d\'un levier léger. Trois grands coups dans le même tour, ce n\'est pas possible.">⚖ 2 actions</span>'
-        :'<span class="tag" data-tip="<b>Levier léger — 1 action</b><br>Vous pouvez en jouer trois dans le tour.">1 action</span>'}<span class="tag cost">${cost||"gratuit"}</span>
+      <div class="meta">${(()=>{const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
+        const cls = p>=3?"tag extreme":p>=2?"tag lourd":"tag";
+        const tip = p>=3
+          ?"<b>Levier extrême — "+lbl+" de puissance</b><br>Son ampleur mesurée le place parmi les tout premiers du catalogue : à lui seul il déplace nettement la trajectoire, retourne l'opinion mondiale ou descend les plafonds. Il absorbe à lui seul une bonne part du budget d'un tour."
+          :p>=2
+          ?"<b>Levier lourd — "+lbl+" de puissance</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue : à lui seul il déplace la trajectoire, retourne l'opinion mondiale ou descend les plafonds."
+          :"<b>Levier léger — "+lbl+" de puissance</b><br>Le moins coûteux du barème : il en reste toujours pour plusieurs dans le même tour.";
+        return `<span class="${cls}" data-tip="${tip}">⚖ ${lbl}</span>`;})()}<span class="tag cost">${cost||"gratuit"}</span>
         ${cc.lat?'<span class="tag lat" data-tip="L\'effet ne tombera qu\'à la résolution du tour indiqué : ce levier engage des ressources maintenant pour un résultat plus tard.">effet dans '+cc.lat+' tour'+(cc.lat>1?'s':'')+'</span>':'<span class="tag" data-tip="L\'effet est appliqué dès la validation du tour.">immédiat</span>'}
         ${cc.seuil?'<span class="tag" data-tip="Ce levier exige un soutien perçu d\'au moins '+cc.seuil+' sur le bloc visé. En régime autoritaire il n\'y a pas de seuil, mais chaque mesure coûte 1 capital de plus.">perçu ≥ '+cc.seuil+'</span>':''}
         ${pr?`<span class="tag pari" data-tip="<b>Ce levier peut échouer.</b> Il faut le faire voter, le gagner ou l'obtenir. La probabilité dépend du bloc visé : soutien perçu, friction, régime politique et votre crédibilité.<br><br>${pr.tip}<br><br>En cas d'échec, la moitié de la mise est rendue et la tentative laisse 6 de friction.">pari ${pr.txt}</span>`:""}
@@ -4262,7 +4314,7 @@ function ficheLevier(id){
        ${ctr?`<div class="fl-sec"><h5>Le levier adverse qui l'annule</h5><p><b>${ctr.id} — ${ctr.n}</b><br>${gloss(ctr.e)}</p></div>`
             :`<div class="fl-sec"><h5>Le levier adverse qui l'annule</h5><p>Aucun. L'adversaire n'a pas de réponse directe à ce levier dans le catalogue.</p></div>`}
        <div class="fl-grid">
-         ${kv("Poids",pds(c)>1?"lourd — 2 actions":"léger — 1 action","Vous disposez de quatre actions par tour. Un levier lourd en consomme deux : au plus deux par tour.<br><br>Le poids est mesuré, pas décrété : est lourd le levier qui, joué seul, déplace la trajectoire de 0,06 °C ou plus, retourne 30 points d'opinion cumulés, descend 20 points de plafond ou fait bouger l'indice technologique de 12. Le sens ne compte pas — ce qui pèse est l'ampleur de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue.<br><br>L'adversaire paie le même prix.")}
+         ${kv("Puissance",fmtP(pds(c))+" pt"+(pds(c)>1?"s":""),"Votre budget de puissance dépend de votre crédibilité — voir la ligne « Crédibilité » en haut de l'écran. Ce levier en consomme "+fmtP(pds(c))+".<br><br>La puissance est mesurée, pas décrétée : elle suit le plus grand de quatre rapports — la trajectoire déplacée (0,06 °C), l'opinion mondiale retournée (30 points cumulés), le plafond de contrainte descendu (20 points), l'indice technologique déplacé (12 points) — arrondi au demi-point. Le sens ne compte pas — ce qui pèse est l'ampleur de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue.<br><br>L'adversaire paie le même prix, à budget fixé par le niveau de difficulté.")}
          ${kv("Coût",paye,"Ce que le levier vous prendra si vous le jouez ce tour."+(ecartCout?"<br><br>Coût de base : "+base+".<br>"+raisons.join("<br>"):""))+(ecartCout?"":"")}
          ${kv("Quand",c.lat?("dans "+c.lat+" tour"+(c.lat>1?"s":"")):"tout de suite","Un levier à effet différé ne produit rien au tour où vous le jouez : l'effet tombe à la résolution du tour indiqué.")}
          ${kv("Portée",c.cible==="bloc"?"un bloc":"le monde entier","Un levier de bloc se joue en cliquant un bloc sur la carte. Un levier mondial se joue depuis la main.")}
@@ -4527,10 +4579,13 @@ function renderFin(){
    et les curseurs de doctrine mémorisés. Le défi du tour est stocké par son titre :
    c'est le seul objet de l'état qui porte des fonctions, donc le seul que JSON perd. */
 /* Version des sauvegardes. Elle ne suit pas le numéro affiché : elle ne change que
-   lorsque le format change vraiment. Les v0.11.1 et v0.11.2 ne touchent qu'à
-   l'écran d'accueil et à la palette de couleurs, une partie enregistrée en
-   v0.11 s'y recharge donc telle quelle. */
-const SAVE_V="0.11", SAVE_K="heat.partie.v1";
+   lorsque le format change vraiment. Les v0.11.1 à v0.11.3 ne touchent qu'à
+   l'écran d'accueil, à la palette de couleurs et à la mise en page, une partie
+   enregistrée en v0.11 s'y rechargeait donc telle quelle. La v0.12 change le sens
+   de s.actions — un compte d'actions entier devient un budget continu — donc une
+   sauvegarde d'avant ne peut plus être relue telle quelle : mieux vaut le dire que
+   la laisser se recharger avec un budget faux. */
+const SAVE_V="0.12", SAVE_K="heat.partie.v1";
 function serialiser(){
   const s=S;
   return JSON.stringify({
@@ -4679,7 +4734,7 @@ const GUIDE=[
  {s:"#agenda", t:"Ce qui arrivera sans vous",
   d:"Élections, effets différés, retours de flamme, coups de l'adversaire : tout ce que la résolution appliquera <b>quoi que vous fassiez</b>. Le bandeau se recalcule à chaque levier que vous engagez. Arbitrer sans le lire, c'est jouer à l'aveugle."},
  {s:"#handL", t:"Vos leviers",
-  d:"Douze cartes tirées dans le catalogue ouvert de votre camp, pondérées par votre <b>doctrine</b> (au-dessus). Chaque carte dit son poids, son coût, son effet et son périmètre : <b>◍ monde</b> se joue d'un clic, <b>◎ bloc</b> demande une cible sur la carte. Vous avez <b>quatre actions par tour</b> ; un levier léger en prend une, un <b>⚖ levier lourd</b> en prend deux. Le <b>i</b> ouvre la fiche complète — mécanisme, ancrage réel daté, contre-levier."},
+  d:"Douze cartes tirées dans le catalogue ouvert de votre camp, pondérées par votre <b>doctrine</b> (au-dessus). Chaque carte dit sa puissance, son coût, son effet et son périmètre : <b>◍ monde</b> se joue d'un clic, <b>◎ bloc</b> demande une cible sur la carte. Votre <b>budget de puissance</b> suit votre crédibilité ; un levier léger en prend peu, un <b>⚖ levier lourd</b> ou <b>extrême</b> peut en absorber l'essentiel d'un coup. Le <b>i</b> ouvre la fiche complète — mécanisme, ancrage réel daté, contre-levier."},
  {s:"#plan", t:"Rien n'est joué avant que vous validiez",
   d:"Les leviers que vous engagez s'empilent ici. Vous pouvez en retirer un à tout moment (× ou Ctrl+Z) et tout remettre à zéro. Pendant ce temps, <b>toutes les valeurs affichées deviennent celles que le plan produirait</b> : jauges, trajectoire, score. Rien ne touche le monde avant « Fin de tour »."},
  {s:"#advPanel", t:"Quelqu'un joue contre vous",
