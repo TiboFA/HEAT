@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAT — interface v2, carte centrale</title>
+<style>
+:root{
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
+  --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --ring:rgba(255,255,255,.10);
+  --s-traj:#3987e5; --s-reel:#199e70; --s-percu:#c98500;
+  --s-base:#9085e9; --s-autres:#d95926;
+  --st-good:#0ca30c; --st-warn:#fab219; --st-crit:#d03b3b;
+  --land:#2f2f2c; --land-hi:#3b3b37;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+ font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1720px;margin:0 auto;padding:18px}
+h1,h2,h3,h4{margin:0;font-weight:600}
+.notice{border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:16px 18px;margin-bottom:14px}
+.notice h1{font-size:19px}
+.notice p{margin:7px 0 0;color:var(--ink-2);max-width:100ch;font-size:13px}
+.switch{display:flex;gap:8px;align-items:center;margin:0 0 14px;flex-wrap:wrap}
+.switch button{appearance:none;border:1px solid var(--ring);background:var(--surface);color:var(--ink-2);
+ padding:8px 15px;border-radius:999px;cursor:pointer;font:inherit;font-weight:600;font-size:13px}
+.switch button[aria-pressed="true"]{background:var(--ink);color:#0b0b0b;border-color:var(--ink)}
+.switch .hint{color:var(--muted);font-size:12px}
+
+.app{border:1px solid var(--ring);border-radius:14px;background:var(--surface);overflow:hidden}
+.topbar{display:flex;align-items:center;gap:16px;padding:11px 15px;border-bottom:1px solid var(--ring);
+ background:var(--surface-2);flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.16em;font-size:13px}
+.turn{color:var(--ink-2);font-size:12.5px}.turn b{color:var(--ink);font-variant-numeric:tabular-nums}
+.diff{display:flex;margin-left:auto;border:1px solid var(--ring);border-radius:8px;overflow:hidden}
+.diff button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:11.5px;
+ font-weight:600;padding:6px 11px;cursor:pointer}
+.diff button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
+.endturn{appearance:none;border:0;border-radius:8px;padding:8px 17px;font:inherit;font-weight:700;
+ cursor:pointer;background:var(--ink);color:#0b0b0b}
+
+/* ---- bandeau evenements ---- */
+.events{display:flex;gap:10px;padding:11px 15px;border-bottom:1px solid var(--ring);
+ background:var(--surface-2);overflow-x:auto}
+.ev{flex:1;min-width:280px;border:1px solid var(--ring);border-left:3px solid var(--st-warn);border-radius:9px;
+ background:var(--surface);padding:9px 11px;display:flex;flex-direction:column;gap:6px}
+.ev.cold{border-left-color:var(--muted)}
+.ev .eh{display:flex;align-items:baseline;gap:8px}
+.ev .eh h4{font-size:12.5px}
+.ev .eh .loc{color:var(--muted);font-size:11px;margin-left:auto;white-space:nowrap}
+.ev p{margin:0;color:var(--ink-2);font-size:11.5px}
+.ev .er{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mini{appearance:none;border:1px solid var(--ring);background:var(--surface-2);color:var(--ink);border-radius:7px;
+ padding:5px 10px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--ink-2)}
+.st{color:var(--muted);font-size:11px}
+
+/* ---- tableau de bord ---- */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ring);border-bottom:1px solid var(--ring)}
+.dcol{background:var(--surface);padding:11px 14px}
+.dcol .ct{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:8px}
+.hero .hv{font-size:29px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.hero .hs{font-size:11px;color:var(--muted);margin-top:3px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:3px 0;font-size:12px}
+.kv .k{color:var(--ink-2)}
+.kv .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv .v small{font-size:10.5px;color:var(--muted);margin-left:2px;font-weight:600}
+.dmg2{margin-top:6px}
+.dmg2 .rl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2);margin-top:5px}
+.dtrack{height:8px;border-radius:4px;background:#2a2a28;overflow:hidden;margin-top:3px}
+.dfill{height:100%;border-radius:4px}
+.dfill.base{background:var(--s-base)}.dfill.autres{background:var(--s-autres)}
+
+/* ---- zone carte + leviers ---- */
+.board{display:grid;grid-template-columns:250px 1fr 250px;gap:1px;background:var(--ring)}
+.side{background:var(--surface);padding:12px;display:flex;flex-direction:column;gap:10px}
+.side .ct{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.mapcol{background:var(--surface);padding:10px 6px;position:relative}
+.mapbox{position:relative;width:100%}
+svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius:10px}
+.bl{fill:var(--land);stroke:#0d0d0d;stroke-width:1.6;transition:fill .12s}
+.bl.on{fill:var(--land-hi)}
+.bl.sel{fill:#4a4a44}
+
+/* ---- jauges sur la carte ---- */
+.gp{position:absolute;transform:translate(-50%,-50%);background:rgba(13,13,13,.82);
+ border:1px solid var(--ring);border-radius:8px;padding:6px 7px 5px;backdrop-filter:blur(2px);cursor:default}
+.gp.hot{border-color:rgba(208,59,59,.75)}
+.gp .gh{display:flex;align-items:baseline;gap:6px;margin-bottom:5px;white-space:nowrap}
+.gp .gh b{font-size:10.5px;font-weight:700}
+.gp .gh span{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bars{display:flex;gap:5px;align-items:flex-end;height:46px}
+.bar{width:10px;height:100%;position:relative;display:flex;align-items:flex-end}
+.bar i{display:block;width:100%;border-radius:2px 2px 0 0}
+.bar.reel i{background:var(--s-reel)}
+.bar.percu i{border:1.5px solid var(--s-percu);border-bottom:0;
+ background:repeating-linear-gradient(135deg,rgba(201,133,0,.32) 0 3px,transparent 3px 6px)}
+.bar.fric i{background:var(--st-warn)}
+.gp.hot .bar.fric i{background:var(--st-crit)}
+.bar .bg{position:absolute;inset:0;background:#2a2a28;border-radius:2px;z-index:-1}
+.blab{display:flex;gap:5px;margin-top:3px}
+.blab span{width:10px;text-align:center;font-size:8.5px;color:var(--muted);font-weight:700}
+.alert{position:absolute;left:0;right:0;bottom:-16px;margin:auto;width:max-content;
+ border:1px solid var(--st-crit);color:var(--st-crit);background:rgba(13,13,13,.92);
+ font-size:8.5px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.04em;white-space:nowrap}
+
+/* ---- cartes leviers ---- */
+.card{border:1px solid var(--ring);border-radius:9px;background:var(--surface-2);padding:10px;
+ display:flex;flex-direction:column;gap:7px;cursor:pointer;position:relative}
+.card:hover{border-color:var(--ink-2)}
+.card .id{font-size:10px;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.card h4{font-size:12.5px;line-height:1.25}
+.card .eff{font-size:11.5px;color:var(--ink-2)}
+.meta{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--ring);color:var(--ink-2)}
+.tag.lat{border-color:rgba(57,135,229,.5);color:#8fbdf2}
+.tag.lat.now{border-color:rgba(12,163,12,.55);color:#5bd15b}
+.tag.lat.slow{border-color:rgba(137,135,129,.6);color:var(--muted)}
+.card .foot{display:flex;justify-content:space-between;border-top:1px solid var(--grid);padding-top:6px;
+ font-size:10.5px;color:var(--muted);gap:6px}
+.trap{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;color:var(--st-warn);
+ border:1px solid rgba(250,178,25,.5);border-radius:4px;padding:1px 5px}
+.actions{margin-top:auto;color:var(--muted);font-size:11px;text-align:center;padding-top:4px}
+
+.mini-panel{border:1px solid var(--ring);border-radius:9px;background:var(--surface-2);padding:10px}
+.drow{display:grid;grid-template-columns:1fr 62px;align-items:center;gap:8px;font-size:11px;color:var(--ink-2);padding:3px 0}
+.dslider{grid-column:1/-1;height:3px;border-radius:2px;background:#2a2a28;position:relative;margin-bottom:3px}
+.dknob{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink-2);
+ transform:translate(-50%,-50%);border:2px solid var(--surface-2)}
+.drow b{color:var(--ink);font-size:10.5px;text-align:right}
+.spark{margin-top:2px}
+.spark svg{display:block;width:100%;height:auto;overflow:visible}
+.slg{display:flex;gap:10px;font-size:10px;color:var(--muted);margin-top:4px}
+.slg i{display:inline-block;width:12px;border-top:2px solid;vertical-align:middle;margin-right:4px}
+
+/* ---- infobulle ---- */
+#tip{position:fixed;z-index:99;pointer-events:none;max-width:300px;background:#000;
+ border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:9px 11px;font-size:11.5px;line-height:1.45;
+ color:var(--ink-2);opacity:0;transition:opacity .1s;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+#tip b{color:var(--ink)}
+#tip .tl{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+[data-tip]{cursor:help}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px 2px;color:var(--muted);font-size:11px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+footer{color:var(--muted);font-size:11.5px;margin-top:18px;padding-bottom:18px;max-width:110ch}
+@media (max-width:1280px){.board{grid-template-columns:1fr}.dash{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="notice">
+  <h1>HEAT — interface v2 : carte centrale</h1>
+  <p>Événements en haut, tableau de bord en colonnes, carte du monde au centre avec trois barres verticales
+     par bloc, leviers de part et d'autre. Survolez les barres, les tuiles et les cartes : toutes les
+     explications passent par des infobulles. Chiffres plausibles, non calculés.</p>
+</div>
+<div class="switch">
+  <button id="bActif" aria-pressed="true">Camp climato-actif</button>
+  <button id="bAtt" aria-pressed="false">Camp climato-attentiste</button>
+  <span class="hint">même écran, deux tableaux de bord</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">HEAT</div>
+    <div class="turn">Tour <b>4</b> / 20 · <b>2021 – 2022</b> · <span id="campName">Climato-actif</span></div>
+    <div class="diff" id="diff"></div>
+    <button class="endturn">Fin de tour</button>
+  </div>
+
+  <div class="events" id="events"></div>
+  <div class="dash" id="dash"></div>
+
+  <div class="board">
+    <div class="side" id="sideL"></div>
+    <div class="mapcol">
+      <div class="mapbox" id="mapbox">
+        <svg class="map" viewBox="150 40 2270 1130" role="img" aria-label="Carte du monde par blocs">
+          <path class="bl" id="p_na" d="M175 212l57 -20,19 -13,-21 6,-2 -5,-15 3,22 -17,-23 7,0 -5,13 -2,-7 -1,3 -4,-4 3,10 -9,44 -12,12 -9,-30 3,-2 -5,6 -1,-7 -3,55 -7,-7 1,3 -4,-8 0,-5 -10,90 -22,-4 5,56 5,14 3,-86 71,12 -1,-2 12,19 -7,-3 25,7 4,-14 11,8 -11,-11 4,8 -4,-4 0,1 -9,8 -10,-7 1,5 -9,-9 10,2 -5,-6 -1,-5 6,-8 -10,5 -4,-28 0,3 -6,-7 3,-5 -3,6 -2,-12 2,5 -4,-16 10,-27 7,15 -13,20 -6,-34 10,-17 12,-57 22,-35 8zM332 353l0 -17,12 -21,27 -29,-4 -2,7 -17,11 2,-7 9,12 -16,186 -3,2 6,29 5,-22 11,25 -4,9 6,17 0,2 4,-22 2,-10 8,-10 27,11 -5,9 -20,14 -10,8 6,-9 12,8 -3,-12 20,5 2,26 -9,5 -6,18 -2,17 -13,23 0,19 -18,10 -2,1 22,-26 10,-10 11,6 5,-32 8,2 -5,-10 19,-6 -2,4 -4,-4 4,0 9,-10 10,8 -21,-6 3,-2 10,-3 -7,-3 5,5 5,-3 -3,0 10,-5 -3,8 3,0 9,0 -6,-1 4,-6 -1,6 3,-10 3,2 7,-42 26,-3 50,-4 7,-4 -2,-8 -18,2 -13,-7 -10,-10 4,-1 -5,-17 0,0 -4,-16 3,4 4,-2 8,-4 -5,-5 4,-17 -9,-14 4,-25 19,2 12,-8 0,-15 -32,-18 5,-15 -22,-34 3,-22 -11,-18 1,-2 -9,-16 -9,-1 -24,4 -6,-5 -2zM363 171l-5 -1,86 -71,23 7,57 -14,3 8,12 -4,-6 5,17 -3,31 7,2 3,-12 4,31 -1,5 3,-1 9,9 -12,16 -5,-20 3,15 -4,19 8,28 0,-5 -3,6 -3,9 2,-10 12,32 -20,-12 -4,4 -6,20 -9,3 13,-10 4,12 1,-6 1,-1 8,13 -7,3 4,-7 11,27 -14,0 -6,19 5,-11 6,-3 10,-15 5,1 -4,-7 0,4 5,-15 -2,3 3,-16 6,-17 -5,20 7,-10 6,-17 5,-18 -5,12 8,-41 21,-10 12,-1 6,10 -3,-8 14,24 0,16 12,-3 3,21 0,-12 23,6 4,-5 6,5 -2,4 5,13 -13,3 -20,26 -11,6 -13,-5 -8,14 -11,-1 -6,10 -13,27 1,5 8,11 3,-13 7,7 1,0 5,-8 4,10 1,-10 7,23 -9,0 4,18 -15,-3 2,6 6,-5 2,5 2,-5 3,6 -1,-6 4,6 -1,-3 5,5 4,-8 1,10 9,-5 6,6 -2,-2 4,6 -3,10 5,-26 6,1 5,22 -8,-1 6,8 -1,-6 8,5 2,-36 18,-40 0,-32 17,-8 -2,8 3,-15 11,29 -17,21 -4,5 4,-21 7,14 2,-7 5,2 7,22 8,-23 7,-16 7,5 -8,18 -6,-10 -1,3 -5,-20 8,1 -19,-6 -1,-19 19,-61 12,-6 3,3 5,-28 8,18 -28,3 5,9 -2,-4 -9,-23 -5,4 -12,-17 -9,-15 8,-26 -4,-5 -7,0 4,-188 -1,1 -10,-6 2,5 -8,-8 4,4 -5,-13 -1,16 -14,-13 5,10 -13,-8 4,-1 -6,6 -1,-5 0,15 -16,-7 -4,3 -25,-19 7,2 -12,-7 2zM557 78l-9 4,8 6,54 -15,9 -2,-3 -4,-37 -2,-22 13zM577 96l14 6,-3 5,45 -7,16 5,9 -5,-9 3,2 -4,17 -4,-11 -4,3 -5,3 -12,-8 -1,-14 11,2 -9,-17 5,7 -3,-19 1,9 -4,-6 -1,-35 12,20 0,-22 4,32 4,-35 3zM680 79l4 2,3 5,19 -4,5 -5,-8 -1,10 -7,-18 1,-5 1,8 2,-17 2,-1 4zM714 143l-3 4,21 -8,14 4,-9 -2,3 -6,-15 -8,-21 17,10 -1zM737 86l13 3,-13 -1,2 6,15 2,35 1,3 -5,10 10,-8 4,16 0,1 10,-6 3,19 4,-14 3,2 -5,-7 -1,-25 11,0 4,-8 -5,-10 5,7 4,23 -3,0 7,6 1,-6 1,13 8,17 4,-9 -13,17 8,4 -9,5 0,-14 -19,26 -1,-9 5,7 6,5 -7,15 -6,-12 -1,6 -4,-11 2,5 -2,-4 1,3 -6,-8 2,3 -3,-6 2,-4 -4,7 0,-13 -3,17 -4,-17 -1,17 -3,-2 -3,-16 3,15 -5,-20 4,11 -7,-13 1,11 -3,-21 0,9 -5,-12 2,9 -4,-10 -3,-10 3,3 3,-7 -5,-10 5,9 -6,-4 -7,-22 4,6 2,-15 6,4 2,-6 6,-9 -1,12 -2,0 -10,14 -8,-24 4,-17 13zM752 53l5 -1,-5 11,55 1,9 -2,-4 -1,7 -2,-6 -3,-45 1,4 -1,-8 -3,11 0,-26 -5,-8 2,11 3zM770 29l9 1,-8 4,23 0,-21 1,10 6,37 -7,-10 -2,6 -2,-18 -8,-28 7zM781 51l44 2,12 -4,-18 -3,4 -2,16 1,27 -9,-18 -1,21 0,-15 -2,77 -12,-27 2,18 -2,-11 -1,41 -4,-66 -3,-29 2,9 4,-23 -3,-38 4,31 2,-24 2,34 -1,-20 3,44 -2,-33 3,11 4,-5 1,-24 -4,7 7,-7 0,16 0,-29 2,-7 4,17 -3,-8 7,16 -4,-11 5,-21 -2,3 3,-14 4zM352 403l18 -1,22 11,34 -3,15 22,17 -5,10 27,14 6,-11 31,8 33,34 1,12 -22,26 -5,-11 29,-1 -5,-7 8,-16 1,-4 4,6 11,-10 -1,-5 14,-16 -16,-14 6,-24 -9,-36 -23,-1 -26,-22 -29,4 -5,-14 -19,-3 -23,-12 -7,-2 14,22 62,-4 2,-13 -16,2 -11,-17 -15,8 3,1 -10,-8 -11,-1 -22zM892 51l2 1,-5 1,8 1,-5 1,14 -2,-8 -4,-6 2zM876 49l9 1,-9 2,5 2,47 2,-3 3,9 5,-8 3,6 -1,2 12,-11 6,8 2,7 -7,-1 5,8 0,-8 2,9 -1,-7 2,5 -1,-4 2,6 1,-5 0,4 4,-20 -2,21 5,-9 10,-15 3,15 -2,-5 2,6 2,-17 -2,6 2,-10 3,14 -3,6 3,-19 0,16 3,-20 0,8 2,-10 6,23 -7,-22 8,9 -1,-9 2,2 3,13 -2,-14 4,7 1,-7 6,10 -7,4 2,0 4,-13 1,10 1,-9 1,5 6,-3 5,7 4,-4 5,7 1,-4 4,20 -3,-8 3,9 0,-4 5,11 1,-4 -5,9 0,-4 -4,10 -5,-2 -6,5 1,-5 -3,13 -3,4 -2,-5 -2,6 0,-4 -4,7 -1,-1 -5,21 -10,5 0,-2 4,14 -3,21 -12,0 -6,12 4,48 -14,-35 -1,13 -2,-15 0,6 -4,16 -2,-15 -2,6 -1,-6 -3,32 12,3 -9,-18 -4,5 -2,-13 -2,13 -1,-14 0,6 -2,-4 -1,36 0,2 -3,-11 -2,4 -3,16 1,-11 -1,3 -3,-8 -1,9 0,-7 -3,14 -1,-14 -6,23 -1,-13 -4,10 -1,-5 -2,-9 2,28 -15,-15 0,22 -3,-24 0,45 -6,-36 0,-24 6,11 -8,-48 2,56 -5,-64 -1,46 -2,-18 -2,-72 2,23 3,-25 -1,13 3,-10 2,-76 0,-41 9,17 0,-13 5,-42 6,28 6,-24 4z"/><path class="bl" id="p_eu" d="M1363 235l4 -6,-3 -8,14 -2,4 -12,9 -4,19 5,14 17,-7 2,3 9,-8 6,-32 -4,-14 3,-3 -6zM1228 245l16 -4,9 10,-6 7,-19 -13zM1438 382l-1 -1,17 -5,-11 9,-5 -3zM1291 251l1 1,19 -7,23 10,-11 10,-13 -3,-5 3,-14 -14zM1360 183l2 -1,-2 -4,12 -3,17 2,-3 15,-20 -3,-6 -6zM1336 103l24 3,9 -9,13 1,-1 10,8 5,-3 6,7 9,2 15,9 8,-19 17,-29 6,1 -5,-11 -2,-3 -16,24 -18,-11 -9,-2 -13,-18 -8zM1269 213l-1 5,8 6,-16 -1,-2 8,-8 15,3 12,12 4,-4 12,37 0,4 -8,-11 -15,19 -9,-5 -17,-9 -8,-13 4,1 -4,-15 -4zM1348 341l6 -10,38 -7,-2 8,-15 0,1 7,-9 -4,-1 13,11 8,-9 4,3 9,-9 -2,-6 -10,14 -3,-14 -1,-8 -12zM1318 280l3 -1,4 -9,30 -4,8 6,-11 13,-18 4,-16 -9zM1146 240l-1 0,3 -4,-5 0,12 -4,-7 0,6 -5,-7 -2,1 -7,10 0,7 -8,4 0,-7 8,11 2,-1 11,-26 9zM1254 295l2 -8,10 -3,4 5,10 -9,22 3,0 8,-10 2,6 13,38 32,-12 -2,3 10,-10 10,4 -7,-4 -10,-32 -21,-11 -15,-15 3,-5 -11zM1346 200l1 1,5 -10,10 5,10 -8,17 7,3 8,-4 3,-42 -6zM1347 203l2 -1,20 -1,13 6,-4 11,-14 3,-2 -8,-12 -3,-3 -7zM1389 268l17 4,7 12,-6 -1,-4 8,-14 -23zM1237 240l2 2,3 -11,13 -6,4 3,-9 20,-13 -8zM1247 161l11 -4,-10 -2,18 -4,-7 -2,23 -4,3 -5,-11 3,17 -9,-7 0,17 -11,-6 1,2 -5,12 -3,-7 0,8 -2,-6 -2,17 -4,-8 -1,11 -7,20 -2,-4 -4,11 2,8 -7,4 1,-4 5,17 -6,1 5,2 -4,13 3,-13 2,13 3,-9 5,-10 -7,-12 10,-23 -4,-26 13,-9 10,-2 15,-11 4,4 17,-8 20,-6 -7,-11 11,-13 2,-6 -7,6 0,-4 -1,4 -4,-8 1,11 -8,-10 3,2 -5,-5 0,16 -6,-15 1zM1318 29l27 5,14 -4,-7 -2,-34 1zM1304 230l2 -4,-2 -5,20 -7,36 4,10 28,-7 16,-26 -3,-28 -13,-5 -16zM1347 286l2 0,16 -16,24 -2,13 25,9 0,-6 14,-39 -1,-19 -20zM1347 315l5 -5,7 6,-8 7,-5 -8zM1324 265l3 -1,13 -7,13 1,7 3,-2 6,-29 5,-5 -7zM1301 288l2 -5,16 -3,3 3,-10 9,-11 0,1 -4zM1284 179l10 -17,-4 -18,11 -5,2 -14,14 -14,17 -4,-1 -4,21 8,4 16,-10 0,-10 16,-15 5,-2 18,11 8,-16 9,2 10,-5 10,-18 6,-11 -30zM1250 286l5 -8,12 -6,13 11,-31 3zM1358 267l12 -21,-4 -5,14 -3,32 5,4 -6,16 -3,14 16,32 7,-1 14,-29 12,-1 5,-9 -3,12 9,9 -1,-21 6,-7 -6,8 -5,-14 -3,5 -3,-5 -4,-11 6,-3 10,-8 -1,4 -10,6 1,-7 -12,-11 -6,-16 6,-21 -5z"/><path class="bl" id="p_ru" d="M1379 104l18 -7,7 1,-6 1,7 5,16 -2,29 11,3 8,-15 4,-37 -8,17 8,4 12,15 5,4 -3,-8 -7,22 5,-7 -7,7 -5,7 -3,11 5,-4 -17,-6 -4,16 3,5 3,-9 4,9 4,36 -16,-1 5,31 -6,6 5,0 -10,49 10,-20 -19,6 -14,9 0,12 5,-2 5,21 21,-1 11,-17 3,19 4,7 -6,1 -14,26 10,-8 -1,-6 -9,-20 -1,-4 -11,-11 -6,6 -5,-3 -5,9 10,22 3,-20 -7,16 -3,21 4,-21 -11,33 -3,-11 -7,29 -8,44 -2,-10 -5,10 -3,19 7,43 4,-7 1,10 4,-27 16,25 -6,-6 -2,64 7,12 0,-3 -5,5 0,29 4,10 6,-8 0,27 11,-1 -7,44 2,-9 -5,5 -3,-5 -2,196 29,6 -2,-14 -8,36 3,68 15,25 11,-13 -7,19 2,18 6,-6 2,6 3,-12 -2,16 10,-60 -15,8 12,-21 -1,20 4,25 16,-18 -4,5 2,-14 6,-6 11,3 4,-12 -6,-11 1,-1 5,-7 -5,-2 5,-8 -1,5 14,12 4,17 24,-7 4,7 10,-9 0,5 6,-2 12,-48 -47,-3 -9,7 -2,1 -19,7 -4,-9 -12,6 0,-15 -1,9 7,-10 8,-10 -10,-16 1,-3 15,10 5,-11 3,-29 -7,2 4,-40 2,-12 35,17 7,1 -4,2 6,5 -3,1 4,-2 -7,7 0,18 10,-4 0,12 10,13 27,-9 45,-9 5,-11 -5,-3 9,-11 -22,13 -3,-6 -26,-20 5,-11 -10,-25 -8,-33 -28,-20 -2,-12 6,8 5,1 16,-6 5,-23 -5,-32 8,-24 -9,-21 1,-14 -10,-24 -6,4 15,-4 5,-37 -9,-27 14,-33 -16,-12 2,-6 -4,-3 4,-33 -30,-19 8,-1 -5,-14 -1,-7 -8,-13 -2,-47 12,9 7,-6 1,2 5,-6 3,13 6,-6 5,-17 -4,-24 1,1 4,-10 -8,-17 -2,-12 9,3 6,-10 -4,-3 17,21 18,-11 5,-3 10,16 24,-7 4,-13 -11,-41 -7,-25 -15,12 -8,-6 -5,10 -4,-7 -2,8 -4,1 -15,-32 -8,-14 -15,-11 2,-5 -8,9 -3,-14 -17,-17 -4,-5 -7,-1 -22,13 -2,-15 -5,19 -18,-10 -7,3 -4,-11 -19,3 -7,-10 -9zM1524 543l-28 -41,-5 -20,-26 -37,-6 -3,1 -11,9 1,14 -11,-9 -9,25 -3,31 21,29 8,37 48,18 2,4 5,-4 19,-43 12,-14 14,-28 -5,-4 10zM1586 475l1 0,19 1,13 -17,2 10,-9 20,-18 -4,-8 -10zM1593 519l22 -7,3 -43,30 21,-13 31,-19 17,-14 2,-9 -21zM1603 540l-4 -5,-6 -15,-21 3,-15 15,-27 -5,-6 20,7 22,59 -22,13 -13zM1511 329l11 -2,14 18,-3 3,-19 -10,-3 -9zM1484 310l10 0,36 12,4 6,-20 1,-17 -3,-1 -10,-12 -6zM1459 398l3 -7,4 -6,2 7,-9 6z"/><path class="bl" id="p_cn" d="M1726 343l6 -9,11 1,22 -14,2 -9,-11 -16,16 -2,-1 -15,17 -1,-3 -11,7 -6,27 13,13 20,31 8,14 13,37 2,26 8,29 -8,11 -10,-6 -6,2 -6,12 3,18 -15,14 -1,-13 -11,-21 -2,0 -14,15 -2,-3 -19,-6 -3,21 -6,18 6,25 22,27 10,10 10,18 -6,6 8,2 20,-12 2,10 22,-9 -6,1 5,-9 4,4 4,-13 -2,-22 24,-5 0,4 -4,-6 -1,4 -8,-5 -5,-12 14,-9 2,0 4,15 12,10 -5,16 4,-1 5,-14 5,-1 13,28 26,-18 -5,20 12,-10 6,11 2,4 1,-4 3,3 7,-4 -1,5 4,-7 2,2 6,-9 11,5 7,-20 21,-18 4,-4 -5,2 7,-3 -3,-1 6,-18 5,2 8,-4 1,-5 -12,-16 1,-18 -16,-9 8,-16 0,2 11,-6 -5,-7 3,-7 -6,-6 -17,-9 2,0 -12,5 -5,-8 -20,-13 -2,-4 -9,-12 2,-13 12,-20 -3,-5 7,-1 -5,-21 0,-33 -21,-7 1,-19 -10,-4 -10,7 -1,-7 -14,-38 -25,0 -11,-8 -2,-2 -7z"/><path class="bl" id="p_in" d="M1711 479l3 -2,18 -4,-15 -21,6 -10,12 -2,15 -24,-3 -6,5 -4,-11 -9,-2 -13,19 0,6 -6,17 20,0 5,-7 0,6 11,18 9,-5 12,24 12,37 9,0 -13,4 -1,7 10,19 0,-3 -8,18 -13,10 -1,4 9,8 2,1 9,-14 5,-4 23,-6 -1,-3 17,-5 -14,-4 6,-4 -6,8 -11,-20 -5,-12 -10,10 43,-3 -4,-2 5,-4 -7,-9 21,-7 1,-20 27,-15 9,0 46,-5 5,3 5,-8 1,-6 8,-10 -10,-27 -62,-9 -42,3 -4,-6 -5,-2 11,-9 3,-13 -12,9 -9,-6 4,-11 -9zM1650 426l24 4,16 -4,1 -10,17 -5,4 -21,7 -1,0 -20,29 -2,4 8,13 3,-12 7,-14 -1,3 14,11 7,-3 11,-16 25,-16 9,13 20,-21 9,-13 -15,-33 3,-3 -1,10 -17,-21 -23zM1793 434l9 -13,29 18,23 4,2 12,-11 0,-52 -21z"/><path class="bl" id="p_as" d="M2152 391l23 -7,7 1,6 10,6 -7,-3 -6,15 3,4 -8,2 6,5 -7,-9 -19,-1 -18,-11 -12,-4 -1,4 5,-7 -3,7 22,-3 12,-8 4,0 -6,-4 2,2 14,-24 2,-7 13zM2164 394l-2 2,9 6,0 -6,7 1,0 -9,-4 -1,-10 7zM2107 358l1 1,8 -8,18 22,0 8,-15 7,-12 -30zM2082 338l10 -14,11 1,-3 -3,9 -4,-1 -5,9 6,-1 13,-9 13,9 7,-18 7,-6 -4,5 -4,-5 -9,-10 -4zM2098 762l4 -3,6 0,-8 -4,-1 5,-9 -1,1 4,7 -1zM2193 715l5 2,-1 -6,-7 -2,-12 6,2 -3,13 3zM1934 524l4 -10,17 -6,8 12,1 13,6 -6,13 -1,16 23,0 11,-16 1,-6 6,6 17,-16 -9,0 -7,-8 2,-3 34,5 2,4 15,12 8,-5 7,-21 -22,6 -32,-13 -28,4 -12,-14 -18zM1966 491l13 -1,9 -8,24 17,-11 4,-5 16,29 33,6 24,-3 11,-12 8,-4 -3,0 8,-4 -4,3 6,-5 -4,3 5,-7 6,-3 1,1 -11,-5 -5,13 -3,-3 -6,12 -7,-4 -32,-29 -28,6 -7,-4 -4,-13 -5,-8 -11zM1964 629l1 -2,8 8,9 -3,7 8,8 31,-6 2,-16 -13,-11 -31zM2094 610l-1 3,17 -18,-1 -9,-15 24zM2106 545l11 14,-2 6,9 -1,7 6,-2 -6,12 11,0 -9,-17 -3,-4 -12,6 -15,-5 -11,-11 -1,1 21,-5 0zM2130 623l14 -5,3 11,10 7,3 -15,3 9,2 -7,-4 -17,-6 -6,1 7,-13 9,-3 -7,-10 14zM1892 501l6 -11,0 -13,6 1,4 -24,14 -4,0 -12,13 19,-5 21,9 -2,6 18,7 5,7 -3,-6 13,-15 5,-4 10,14 18,-4 11,14 29,-7 16,1 -15,-13 -42,-7 -7,-10 15,-6 -2,1 -5,-3 4,-6 -29,-16 -16zM1796 261l24 -15,38 9,-1 -19,38 16,21 -1,20 8,14 1,18 -9,18 4,4 18,14 -3,17 10,-20 5,-14 13,-13 -2,6 11,-11 10,-30 8,-26 -8,-36 -2,-12 -12,-32 -8,-14 -21,-23 -13zM1522 265l2 -15,8 5,0 -7,12 -9,19 3,8 7,-1 -4,46 1,-12 -8,6 -4,-2 -5,7 -1,-10 -7,47 -12,14 2,6 8,14 1,1 5,19 -8,33 30,2 -4,18 2,34 16,-8 7,0 11,-13 -2,2 17,-18 2,10 13,0 12,-45 -10,-2 7,-17 -3,-13 18,-16 -5,-15 -20,-25 -2,-19 -21,1 4,-23 7,7 31,-19 -8,-7 5,0 -8,-19 -17,8 1,-4 -2,4 -6,10 1,-5 -13,-24 4,-21 -19zM1696 338l23 -7,-22 -5,8 -11,14 3,2 -7,45 10,-26 15,-8 -2,-5 9,-31 0,0 -5zM1682 345l2 -3,16 -12,6 7,-10 5,30 1,14 19,-19 3,-11 -13,-19 13,-1 -12,-8 -8zM1389 332l2 -2,4 -9,14 9,-9 0,-9 8,4 -5,-6 -1zM1390 343l4 -8,22 -3,-3 -4,38 -7,25 10,30 -5,16 16,-5 2,8 18,-3 3,-10 -4,-45 6,-2 8,-3 -9,-19 6,-15 -6,-9 6,-10 -6,-8 1,6 -3,-7 1,-1 -9,-6 -3,5 -1,-2 -9,-6 0zM2039 976l5 -4,4 -35,-6 -25,3 -6,4 6,-2 -16,9 -23,-1 6,22 -16,32 -8,21 -28,3 10,2 -12,9 2,-2 -8,6 0,8 -13,11 1,2 12,10 -6,3 3,-1 -7,11 -17,16 -2,-4 -9,16 8,13 -3,1 6,4 -5,-1 10,-11 16,30 24,8 -2,21 -57,5 31,11 5,1 35,16 11,3 19,7 0,-1 8,12 22,-3 20,-14 26,-48 54,-33 14,-2 -7,-6 0,4 -4,-14 8,-14 -3,-6 -10,4 -16,-10 2,6 -13,-13 10,16 -24,-22 22,-4 -4,0 -18,-18 -9,-38 7,-26 14,-25 0,-19 10,-18 -6,3 -6zM2342 1082l2 -1,7 6,10 -1,40 -22,27 -24,-10 1,4 -6,-8 3,-72 44zM2274 764l4 -57,25 11,10 13,12 5,3 6,-6 1,1 6,18 22,7 2,-24 -1,-11 -18,-11 -4,-17 6,6 7,-4 2,-13 -1zM2336 736l2 2,10 1,13 -8,2 -10,-11 11,-19 0,3 4z"/><path class="bl" id="p_af" d="M1139 448l6 -16,18 -7,19 -17,13 -1,-6 -26,9 -5,30 -10,39 -1,-7 29,10 13,6 24,-3 25,6 16,12 10,-46 34,-20 3,1 -6,-87 -65zM1351 899l1 -24,7 0,1 -32,17 -2,2 4,13 -6,20 32,10 5,-28 29,-21 -1,-11 13,-6 0,-5 -18zM1159 594l1 -4,11 -22,4 3,23 -16,21 26,-12 9,-28 -1,1 14,-21 -9zM1422 708l3 1,10 -4,1 5,-9 13,-5 -15zM1266 643l11 -19,10 5,11 -21,14 -23,-4 -14,7 9,5 18,-12 1,11 19,-7 21,11 20,0 11,-44 -4,-4 -17,-9 -6zM1294 734l7 -10,9 -2,3 4,11 -16,11 -20,11 -48,26 7,4 -6,19 -5,30 7,11 9,4 12,-10 11,-8 28,2 32,10 19,-13 2,-4 7,0 21,10 4,0 11,-33 -19,-24 0,-3 -33,-9 -5,-8 1,-2 9,-13 0,-10 -19,-31 0zM1519 589l0 -7,9 -7,2 5,-6 5,4 3,-9 1zM1477 554l4 -17,11 -8,10 25,26 21,-6 2,-10 -13,-15 -6,-9 -2,-2 7,-8 0,-1 -9zM1452 616l1 -3,7 -2,2 -17,15 -31,9 0,2 -7,22 6,8 9,1 15,8 3,5 14,34 12,-21 26,-26 9,-10 -1,-6 6,-26 -9,-11 -19,-14 -11zM1461 694l6 -7,-7 -4,8 -16,-6 -21,13 -1,28 10,8 -7,9 2,-6 12,4 38,-17 25,-40 -31zM1113 625l2 -3,7 -11,6 1,0 9,7 -3,0 10,9 7,-1 12,-30 -22zM1272 425l2 -2,14 -25,26 6,5 8,25 11,7 -7,-1 -8,8 -7,27 7,4 104,-7 0,0 4,-60 -34,-13 7,-30 -17,-6 -15,-1 -32zM1525 876l8 27,19 -1,24 -71,2 -13,2 4,3 -4,-9 -28,-10 13,0 9,-11 11,-16 2,-4 13,3 20,-11 18zM1449 803l2 -4,5 -7,-4 -26,7 3,0 22,13 24,-4 18,-7 -9,1 -14,-13 -7zM1108 557l4 -1,1 -5,46 -1,-5 -82,13 0,59 45,1 7,7 -1,-3 29,-36 7,-20 16,-4 -3,-16 28,-2 -4,-13 5,-8 -20,-18 2,-6 -22zM1074 505l0 -4,30 -1,2 -15,6 -3,2 -22,24 0,1 -11,28 19,-13 0,6 79,-41 7,-6 -4,-5 7,-15 -16,-16 5,3 -34,-6 -7zM1106 445l25 -18,6 -24,16 -11,9 -14,4 -4,26 10,3 23,-13 1,-17 16,-18 6,-8 15,-33 0zM1430 814l16 -6,16 2,-1 15,7 7,5 -21,-8 -9,1 -17,13 1,28 -10,3 35,-8 16,-41 27,6 37,-23 19,2 7,-5 0,-5 -39,13 -20,1 -29,-18 -6,-2 -9zM1290 834l102 4,-13 7,-3 -5,-16 3,-1 32,-7 0,-1 54,-6 6,-16 -8,-6 4,-8 -14,-4 -36,-21 -47zM1203 560l0 -5,25 -4,9 -33,53 -36,24 4,8 22,-4 30,-15 22,1 6,-7 4,-25 4,-29 -9,-9 2,-6 16,-6 -6,-3 4,-16 -21zM1421 706l2 -4,11 -8,2 9,-9 6,-6 -3zM1325 932l2 -2,18 5,6 -5,0 -31,5 18,8 0,9 -13,19 3,27 -30,18 3,3 30,-5 -2,-4 8,15 1,-3 11,-30 37,-22 14,-45 6,-8 -3,-1 -17,-12 -33zM1428 731l-1 -8,9 -10,-2 -20,10 0,-1 16,4 -5,4 6,10 -16,39 32,-4 10,12 40,-22 10,-20 -1,-6 -18,-22 -8,-10 -28zM1368 824l0 -24,15 -3,0 -18,26 9,17 13,1 -11,-7 0,-3 -8,4 -24,13 -2,18 10,5 9,-5 31,-22 8,1 6,-7 1,-22 20,-24 -4,-10 -13z"/><path class="bl" id="p_la" d="M637 750l7 -21,23 -10,3 -24,-5 -15,7 -2,-6 -8,18 -3,16 12,16 -13,-10 -18,15 6,16 -15,5 1,4 10,-2 19,8 5,26 -11,18 2,11 -18,12 28,-21 23,13 -5,4 8,9 -1,-2 7,16 -17,15 6,8 8,-2 9,5 -7,-1 3,30 0,39 24,3 21,-26 43,-3 -2,0 41,-11 39,-7 9,-20 1,-28 19,4 28,-19 31,8 -15,-6 -4,-9 32,-5 -13,-32 -17,24 -31,-8 -9,1 -13,-10 -5,-4 -10,-16 -3,-1 -35,-6 -14,-14 -1,-5 -21,-34 -15,-5 -21,-23 13,-14 -1,-2 -14,-12 5,-15 -21zM689 938l7 -19,-4 -20,9 -7,-1 -10,6 -9,16 10,2 -8,8 0,15 15,26 12,-3 19,12 1,9 0,6 -15,7 2,1 11,-13 9,-12 19,1 33,19 21,-5 14,-31 4,6 16,-20 3,5 10,7 0,4 6,-8 -2,4 3,-3 17,-10 7,18 18,-8 18,-6 0,4 1,-2 12,11 7,-25 -4,-20 -20,3 -20,-4 -17,-6 -3,6 -2,-13 -15,-5 -18,-3 -56,-11 -26,1 -17zM671 843l4 -5,6 3,5 21,15 24,-9 13,5 19,-7 13,-2 24,10 19,-1 30,6 15,3 31,14 19,-5 3,9 20,-2 21,19 19,24 3,-14 3,3 8,-3 1,-7 -3,4 1,0 -7,-6 3,3 4,-8 -3,10 -4,-14 0,-3 -6,9 4,-2 -4,-6 -5,5 3,-5 -1,2 5,-11 -10,2 -5,-8 -2,6 1,-5 -3,3 -2,-12 -14,9 0,-11 -3,4 1,-1 -6,-9 -5,-4 3,4 -5,-3 -3,10 6,3 -10,-4 -1,3 -8,-5 -2,-3 -23,-8 1,-13 -38,5 -30,-7 -27,1 -45,-8 -61zM756 1143l-1 -3,10 -3,9 19,-22 -2,11 -1,-6 -3,13 2,-14 -9zM597 671l15 -20,-5 -29,5 -13,3 7,10 -16,7 -12,28 -10,-18 27,10 19,34 9,-4 27,8 14,-5 -8,-18 3,0 6,5 2,-7 4,5 12,-4 28,-5 -3,2 -12,-21 -1,-15 -20,-17 -4,-13 -10zM580 723l7 -9,1 8,10 4,6 -14,22 -19,-4 -7,8 2,12 17,22 1,-3 11,5 4,-17 5,-12 23,7 17,8 5,12 -5,0 13,9 1,6 11,-1 25,-5 3,7 10,-8 14,-38 -24,-10 -12,-30 -58,-13 -12,-1 -14zM642 605l4 -7,13 -16,-6 19,4 5,0 -15,14 -6,-1 -6,13 15,22 3,25 -5,-9 5,16 5,-6 8,14 3,-13 21,5 9,-18 10,-13 -5,10 16,-16 15,-10 -5,-8 -13,4 -29,-35 -9,-9 -18zM582 704l6 -26,10 -6,27 14,1 7,-11 14,-11 5,-8 16,-10 -9,5 -17,-4 6,-5 -4zM672 779l8 1,23 -12,5 20,34 16,3 11,2 9,14 2,5 10,-1 23,-8 -7,-16 2,-7 23,-8 -2,-4 7,-15 -9,-11 9,-20 -48,7 -8,-6 -7,2 -27,-7 -13zM732 633l12 -22,6 4,3 14,3 -4,9 8,-7 16,11 19,-19 6,-5 -5,1 -19,-4 -11,-10 -6zM760 654l-2 -11,5 -2,5 -8,18 1,2 21,-4 10,-15 3,-9 -14zM567 495l15 -9,24 1,37 24,-25 2,4 -8,-31 -16,-24 6zM644 523l4 1,9 0,-6 -11,7 0,5 2,-2 14,-15 -1,-2 -5z"/>
+        </svg>
+      </div>
+      <div class="legend">
+        <span data-tip="<b>Soutien réel</b><br>Lent, difficile à déplacer. Détermine ce qui tiendra dans le temps."><i style="background:var(--s-reel)"></i>Réel</span>
+        <span data-tip="<b>Soutien perçu</b><br>Volatile. Détermine ce que les décideurs osent faire ce tour-ci.<br>Écart réel/perçu documenté : 69 % contre 43 % (Andre et al., 2024)."><i style="background:var(--s-percu)"></i>Perçu</span>
+        <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure contraignante non compensée.<br>Au-delà du seuil : retour de flamme, des mesures antérieures sont annulées."><i style="background:var(--st-warn)"></i>Friction</span>
+        <span style="margin-left:auto">Survolez n'importe quel élément pour l'explication</span>
+      </div>
+    </div>
+    <div class="side" id="sideR"></div>
+  </div>
+</div>
+
+<footer>
+  Carte simplifiée à partir de contours Natural Earth, agrégée en huit blocs. Palette validée pour le mode
+  sombre : bande de luminosité, plancher de chroma, séparation daltonisme et contraste. Les barres se
+  distinguent aussi par leur remplissage — plein, hachuré, plein — et par leur libellé, jamais par la seule couleur.
+</footer>
+</div>
+<div id="tip"></div>
+<script>
+const PCT = [{k:"na",nom:"Amérique du Nord",em:"13 %",x:17.0,y:27.0,reel:58,percu:39,fr:34,sel:false},{k:"eu",nom:"Europe",em:"6 %",x:51.8,y:18.5,reel:71,percu:52,fr:62,sel:true},{k:"ru",nom:"Golfe & Russie",em:"9 %",x:73.5,y:10.5,reel:41,percu:24,fr:11,sel:false},{k:"cn",nom:"Chine",em:"32 %",x:80.5,y:30.5,reel:64,percu:47,fr:18,sel:false},{k:"in",nom:"Inde",em:"8 %",x:71.5,y:40.0,reel:69,percu:41,fr:22,sel:false},{k:"as",nom:"Reste de l'Asie",em:"14 %",x:86.0,y:58.0,reel:66,percu:44,fr:27,sel:false},{k:"af",nom:"Afrique",em:"4 %",x:49.0,y:47.0,reel:74,percu:46,fr:19,sel:false},{k:"la",nom:"Amérique latine",em:"5 %",x:28.0,y:65.0,reel:70,percu:48,fr:31,sel:false}];
+
+/* ================= infobulles ================= */
+const tip=document.getElementById('tip');
+function bindTips(root=document){
+  root.querySelectorAll('[data-tip]').forEach(el=>{
+    if(el._tb) return; el._tb=1;
+    el.addEventListener('mouseenter',()=>{tip.innerHTML=el.dataset.tip;tip.style.opacity=1;});
+    el.addEventListener('mousemove',e=>{
+      const w=tip.offsetWidth,h=tip.offsetHeight;
+      let x=e.clientX+14,y=e.clientY+14;
+      if(x+w>innerWidth-8)x=e.clientX-w-14;
+      if(y+h>innerHeight-8)y=e.clientY-h-14;
+      tip.style.left=x+'px';tip.style.top=y+'px';
+    });
+    el.addEventListener('mouseleave',()=>tip.style.opacity=0);
+  });
+}
+
+/* ================= données ================= */
+const EVENTS=[
+ {t:"Dôme de chaleur",loc:"Amérique du Nord",p:"Records battus sur la côte ouest. <b>Effet sur l'opinion : nul par défaut.</b>",
+  tip:"<b>Règle d'attribution</b><br>Un événement extrême ne déplace aucune jauge tant qu'il n'est pas attribué au changement climatique.<br>Les méta-analyses trouvent un effet positif mais faible, modéré par l'appartenance politique et par l'attribution.",hot:true},
+ {t:"Prix du gaz +38 %",loc:"Europe",p:"Tension sur l'approvisionnement. Toute mesure non compensée coûte double ce tour-ci.",
+  tip:"<b>Fenêtre pour le camp attentiste</b><br>Le coût de la vie est son levier le plus puissant depuis 2022.<br>La carte A31 (redistribution) neutralise la friction si elle est jouée avant.",hot:true},
+ {t:"Coût du solaire −9 %",loc:"Mondial",p:"La courbe d'apprentissage joue. Les leviers de déploiement coûtent moins cher au prochain tour.",
+  tip:"<b>Courbe d'apprentissage</b><br>Le coût baisse en fonction du volume cumulé déployé, pas du temps.<br>Réel : −88 % sur le solaire utilitaire depuis 2010 (IRENA).",hot:false}
+];
+
+const CAMPS={
+ actif:{nom:"Climato-actif",
+  dash:[
+   {t:"Votre position",hero:["0,42 °C","réchauffement évité par rapport à la trajectoire sans vous"],
+    tip:"<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Repère réel : 3,6 °C projetés en 2015, 2,6 °C en 2025."},
+   {t:"Vos moyens",kv:[["Capital politique","41",""],["Capital","28","Md$"],["Attention","3 / 5",""],["Crédibilité","72",""]],
+    tip:"<b>Ressources non convertibles</b><br>C'est la non-convertibilité qui fait la décision.<br>37 de vos 69 leviers consomment du capital politique — l'attentiste, lui, n'a presque jamais besoin de faire voter."},
+   {t:"Vos acquis",kv:[["Mesures en vigueur","14",""],["Verrous irréversibles","3",""],["Blocs sous contrainte","5 / 8",""],["Décès évités (charbon)","310 000",""]],
+    tip:"<b>Verrous irréversibles</b><br>Vos irréversibles sont juridiques et institutionnels : cours régionales, avis de la CIJ, accord transpartisan, protocole sectoriel.<br>Ceux de l'adversaire sont du béton et des contrats."},
+   {t:"Le monde",kv:[["Réchauffement","1,41","°C"],["Décès liés à la chaleur","2,4","M"],["Pertes assurées","118","Md$"],["Heures de travail perdues","680","Md h"]],
+    tip:"<b>Compteurs partagés</b><br>Identiques pour les deux joueurs, toujours visibles.<br>Repères réels 2024-2025 : 546 000 décès liés à la chaleur par an, 640 Md d'heures perdues, 107 Md$ de pertes assurées."}
+  ],
+  cards:[
+   {id:"A49",n:"Attribution rapide",eff:"Convertit un événement du tour en gain d'opinion. Déplace surtout la jauge perçue.",
+    cost:"1 Attention",lat:"Immédiat",latc:"now",port:"Bloc",contre:"T36",
+    tip:"<b>A49 — Attribution rapide</b><br>Ancrage : World Weather Attribution, études publiées en quelques jours depuis 2015.<br>Contré par T36 (saturation de l'attention).<br>Robustesse des preuves : élevée."},
+   {id:"A31",n:"Redistribution du produit de la taxe",eff:"Annule la friction d'une mesure de tarification. Coûte cher, ne rapporte aucun point.",
+    cost:"3 Capital",lat:"Immédiat",latc:"now",port:"Bloc",contre:"T39",
+    tip:"<b>A31 — Redistribution</b><br>Ancrage : dividende carbone canadien ; absence de redistribution visible dans le cas français de 2018.<br>Carte ennuyeuse et décisive : sans elle, la tarification ne survit pas à T39."},
+   {id:"A18",n:"Subvention massive au déploiement",eff:"Fait baisser le coût mondial. Bénéficie à tous les blocs, y compris ceux qui n'ont rien payé.",
+    cost:"5 Capital",lat:"> 5 tours",latc:"slow",port:"Mondial",contre:"—",
+    tip:"<b>A18 — Subvention au déploiement</b><br>Ancrage : EEG allemand 2000-2015, environ 200 Md€, amorce de la chute mondiale du prix du photovoltaïque.<br>Passager clandestin inversé : vous payez, tout le monde en profite."},
+   {id:"P01",n:"Compensation carbone volontaire",eff:"Semble neutraliser vos émissions résiduelles et libère du capital politique ce tour-ci.",
+    cost:"1 Capital",lat:"Immédiat",latc:"now",port:"Mondial",contre:"A15",trap:true,
+    tip:"<b>P01 — Piège</b><br>Effet climatique réel très inférieur à l'affiché.<br>Ancrage : revue de 25 ans de projets, majorité jugée non additionnelle ; marché volontaire en chute de plus de 60 %.<br>Signalé au niveau Découverte uniquement."}
+  ]},
+ att:{nom:"Climato-attentiste",
+  dash:[
+   {t:"Votre position",hero:["1 840 Md$","valeur d'actifs préservée, dont 610 verrouillés jusqu'en 2045"],
+    tip:"<b>Ce que vous préservez</b><br>Votre objectif n'est pas « que rien ne change » : c'est de préserver la valeur des actifs et d'éviter les coûts d'ajustement.<br>C'est ce que poursuivent réellement les acteurs concernés."},
+   {t:"Vos moyens",kv:[["Capital","96","Md$"],["Attention","4 / 5",""],["Capital politique","12",""],["Crédibilité","54",""]],
+    tip:"<b>Vous n'avez presque pas besoin de capital politique</b><br>45 de vos 53 leviers consomment du capital ou de l'attention.<br>Vous n'avez à faire voter à peu près rien : il suffit de bloquer."},
+   {t:"Vos acquis",kv:[["Mesures évitées","9",""],["Années de report gagnées","6",""],["Juridictions non contraintes","3 / 8",""],["Rentes distribuées","128","Md$"]],
+    tip:"<b>Années de report</b><br>Votre ressource la plus rentable. Chaque année gagnée est du capital qui continue de produire.<br>Mais elle est empruntée, pas gagnée — voir les dommages."},
+   {t:"Dommages subis",dmg:{base:17,autres:63},
+    tip:"<b>Le découplage</b><br>Votre base s'adapte : climatisation, assurance, irrigation, relocalisation.<br>Repères réels : le 1 % le plus riche émet 75,1 tCO2/an contre 2,1 t « équitables » et épuise sa part annuelle le 10 janvier (Oxfam, 2026).<br>Au-delà de 40, le retrait assurantiel atteint vos propres implantations."}
+  ],
+  cards:[
+   {id:"T39",n:"Instrumentalisation du coût de la vie",eff:"Convertit toute mesure non compensée en friction maximale. Sans effet si A31 a été jouée.",
+    cost:"2 Attention",lat:"Immédiat",latc:"now",port:"Bloc",contre:"A31",
+    tip:"<b>T39 — Coût de la vie</b><br>Votre levier numéro un depuis 2022.<br>Ancrage : crise énergétique de 2022, retournement du discours sur le Pacte vert.<br>Puissance réelle 5 / 5, coût 2 / 5."},
+   {id:"T43",n:"Verrouillage d'infrastructure anticipé",eff:"Construit avant l'arrivée de la règle. Verrouille 20 à 40 ans d'émissions. Irréversible.",
+    cost:"5 Capital",lat:"Immédiat",latc:"now",port:"Bloc",contre:"A05",
+    tip:"<b>T43 — Verrouillage</b><br>Le principal irréversible de votre camp, et l'un des quatre seulement.<br>Ancrage : vague de terminaux GNL lancés avant durcissement réglementaire.<br>Ce que vous coulez ne se déverrouille pas."},
+   {id:"T36",n:"Saturation de l'attention",eff:"Monopolise l'actualité ce tour-ci. Aucune attribution d'événement n'est possible.",
+    cost:"3 Capital",lat:"Immédiat",latc:"now",port:"Bloc",contre:"A49",
+    tip:"<b>T36 — Saturation</b><br>Contre direct de A49. Vous ne niez rien, vous occupez l'espace.<br>Ancrage : décalage systématique des annonces sensibles vers les périodes de forte actualité."},
+   {id:"T22",n:"Exemption sectorielle",eff:"La mesure adverse passe, votre secteur clé en sort. Difficile à annuler une fois au texte.",
+    cost:"3 Capital",lat:"1-2 tours",latc:"",port:"Bloc",contre:"A02",
+    tip:"<b>T22 — Exemption sectorielle</b><br>Puissance réelle 5 / 5.<br>Ancrage : aviation et maritime longtemps hors ETS ; dérogations agricoles obtenues en 2024.<br>Le vote a lieu, l'effet vous épargne."}
+  ]}
+};
+
+const DOCTRINE=`
+ <div class="ct" style="margin-top:4px">Doctrine — couche 2</div>
+ <div class="mini-panel" data-tip="<b>Doctrine</b><br>Réglages persistants, modifiés rarement, entre deux tours.<br>Ils orientent l'effet de toutes vos cartes sans consommer d'action.">
+   <div class="drow"><span>Contrainte ↔ incitation</span><b>incitation</b><div class="dslider"><div class="dknob" style="left:38%"></div></div></div>
+   <div class="drow"><span>Compensation sociale</span><b>élevée</b><div class="dslider"><div class="dknob" style="left:71%"></div></div></div>
+   <div class="drow"><span>Priorité géographique</span><b>blocs riches</b><div class="dslider"><div class="dknob" style="left:24%"></div></div></div>
+   <div class="drow"><span>Horizon assumé</span><b>2040</b><div class="dslider"><div class="dknob" style="left:60%"></div></div></div>
+ </div>`;
+
+const YRS=[2015,2020,2025,2040,2060,2100], REEL=[3.6,2.93,2.6,null,null,null], PART=[3.6,2.93,2.5,2.2,2.1,2.06];
+function sparkSVG(){
+  const W=224,H=96,L=26,R=6,T=8,B=16;
+  const x=i=>L+(W-L-R)*(i/(YRS.length-1)), y=v=>T+(H-T-B)*(1-(v-1.9)/(3.8-1.9));
+  const path=a=>a.map((v,i)=>v==null?null:`${i&&a[i-1]!=null?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).filter(Boolean).join(' ');
+  let g='';
+  [2.0,2.6,3.2].forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`
+    +`<text x="${L-4}" y="${y(v)+3}" fill="var(--muted)" font-size="7.5" text-anchor="end">${v.toFixed(1)}</text>`;});
+  g+=`<path d="${path(REEL)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>`;
+  g+=`<path d="${path(PART)}" fill="none" stroke="var(--surface-2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g+=`<path d="${path(PART)}" fill="none" stroke="var(--s-traj)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g+=`<circle cx="${x(2)}" cy="${y(2.6)}" r="3.2" fill="var(--muted)"/>`;
+  g+=`<circle cx="${x(5)}" cy="${y(2.06)}" r="3.2" fill="var(--s-traj)"/>`;
+  g+=`<text x="${L}" y="${H-4}" fill="var(--muted)" font-size="7.5">2015</text>`;
+  g+=`<text x="${W-R}" y="${H-4}" fill="var(--muted)" font-size="7.5" text-anchor="end">2100</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+const SPARK=`
+ <div class="ct" style="margin-top:4px">Trajectoire 2100</div>
+ <div class="mini-panel spark" data-tip="<b>La ligne fantôme</b><br>Le gris pointillé est le monde réel : 3,6 °C projetés en 2015, 2,6 °C en 2025 (Climate Action Tracker).<br>Vous ne jouez pas contre un objectif abstrait, vous jouez contre ce qui s'est réellement passé.">
+   ${sparkSVG()}
+   <div class="slg"><span><i style="border-color:var(--s-traj)"></i>Votre partie 2,06</span><span><i style="border-color:var(--muted);border-top-style:dashed"></i>Monde réel 2,6</span></div>
+ </div>`;
+
+let LEVEL=1, CAMP="actif";
+const LEVELS=[[1,"Découverte"],[2,"Standard"],[3,"Réaliste"],[4,"Expert"]];
+const $=s=>document.querySelector(s);
+
+/* ================= carte + jauges ================= */
+function renderMap(){
+  const box=$("#mapbox");
+  box.querySelectorAll(".gp").forEach(e=>e.remove());
+  PCT.forEach(b=>{
+    const hot=b.fr>55;
+    const d=document.createElement("div");
+    d.className="gp"+(hot?" hot":"");
+    d.style.left=b.x+"%"; d.style.top=b.y+"%";
+    d.innerHTML=`${hot?'<span class="alert">⚠ RETOUR DE FLAMME</span>':''}
+      <div class="gh"><b>${b.nom}</b><span>${b.em}</span></div>
+      <div class="bars">
+        <div class="bar reel" data-tip="<b>${b.nom} — soutien réel</b><br><div class='tl'><span>Valeur</span><b>${b.reel} / 100</b></div>Lent à déplacer, insensible aux campagnes adverses. Détermine ce qui tiendra."><span class="bg"></span><i style="height:${b.reel}%"></i></div>
+        <div class="bar percu" data-tip="<b>${b.nom} — soutien perçu</b><br><div class='tl'><span>Valeur</span><b>${b.percu} / 100</b></div><div class='tl'><span>Écart au réel</span><b>−${b.reel-b.percu}</b></div>Volatile. C'est lui qui détermine ce que les décideurs osent faire."><span class="bg"></span><i style="height:${b.percu}%"></i></div>
+        <div class="bar fric" data-tip="<b>${b.nom} — friction</b><br><div class='tl'><span>Valeur</span><b>${b.fr} / 100</b></div>${hot?"<b style='color:#d03b3b'>Seuil dépassé :</b> au prochain tour, une à trois mesures antérieures peuvent être annulées.":"S'accumule à chaque mesure contraignante non compensée."}"><span class="bg"></span><i style="height:${b.fr}%"></i></div>
+      </div>
+      <div class="blab"><span>R</span><span>P</span><span>F</span></div>`;
+    d.addEventListener("mouseenter",()=>document.getElementById("p_"+b.k).classList.add("on"));
+    d.addEventListener("mouseleave",()=>document.getElementById("p_"+b.k).classList.remove("on"));
+    box.appendChild(d);
+    if(b.sel) document.getElementById("p_"+b.k).classList.add("sel");
+  });
+  bindTips(box);
+}
+
+/* ================= événements ================= */
+function renderEvents(){
+  $("#events").innerHTML=EVENTS.map(e=>`
+    <div class="ev${e.hot?"":" cold"}" data-tip="${e.tip}">
+      <div class="eh"><h4>${e.t}</h4><span class="loc">${e.loc}</span></div>
+      <p>${e.p}</p>
+      <div class="er">
+        <button class="mini">${CAMP==="actif"?"Attribuer":"Désattribuer"} — 1 Attention</button>
+        <span class="st">non attribué · effet 0</span>
+      </div>
+    </div>`).join("");
+  bindTips($("#events"));
+}
+
+/* ================= tableau de bord ================= */
+function renderDash(){
+  const c=CAMPS[CAMP];
+  $("#dash").innerHTML=c.dash.map(col=>{
+    let body="";
+    if(col.hero) body=`<div class="hero"><div class="hv">${col.hero[0]}</div><div class="hs">${col.hero[1]}</div></div>`;
+    if(col.kv) body=col.kv.map(([k,v,u])=>`<div class="kv"><span class="k">${k}</span><span class="v">${v}${u?`<small>${u}</small>`:""}</span></div>`).join("");
+    if(col.dmg) body=`<div class="dmg2">
+        <div class="rl"><span>Votre base</span><b>${col.dmg.base}</b></div>
+        <div class="dtrack"><div class="dfill base" style="width:${col.dmg.base}%"></div></div>
+        <div class="rl"><span>Les autres</span><b>${col.dmg.autres}</b></div>
+        <div class="dtrack"><div class="dfill autres" style="width:${col.dmg.autres}%"></div></div></div>`;
+    return `<div class="dcol" data-tip="${col.tip}"><div class="ct">${col.t}</div>${body}</div>`;
+  }).join("");
+  bindTips($("#dash"));
+}
+
+/* ================= leviers ================= */
+function cardHTML(cd){
+  return `<div class="card" data-tip="${cd.tip}">
+    ${cd.trap&&LEVEL===1?'<span class="trap">PIÈGE</span>':''}
+    <div class="id">${cd.id}</div><h4>${cd.n}</h4>
+    <div class="eff">${cd.eff}</div>
+    <div class="meta"><span class="tag">${cd.cost}</span><span class="tag lat ${cd.latc}">${cd.lat}</span><span class="tag">${cd.port}</span></div>
+    <div class="foot"><span>⌕ source</span><span>contre ${cd.contre}</span></div></div>`;
+}
+function renderCards(){
+  const c=CAMPS[CAMP];
+  $("#sideL").innerHTML=`<div class="ct">Vos leviers</div>`+c.cards.slice(0,2).map(cardHTML).join("")+DOCTRINE;
+  $("#sideR").innerHTML=`<div class="ct">Vos leviers</div>`+c.cards.slice(2).map(cardHTML).join("")+SPARK
+    +`<div class="actions">2 actions restantes sur 3</div>`;
+  bindTips($("#sideL")); bindTips($("#sideR"));
+}
+
+function renderDiff(){
+  $("#diff").innerHTML=LEVELS.map(([n,l])=>`<button data-l="${n}" aria-pressed="${n===LEVEL}">${l}</button>`).join("");
+  $("#diff").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{LEVEL=+b.dataset.l;renderDiff();renderCards();}));
+}
+function setCamp(k){
+  CAMP=k; $("#campName").textContent=CAMPS[k].nom;
+  $("#bActif").setAttribute("aria-pressed",String(k==="actif"));
+  $("#bAtt").setAttribute("aria-pressed",String(k==="att"));
+  renderEvents(); renderDash(); renderCards();
+}
+$("#bActif").addEventListener("click",()=>setCamp("actif"));
+$("#bAtt").addEventListener("click",()=>setCamp("att"));
+renderMap(); renderDiff(); setCamp("actif"); bindTips();
+</script>
+</body>
+</html>

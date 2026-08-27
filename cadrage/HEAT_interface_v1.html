@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAT — proposition d'interface v1</title>
+<style>
+:root{
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --s-traj:#3987e5;   /* trajectoire de la partie */
+  --s-reel:#199e70;   /* soutien réel */
+  --s-percu:#c98500;  /* soutien perçu */
+  --s-base:#9085e9;   /* dommages base du joueur */
+  --s-autres:#d95926; /* dommages les autres */
+  --st-good:#0ca30c; --st-warn:#fab219; --st-crit:#d03b3b;
+  --r:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:600}
+.wrap{max-width:1520px;margin:0 auto;padding:20px}
+
+/* ---------- notice ---------- */
+.notice{border:1px solid var(--ring);border-radius:var(--r);background:var(--surface);
+  padding:18px 20px;margin-bottom:18px}
+.notice h1{font-size:20px;letter-spacing:-.01em}
+.notice p{margin:8px 0 0;color:var(--ink-2);max-width:96ch}
+.notice .k{color:var(--ink);font-weight:600}
+
+/* ---------- camp switch ---------- */
+.switch{display:flex;gap:8px;align-items:center;margin:16px 0 14px;flex-wrap:wrap}
+.switch button{appearance:none;border:1px solid var(--ring);background:var(--surface);
+  color:var(--ink-2);padding:9px 16px;border-radius:999px;cursor:pointer;font:inherit;font-weight:600}
+.switch button[aria-pressed="true"]{background:var(--ink);color:#0b0b0b;border-color:var(--ink)}
+.switch .hint{color:var(--muted);font-size:12.5px;margin-left:4px}
+
+/* ---------- app frame ---------- */
+.app{border:1px solid var(--ring);border-radius:14px;background:var(--surface);overflow:hidden}
+.topbar{display:flex;align-items:center;gap:18px;padding:12px 16px;
+  border-bottom:1px solid var(--ring);background:var(--surface-2);flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.16em;font-size:13px}
+.turn{color:var(--ink-2);font-size:13px}
+.turn b{color:var(--ink);font-variant-numeric:tabular-nums}
+.res{display:flex;gap:14px;flex-wrap:wrap}
+.diff{display:flex;gap:0;margin-left:auto;border:1px solid var(--ring);border-radius:8px;overflow:hidden}
+.diff button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:11.5px;
+  font-weight:600;padding:6px 11px;cursor:pointer}
+.diff button[aria-pressed="true"]{background:var(--surface);color:var(--ink)}
+.res div{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
+.res .val{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.pill{width:9px;height:9px;border-radius:3px;background:var(--muted)}
+.endturn{appearance:none;border:0;border-radius:8px;padding:9px 18px;font:inherit;
+  font-weight:700;cursor:pointer;background:var(--ink);color:#0b0b0b}
+
+.grid{display:grid;grid-template-columns:300px 1fr 300px;gap:1px;background:var(--ring)}
+.col{background:var(--surface);padding:14px;min-width:0}
+.sect{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 10px;font-weight:700}
+.sect + .sect{margin-top:22px}
+.sect.gap{margin-top:24px}
+
+/* ---------- blocs ---------- */
+.bloc{border:1px solid var(--ring);border-radius:8px;padding:9px 10px;margin-bottom:8px;background:var(--surface-2)}
+.bloc.sel{border-color:var(--s-traj);box-shadow:inset 0 0 0 1px var(--s-traj)}
+.bloc .nm{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:600}
+.bloc .nm span{color:var(--muted);font-weight:500;font-size:11px;font-variant-numeric:tabular-nums}
+.gauges{margin-top:7px;display:grid;gap:4px}
+.g{display:grid;grid-template-columns:44px 1fr 34px;align-items:center;gap:7px;font-size:10.5px;color:var(--muted)}
+.track{height:9px;border-radius:4px;background:#2a2a28;position:relative;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:4px}
+.fill.reel{background:var(--s-reel)}
+.outline{position:absolute;top:0;bottom:0;left:0;border:2px solid var(--s-percu);border-radius:4px;
+  background:repeating-linear-gradient(135deg,rgba(201,133,0,.30) 0 3px,transparent 3px 6px)}
+.g b{color:var(--ink-2);font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.frict{margin-top:6px;display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+.frict .ft{flex:1;height:4px;border-radius:2px;background:#2a2a28;overflow:hidden}
+.frict .ff{height:100%;background:var(--st-warn)}
+.frict.hot .ff{background:var(--st-crit)}
+.frict.hot span{color:var(--st-crit);font-weight:700}
+
+/* ---------- chart ---------- */
+.chart{border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:12px}
+.chead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.chead h3{font-size:14px}
+.legend{display:flex;gap:14px;margin-left:auto;font-size:11.5px;color:var(--ink-2)}
+.legend i{display:inline-block;width:14px;height:0;border-top-width:2px;border-top-style:solid;
+  vertical-align:middle;margin-right:6px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:#000;border:1px solid var(--ring);
+  border-radius:7px;padding:7px 9px;font-size:11.5px;color:var(--ink);white-space:nowrap;opacity:0;
+  transition:opacity .1s;font-variant-numeric:tabular-nums;z-index:5}
+.tblbtn{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;
+  cursor:pointer;text-decoration:underline;padding:6px 0 0}
+table{border-collapse:collapse;width:100%;font-size:11.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:4px 8px;border-bottom:1px solid var(--grid);color:var(--ink-2)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600}
+
+/* ---------- event ---------- */
+.event{margin-top:14px;border:1px solid var(--ring);border-left:3px solid var(--st-warn);
+  border-radius:10px;background:var(--surface-2);padding:12px 14px}
+.event h3{font-size:13.5px}
+.event p{margin:6px 0 10px;color:var(--ink-2);font-size:12.5px;max-width:80ch}
+.attr{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.attr .st{font-size:11.5px;color:var(--muted)}
+.btn{appearance:none;border:1px solid var(--ring);background:var(--surface);color:var(--ink);
+  border-radius:8px;padding:7px 13px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--ink-2)}
+
+/* ---------- hand ---------- */
+.hand{border-top:1px solid var(--ring);background:var(--surface-2);padding:14px 16px}
+.handhead{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.handhead .sect{margin:0}
+.handhead .cnt{color:var(--muted);font-size:12px;margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:12px;
+  display:flex;flex-direction:column;gap:8px;cursor:pointer;position:relative}
+.card:hover{border-color:var(--ink-2)}
+.card .id{font-size:10.5px;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.card h4{margin:0;font-size:14px;font-weight:600;line-height:1.25}
+.card .eff{font-size:12px;color:var(--ink-2);flex:1}
+.card .meta{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10.5px;padding:3px 7px;border-radius:5px;border:1px solid var(--ring);color:var(--ink-2)}
+.tag.lat{border-color:rgba(57,135,229,.5);color:#8fbdf2}
+.tag.lat.now{border-color:rgba(12,163,12,.55);color:#5bd15b}
+.tag.lat.slow{border-color:rgba(137,135,129,.6);color:var(--muted)}
+.card .foot{display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--grid);padding-top:8px;font-size:11px;color:var(--muted)}
+.src{display:inline-flex;align-items:center;gap:5px;cursor:help;border-bottom:1px dotted var(--muted)}
+.trap{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  color:var(--st-warn);border:1px solid rgba(250,178,25,.5);border-radius:5px;padding:2px 6px}
+
+/* ---------- doctrine ---------- */
+.doct{margin-top:14px;border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:12px 14px}
+.dhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.dnote{color:var(--muted);font-size:11.5px}
+.drow{display:grid;grid-template-columns:170px 1fr 120px;align-items:center;gap:12px;
+  font-size:12px;color:var(--ink-2);padding:5px 0}
+.dslider{height:4px;border-radius:2px;background:#2a2a28;position:relative}
+.dknob{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--ink-2);
+  transform:translate(-50%,-50%);border:2px solid var(--surface-2)}
+.drow b{color:var(--ink);font-weight:600;font-size:11.5px;text-align:right}
+
+/* ---------- dashboard ---------- */
+.hero{border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:14px}
+.hero .lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero .num{font-size:34px;font-weight:700;line-height:1.05;margin-top:6px;letter-spacing:-.02em}
+.hero .sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+.tiles{display:grid;gap:8px;margin-top:10px}
+.tile{border:1px solid var(--ring);border-radius:8px;background:var(--surface-2);padding:9px 11px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tile .l{font-size:11.5px;color:var(--ink-2)}
+.tile .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tile .v small{font-size:11px;color:var(--muted);font-weight:600;margin-left:3px}
+.dmg{border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:12px;margin-top:10px}
+.dmg .row{display:grid;grid-template-columns:1fr;gap:5px;margin-top:9px}
+.dmg .rl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2)}
+.dmg .rl b{font-variant-numeric:tabular-nums}
+.dtrack{height:10px;border-radius:5px;background:#2a2a28;overflow:hidden}
+.dfill{height:100%;border-radius:5px}
+.dfill.base{background:var(--s-base)}
+.dfill.autres{background:var(--s-autres)}
+.dmg .note{font-size:11px;color:var(--muted);margin-top:10px;border-top:1px solid var(--grid);padding-top:8px}
+
+/* ---------- principles ---------- */
+.princ{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.p{border:1px solid var(--ring);border-radius:var(--r);background:var(--surface);padding:14px 16px}
+.p h3{font-size:13.5px;margin-bottom:6px}
+.p p{margin:0;color:var(--ink-2);font-size:12.5px}
+.p .n{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.09em}
+footer{color:var(--muted);font-size:11.5px;margin-top:22px;padding-bottom:20px}
+
+@media (max-width:1180px){
+  .grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="notice">
+  <h1>HEAT — proposition d'interface v1</h1>
+  <p>Maquette non fonctionnelle de <span class="k">l'écran de tour</span> (couche 1 : 3 à 5 décisions par tour).
+     Les chiffres sont plausibles, pas calculés. Le bouton ci-dessous bascule entre les deux camps :
+     <span class="k">c'est le même écran</span>, seuls la main et le tableau de bord changent. Rien dans l'habillage
+     ne désigne un camp comme le fautif.</p>
+</div>
+
+<div class="switch">
+  <button id="bActif" aria-pressed="true">Camp climato-actif</button>
+  <button id="bAtt" aria-pressed="false">Camp climato-attentiste</button>
+  <span class="hint">même squelette, deux boucles de plaisir</span>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">HEAT</div>
+    <div class="turn">Tour <b>4</b> / 20 &nbsp;·&nbsp; <b>2021 – 2022</b> &nbsp;·&nbsp; <span id="campName">Climato-actif</span></div>
+    <div class="diff" id="diff"></div>
+    <div class="res" id="res"></div>
+    <button class="endturn">Fin de tour</button>
+  </div>
+
+  <div class="grid">
+    <!-- ---------- colonne blocs ---------- -->
+    <div class="col">
+      <div class="sect">Blocs — soutien réel / perçu</div>
+      <div id="blocs"></div>
+    </div>
+
+    <!-- ---------- colonne centrale ---------- -->
+    <div class="col">
+      <div class="chart" style="position:relative">
+        <div class="chead">
+          <h3>Trajectoire de réchauffement en 2100</h3>
+          <div class="legend">
+            <span><i style="border-color:var(--s-traj)"></i>Votre partie</span>
+            <span><i style="border-color:var(--muted);border-top-style:dashed"></i>Monde réel</span>
+          </div>
+        </div>
+        <div id="tip" class="tip"></div>
+        <svg id="chart" viewBox="0 0 640 250" role="img"
+             aria-label="Projection du réchauffement en 2100, votre partie contre le monde réel"></svg>
+        <button class="tblbtn" id="tblBtn" aria-expanded="false">Afficher les données</button>
+        <div id="tbl" hidden></div>
+      </div>
+
+      <div class="event">
+        <h3>Événement du tour — Dôme de chaleur, Amérique du Nord</h3>
+        <p>Records de température battus sur la côte ouest. <b>Effet sur l'opinion : nul par défaut.</b>
+           Un événement ne déplace une jauge que s'il est attribué au changement climatique.</p>
+        <div class="attr" id="attr"></div>
+      </div>
+      <div class="doct">
+        <div class="dhead">
+          <div class="sect" style="margin:0">Doctrine — couche 2</div>
+          <span class="dnote">Réglages persistants. On y revient rarement, entre deux tours.</span>
+        </div>
+        <div class="drow"><span>Contrainte ↔ incitation</span>
+          <div class="dslider"><div class="dknob" style="left:38%"></div></div><b>plutôt incitation</b></div>
+        <div class="drow"><span>Compensation sociale</span>
+          <div class="dslider"><div class="dknob" style="left:71%"></div></div><b>élevée</b></div>
+        <div class="drow"><span>Priorité géographique</span>
+          <div class="dslider"><div class="dknob" style="left:24%"></div></div><b>blocs riches</b></div>
+        <div class="drow"><span>Horizon assumé</span>
+          <div class="dslider"><div class="dknob" style="left:60%"></div></div><b>2040</b></div>
+      </div>
+    </div>
+
+    <!-- ---------- colonne tableau de bord ---------- -->
+    <div class="col">
+      <div class="sect">Votre tableau de bord</div>
+      <div class="hero">
+        <div class="lab" id="heroLab"></div>
+        <div class="num" id="heroNum"></div>
+        <div class="sub" id="heroSub"></div>
+      </div>
+      <div class="tiles" id="myTiles"></div>
+      <div id="dmgBox"></div>
+
+      <div class="sect gap">Compteurs partagés</div>
+      <div class="tiles" id="shared"></div>
+    </div>
+  </div>
+
+  <!-- ---------- main ---------- -->
+  <div class="hand">
+    <div class="handhead">
+      <div class="sect">Votre main — <span id="handSub"></span></div>
+      <div class="cnt">2 actions restantes sur 3</div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</div>
+
+<!-- ---------- principes ---------- -->
+<div class="princ">
+  <div class="p"><div class="n">01</div><h3>Une décision à la fois</h3>
+    <p>Quatre cartes proposées, trois actions par tour. Tout le reste est consultable, jamais imposé.
+       C'est ce qui rend l'écran portable sur mobile sans le réécrire.</p></div>
+  <div class="p"><div class="n">02</div><h3>Les deux jauges, toujours côte à côte</h3>
+    <p>Soutien réel en plein, soutien perçu en contour hachuré. L'écart entre les deux est la signature
+       visuelle du jeu : il se voit avant d'être lu. Forme et étiquette portent l'information, pas la couleur seule.</p></div>
+  <div class="p"><div class="n">03</div><h3>La ligne fantôme n'est jamais masquable</h3>
+    <p>Le monde réel de 2015 à 2025 reste sur le graphe en permanence. Le joueur ne joue pas contre un
+       objectif abstrait, il joue contre ce qui s'est réellement passé.</p></div>
+  <div class="p"><div class="n">04</div><h3>La latence est écrite sur la carte</h3>
+    <p>Immédiat, 1-2 tours, 3-5, plus de 5. C'est la première source d'incompréhension d'un jeu à effets
+       différés : elle doit être lisible avant le clic, pas découverte après.</p></div>
+  <div class="p"><div class="n">05</div><h3>La source est à un clic, jamais imposée</h3>
+    <p>Chaque carte porte son ancrage réel daté au survol. C'est ce qui distingue HEAT d'un jeu militant,
+       et ça ne coûte rien à qui ne veut pas le lire.</p></div>
+  <div class="p"><div class="n">06</div><h3>Aucune interface accusatrice</h3>
+    <p>Le camp attentiste a la même charte, les mêmes couleurs, et ses compteurs montent. Pas de rouge
+       clignotant, pas de jauge de culpabilité, pas de narrateur. Les chiffres, et l'écart.</p></div>
+</div>
+
+<footer>
+  Palette de données validée pour le mode sombre (surface #1a1a19) : bande de luminosité, plancher de chroma,
+  séparation daltonisme et contraste — tous les contrôles passent. Encodage secondaire systématique
+  (plein / contour, étiquettes directes) pour ne jamais faire porter le sens à la couleur seule.
+</footer>
+
+</div>
+
+<script>
+/* ============================ données de maquette ============================ */
+const BLOCS = [
+  {n:"Amérique du Nord", e:"13 %", reel:58, percu:39, fr:34},
+  {n:"Europe",           e:"6 %",  reel:71, percu:52, fr:62, sel:true},
+  {n:"Chine",            e:"32 %", reel:64, percu:47, fr:18},
+  {n:"Inde",             e:"8 %",  reel:69, percu:41, fr:22},
+  {n:"Reste de l'Asie",  e:"14 %", reel:66, percu:44, fr:27},
+  {n:"Golfe & Russie",   e:"9 %",  reel:41, percu:24, fr:11},
+  {n:"Afrique",          e:"4 %",  reel:74, percu:46, fr:19},
+  {n:"Amérique latine",  e:"5 %",  reel:70, percu:48, fr:31}
+];
+
+const CAMPS = {
+ actif:{
+  nom:"Climato-actif",
+  res:[["Capital politique","41","var(--s-reel)"],["Capital","28 Md$","var(--s-traj)"],
+       ["Attention","3 / 5","var(--s-percu)"],["Crédibilité","72","var(--s-base)"]],
+  hero:["Réchauffement évité","0,42 °C","par rapport à la trajectoire sans vous"],
+  tiles:[["Mesures en vigueur","14"],["Verrous irréversibles","3"],
+         ["Blocs sous contrainte","5 / 8"],["Décès évités (charbon)","310 000"]],
+  handSub:"3 leviers et 1 piège",
+  cards:[
+   {id:"A49",n:"Attribution rapide",eff:"Convertit l'événement du tour en gain d'opinion. Déplace surtout la jauge perçue.",
+    cost:"1 Attention",lat:"Immédiat",latc:"now",port:"Bloc",
+    src:"World Weather Attribution — études publiées en quelques jours depuis 2015",contre:"T36 Saturation"},
+   {id:"A31",n:"Redistribution du produit de la taxe",eff:"Annule la friction d'une mesure de tarification déjà votée. Coûte cher, ne rapporte aucun point.",
+    cost:"3 Capital",lat:"Immédiat",latc:"now",port:"Bloc",
+    src:"Dividende carbone canadien ; absence de redistribution visible en France en 2018",contre:"T39 Coût de la vie"},
+   {id:"A18",n:"Subvention massive au déploiement",eff:"Fait baisser le coût mondial de la technologie. Bénéficie à tous les blocs, y compris ceux qui n'ont rien payé.",
+    cost:"5 Capital",lat:"> 5 tours",latc:"slow",port:"Mondial",
+    src:"EEG allemand 2000-2015 : ~200 Md€, amorce de la chute du prix du photovoltaïque",contre:"—"},
+   {id:"P01",n:"Compensation carbone volontaire",eff:"Semble neutraliser vos émissions résiduelles et libère du capital politique ce tour-ci.",
+    cost:"1 Capital",lat:"Immédiat",latc:"now",port:"Mondial",trap:true,
+    src:"Revue de 25 ans de projets : majorité jugée non additionnelle ; marché en chute de plus de 60 %",contre:"A15 Reporting"}
+  ],
+  dmg:null
+ },
+ att:{
+  nom:"Climato-attentiste",
+  res:[["Capital","96 Md$","var(--s-traj)"],["Attention","4 / 5","var(--s-percu)"],
+       ["Capital politique","12","var(--s-reel)"],["Crédibilité","54","var(--s-base)"]],
+  hero:["Valeur d'actifs préservée","1 840 Md$","dont 610 Md$ verrouillés jusqu'en 2045"],
+  tiles:[["Mesures contraignantes évitées","9"],["Années de report gagnées","6"],
+         ["Juridictions non contraintes","3 / 8"],["Rentes distribuées","128 Md$"]],
+  handSub:"4 leviers, aucun n'exige de faire voter quoi que ce soit",
+  cards:[
+   {id:"T39",n:"Instrumentalisation du coût de la vie",eff:"Convertit toute mesure non compensée en friction maximale dans un bloc. Sans effet si la redistribution a été jouée.",
+    cost:"2 Attention",lat:"Immédiat",latc:"now",port:"Bloc",
+    src:"Crise énergétique de 2022 ; retournement du discours sur le Pacte vert",contre:"A31 Redistribution"},
+   {id:"T43",n:"Verrouillage d'infrastructure anticipé",eff:"Construit avant l'arrivée de la règle. Verrouille 20 à 40 ans d'émissions. Irréversible.",
+    cost:"5 Capital",lat:"Immédiat",latc:"now",port:"Bloc",
+    src:"Vague de terminaux GNL lancés avant durcissement réglementaire",contre:"A05 Interdiction datée"},
+   {id:"T36",n:"Saturation de l'attention",eff:"Monopolise l'actualité mondiale ce tour-ci. Aucune attribution d'événement n'est possible.",
+    cost:"3 Capital",lat:"Immédiat",latc:"now",port:"Bloc",
+    src:"Décalage systématique des annonces sensibles vers les périodes de forte actualité",contre:"A49 Attribution"},
+   {id:"T22",n:"Exemption sectorielle",eff:"La mesure adverse passe, votre secteur clé en sort. Difficile à annuler une fois inscrite au texte.",
+    cost:"3 Capital",lat:"1-2 tours",latc:"",port:"Bloc",
+    src:"Aviation et maritime longtemps hors ETS ; dérogations agricoles obtenues en 2024",contre:"A02 Marché de quotas"}
+  ],
+  dmg:{base:17,autres:63}
+ }
+};
+
+const SHARED = [
+  ["Réchauffement d'origine humaine","1,41","°C"],
+  ["Décès liés à la chaleur (cumul)","2,4","M"],
+  ["Pertes assurées cette année","118","Md$"],
+  ["Heures de travail perdues","680","Md h"],
+  ["Insécurité alimentaire","+131","M pers."]
+];
+
+/* ============================ rendu ============================ */
+const $ = s => document.querySelector(s);
+let LEVEL = 1, CAMP = "actif";
+const LEVELS=[[1,"Découverte"],[2,"Standard"],[3,"Réaliste"],[4,"Expert"]];
+function renderDiff(){
+  $("#diff").innerHTML = LEVELS.map(([n,l])=>
+    `<button data-l="${n}" aria-pressed="${n===LEVEL}">${l}</button>`).join("");
+  $("#diff").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    LEVEL=+b.dataset.l; renderDiff(); renderCamp(CAMP);
+  }));
+}
+
+function renderBlocs(){
+  $("#blocs").innerHTML = BLOCS.map(b=>`
+    <div class="bloc${b.sel?' sel':''}">
+      <div class="nm">${b.n}<span>${b.e} des émissions</span></div>
+      <div class="gauges">
+        <div class="g"><span>Réel</span>
+          <div class="track"><div class="fill reel" style="width:${b.reel}%"></div></div><b>${b.reel}</b></div>
+        <div class="g"><span>Perçu</span>
+          <div class="track"><div class="outline" style="width:${b.percu}%"></div></div><b>${b.percu}</b></div>
+      </div>
+      <div class="frict${b.fr>55?' hot':''}">
+        <span>${b.fr>55?'⚠ Retour de flamme imminent':'Friction'}</span>
+        <div class="ft"><div class="ff" style="width:${b.fr}%"></div></div>
+      </div>
+    </div>`).join("");
+}
+
+/* ---- graphe trajectoire ---- */
+const YEARS=[2015,2020,2025,2030,2040,2050,2070,2100];
+const REEL =[3.6, 3.0, 2.6, null,null,null,null,null];
+const PART =[3.6, 2.93, 2.5, 2.35, 2.2, 2.12, 2.08, 2.06];
+function renderChart(){
+  const W=640,H=250,L=46,R=14,T=14,B=30;
+  const x=i=>L+(W-L-R)*(i/(YEARS.length-1));
+  const y=v=>T+(H-T-B)*(1-(v-1.8)/(3.8-1.8));
+  const path=a=>a.map((v,i)=>v==null?null:`${i&&a[i-1]!=null?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).filter(Boolean).join(' ');
+  let g='';
+  [2.0,2.5,3.0,3.5].forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>
+    <text x="${L-8}" y="${y(v)+4}" fill="var(--muted)" font-size="10" text-anchor="end">${v.toFixed(1)}°C</text>`});
+  YEARS.forEach((yr,i)=>{g+=`<text x="${x(i)}" y="${H-10}" fill="var(--muted)" font-size="10" text-anchor="middle">${yr}</text>`});
+  g+=`<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--axis)" stroke-width="1"/>`;
+  g+=`<path d="${path(REEL)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/>`;
+  g+=`<path d="${path(PART)}" fill="none" stroke="var(--surface-2)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g+=`<path d="${path(PART)}" fill="none" stroke="var(--s-traj)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g+=`<circle cx="${x(2)}" cy="${y(2.6)}" r="4.5" fill="var(--muted)" stroke="var(--surface-2)" stroke-width="2"/>`;
+  g+=`<text x="${x(2)+10}" y="${y(2.6)-8}" fill="var(--muted)" font-size="10.5">Monde réel 2025 · 2,6 °C</text>`;
+  g+=`<circle cx="${x(7)}" cy="${y(2.06)}" r="4.5" fill="var(--s-traj)" stroke="var(--surface-2)" stroke-width="2"/>`;
+  g+=`<text x="${x(7)}" y="${y(2.06)-12}" fill="#8fbdf2" font-size="10.5" text-anchor="end">Votre projection · 2,06 °C</text>`;
+  PART.forEach((v,i)=>{g+=`<rect class="hit" data-i="${i}" x="${x(i)-18}" y="${T}" width="36" height="${H-T-B}" fill="transparent"/>`});
+  $("#chart").innerHTML=g;
+  const tip=$("#tip"), box=$("#chart").parentElement;
+  $("#chart").querySelectorAll(".hit").forEach(r=>{
+    r.addEventListener("mousemove",e=>{
+      const i=+r.dataset.i, b=box.getBoundingClientRect();
+      tip.innerHTML=`<b>${YEARS[i]}</b><br>Votre partie ${PART[i].toFixed(2)} °C`
+        +(REEL[i]!=null?`<br>Monde réel ${REEL[i].toFixed(2)} °C`:"");
+      tip.style.opacity=1; tip.style.left=(e.clientX-b.left+12)+"px"; tip.style.top=(e.clientY-b.top-10)+"px";
+    });
+    r.addEventListener("mouseleave",()=>tip.style.opacity=0);
+  });
+}
+$("#tblBtn").addEventListener("click",()=>{
+  const t=$("#tbl"),b=$("#tblBtn"),open=!t.hidden;
+  t.hidden=open; b.setAttribute("aria-expanded",String(!open));
+  b.textContent=open?"Afficher les données":"Masquer les données";
+  if(!open&&!t.innerHTML){
+    t.innerHTML=`<table><thead><tr><th>Année</th><th>Votre partie</th><th>Monde réel</th></tr></thead><tbody>`
+      +YEARS.map((y,i)=>`<tr><td>${y}</td><td>${PART[i].toFixed(2)} °C</td><td>${REEL[i]!=null?REEL[i].toFixed(2)+" °C":"—"}</td></tr>`).join("")
+      +`</tbody></table>`;
+  }
+});
+
+function renderCamp(k){
+  CAMP=k;
+  const c=CAMPS[k];
+  $("#campName").textContent=c.nom;
+  $("#res").innerHTML=c.res.map(([l,v,col])=>
+    `<div><span class="pill" style="background:${col}"></span>${l} <span class="val">${v}</span></div>`).join("");
+  $("#heroLab").textContent=c.hero[0]; $("#heroNum").textContent=c.hero[1]; $("#heroSub").textContent=c.hero[2];
+  $("#myTiles").innerHTML=c.tiles.map(([l,v])=>`<div class="tile"><span class="l">${l}</span><span class="v">${v}</span></div>`).join("");
+  $("#handSub").textContent = LEVEL===1
+     ? c.handSub + " · les pièges sont signalés"
+     : "4 cartes proposées · les pièges ne sont plus signalés";
+  $("#cards").innerHTML=c.cards.map(cd=>`
+    <div class="card">
+      ${cd.trap&&LEVEL===1?'<span class="trap">PIÈGE</span>':''}
+      <div class="id">${cd.id}</div>
+      <h4>${cd.n}</h4>
+      <div class="eff">${cd.eff}</div>
+      <div class="meta">
+        <span class="tag">${cd.cost}</span>
+        <span class="tag lat ${cd.latc}">${cd.lat}</span>
+        <span class="tag">${cd.port}</span>
+      </div>
+      <div class="foot">
+        <span class="src" title="${cd.src}">⌕ source</span>
+        <span>contre : ${cd.contre}</span>
+      </div>
+    </div>`).join("");
+  $("#dmgBox").innerHTML = c.dmg ? `
+    <div class="dmg">
+      <div class="sect" style="margin:0">Dommages subis</div>
+      <div class="row">
+        <div class="rl"><span>Votre base</span><b>${c.dmg.base} / 100</b></div>
+        <div class="dtrack"><div class="dfill base" style="width:${c.dmg.base}%"></div></div>
+      </div>
+      <div class="row">
+        <div class="rl"><span>Les autres</span><b>${c.dmg.autres} / 100</b></div>
+        <div class="dtrack"><div class="dfill autres" style="width:${c.dmg.autres}%"></div></div>
+      </div>
+      <div class="note">L'écart se creuse tant que l'adaptation reste payante. Au-delà de 40, le retrait
+        assurantiel commence à atteindre vos propres implantations.</div>
+    </div>` : "";
+  $("#attr").innerHTML = k==="actif"
+    ? `<button class="btn">Attribuer — 1 Attention</button><span class="st">Non attribué · effet actuel : 0</span>`
+    : `<button class="btn">Désattribuer — 1 Attention</button><span class="st">Non attribué · laissez-le retomber</span>`;
+  $("#bActif").setAttribute("aria-pressed",String(k==="actif"));
+  $("#bAtt").setAttribute("aria-pressed",String(k==="att"));
+}
+
+$("#shared").innerHTML=SHARED.map(([l,v,u])=>
+  `<div class="tile"><span class="l">${l}</span><span class="v">${v}<small>${u}</small></span></div>`).join("");
+$("#bActif").addEventListener("click",()=>renderCamp("actif"));
+$("#bAtt").addEventListener("click",()=>renderCamp("att"));
+renderBlocs(); renderChart(); renderDiff(); renderCamp("actif");
+</script>
+</body>
+</html>
