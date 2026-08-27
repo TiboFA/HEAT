@@ -3690,8 +3690,9 @@ function renderFin(){
    et les curseurs de doctrine mémorisés. Le défi du tour est stocké par son titre :
    c'est le seul objet de l'état qui porte des fonctions, donc le seul que JSON perd. */
 /* Version des sauvegardes. Elle ne suit pas le numéro affiché : elle ne change que
-   lorsque le format change vraiment. La v0.11.1 ne touche qu'à l'écran d'accueil,
-   une partie enregistrée en v0.11 s'y recharge donc telle quelle. */
+   lorsque le format change vraiment. Les v0.11.1 et v0.11.2 ne touchent qu'à
+   l'écran d'accueil et à la palette de couleurs, une partie enregistrée en
+   v0.11 s'y recharge donc telle quelle. */
 const SAVE_V="0.11", SAVE_K="heat.partie.v1";
 function serialiser(){
   const s=S;
