@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""()=>{
   const s=newGame("actif",3), b=B(s,"cn");
   const okS=new Set(Object.keys(s)), okB=new Set(Object.keys(b));

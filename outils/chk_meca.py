@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,re
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""(lvl)=>{
   const cnt={}, add=k=>cnt[k]=(cnt[k]||0)+1; const err=[];
   const advCards={};

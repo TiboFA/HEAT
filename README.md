@@ -12,9 +12,15 @@ Les deux rôles doivent être également jouables et également instructifs.
 
 ## Jouer
 
-Ouvrir `jeu/HEAT_jeu_v0.11.html` par un double-clic. Aucune installation,
-aucune dépendance, aucun accès réseau. La partie se sauvegarde toute seule dans
-le navigateur, et peut s'exporter en fichier.
+Ouvrir **`jeu/jeu.html`** par un double-clic. Ce nom ne change jamais : c'est
+toujours la dernière version, et le numéro s'affiche sur l'écran d'accueil. Un
+raccourci vers ce fichier reste valable d'une version à l'autre.
+
+Aucune installation, aucune dépendance, aucun accès réseau. La partie se
+sauvegarde toute seule dans le navigateur, et peut s'exporter en fichier.
+
+Les `HEAT_jeu_vX.Y.html` à côté sont l'archive : les anciennes versions ne sont
+plus reconstructibles depuis les sources actuelles, on les garde telles quelles.
 
 Un guide en huit étapes s'ouvre à la première partie.
 
@@ -35,7 +41,8 @@ Un guide en huit étapes s'ouvre à la première partie.
 ## Structure du dépôt
 
 ```
-jeu/          les versions jouables, un fichier HTML autonome chacune
+jeu/jeu.html  la dernière version — c'est celle qu'on ouvre
+jeu/          l'archive des versions, un fichier HTML autonome chacune
 jeu/src/      les sources — cinq morceaux concaténés par build.py
 notes/        une note par version : ce qui a changé, pourquoi, et les mesures
 cadrage/      la note de cadrage, les catalogues de leviers, les maquettes
@@ -49,9 +56,16 @@ cd jeu/src && python3 build.py
 ```
 
 `build.py` concatène `a_head.html`, `b_css.txt`, `c_body.html`, `d_js.txt` et
-`e_tail.html` en un seul fichier. Il n'y a pas d'autre chaîne de construction :
-c'est délibéré — la contrainte du fichier unique est ce qui garde le jeu
-distribuable par simple copie.
+`e_tail.html`, et écrit le résultat deux fois : sous le nom stable `jeu.html`,
+et sous `HEAT_jeu_vX.Y.html` — le numéro est lu dans le `<title>` de
+`a_head.html`, il n'y a donc rien à tenir à jour ailleurs. Déplacer les deux
+fichiers dans `jeu/`.
+
+Il n'y a pas d'autre chaîne de construction : c'est délibéré — la contrainte du
+fichier unique est ce qui garde le jeu distribuable par simple copie.
+
+Les harnais de `outils/` ouvrent tous `jeu.html`. Ils n'ont jamais à être
+modifiés lors d'un changement de version.
 
 ## Vérifier
 

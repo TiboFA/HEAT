@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,json,re
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""()=>{
   alg=()=>1; mGeo=()=>1;
   const out=[];

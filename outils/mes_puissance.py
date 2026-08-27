@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,json
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""()=>{
   // déterminisme total : même suite de tirages pour le témoin et pour l'essai
   rnd=()=>0.5;

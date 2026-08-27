@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,collections
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""(lvl)=>{
   const res={defis:{},cartes:{},err:[],tours:0,manqueDefi:0};
   for(let p=0;p<8;p++){

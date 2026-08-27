@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":1680,"height":1250},device_scale_factor=2)
     errs=[]; pg.on("pageerror",lambda e:errs.append(str(e)))

@@ -61,8 +61,13 @@ cd jeu/src
 python3 build.py
 ```
 
-Le fichier produit est à déplacer dans `jeu/`. Avant de le publier, faire
-tourner au minimum `outils/play3.py` et `outils/calib3.py` — voir le README.
+Deux fichiers sont produits : `jeu.html` (le nom stable, celui qu'on ouvre) et
+`HEAT_jeu_vX.Y.html` (l'archive de la version). Les déplacer tous les deux dans
+`jeu/`. Le numéro de version vient du `<title>` de `a_head.html` — c'est le seul
+endroit à modifier pour changer de version, avec `SAVE_V` dans `d_js.txt`.
+
+Avant de publier, faire tourner au minimum `outils/play3.py` et
+`outils/calib3.py` — voir le README.
 
 ## Ce qui ne doit pas entrer dans le dépôt
 

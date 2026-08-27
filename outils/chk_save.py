@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,json
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 with sync_playwright() as p:
     b=p.chromium.launch(); ctx=b.new_context(); pg=ctx.new_page()
     errs=[]
