@@ -12,7 +12,7 @@ Les deux rôles doivent être également jouables et également instructifs.
 
 ## Jouer
 
-Ouvrir `jeu/HEAT_jeu_v0.10.html` par un double-clic. Aucune installation,
+Ouvrir `jeu/HEAT_jeu_v0.11.html` par un double-clic. Aucune installation,
 aucune dépendance, aucun accès réseau. La partie se sauvegarde toute seule dans
 le navigateur, et peut s'exporter en fichier.
 
@@ -73,7 +73,7 @@ c'est lui qui décide quels leviers sont « lourds ».
 
 ## Principes de conception
 
-Trois règles tenues depuis le début, et qui expliquent la plupart des
+Quatre règles tenues depuis le début, et qui expliquent la plupart des
 arbitrages :
 
 1. **Un levier n'est consommé que par un effet obtenu.** Une tentative ratée ou
@@ -82,7 +82,10 @@ arbitrages :
 2. **Un événement n'ajoute jamais de contrainte.** Un événement qui contraint
    déplace la trajectoire passive, et la trajectoire passive est la référence de
    tout le reste.
-3. **Le camp attentiste se nomme lui-même.** Ses leviers portent le nom
+3. **La crédibilité est un rapport, pas une jauge.** Tout ce qui la déplace la
+   déplace des deux côtés : discréditer l'autre vous crédite de la moitié. Ce qui
+   décide n'est jamais le niveau mais l'écart entre les deux camps.
+4. **Le camp attentiste se nomme lui-même.** Ses leviers portent le nom
    qu'emploient ceux qui les jouent, pas celui qu'emploient ceux qui les
    subissent — ce dernier figure dans une section dédiée de la fiche. Un camp
    décrit par ses adversaires n'est pas jouable.
@@ -94,7 +97,7 @@ GitHub Desktop.
 
 ## État
 
-Version courante : **v0.10**. `notes/HEAT_note_jeu_v0.10.md` détaille les
+Version courante : **v0.11**. `notes/HEAT_note_jeu_v0.11.md` détaille les
 mécaniques ajoutées, les mesures qui les justifient, et ce qui reste ouvert.
 
 Les sources de `jeu/src/` n'ont jamais existé ailleurs que dans les sessions de

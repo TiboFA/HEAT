@@ -48,6 +48,10 @@ button{font:inherit}
 .res{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
 .res div{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:help}
 .res .v{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.res .ecr{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:6px;
+  border:1px solid var(--ring);color:var(--muted);white-space:nowrap}
+.res .ecr.bon{border-color:rgba(25,158,112,.55);color:var(--s-reel)}
+.res .ecr.mal{border-color:rgba(208,59,59,.5);color:var(--s-fric)}
 .pill{width:8px;height:8px;border-radius:2px}
 .endturn{border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;background:var(--ink);color:#0b0b0b}
 .endturn:disabled{opacity:.45;cursor:default}

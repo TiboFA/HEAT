@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 import pathlib
 NT=17
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("HEAT_jeu_v0.11.html").resolve())
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":1680,"height":1250},device_scale_factor=2)
     errs=[]
@@ -24,7 +24,11 @@ with sync_playwright() as p:
     pg.click('.hand .card:not(.no)'); pg.wait_for_timeout(250)
     pg.screenshot(path="i_sel.png")
     pg.locator('.gp').first.click(); pg.wait_for_timeout(300)
-    if pg.locator("#battr").count() and pg.locator("#battr").is_enabled(): pg.click("#battr")
+    # si le levier sélectionné était mondial, le clic sur un bloc a ouvert sa fiche :
+    # elle recouvre le bandeau d'événement et bloquerait le clic suivant
+    ferme()
+    if pg.locator("#battr").count() and pg.locator("#battr").is_enabled() and pg.locator("#battr").is_visible():
+        pg.click("#battr", timeout=5000)
     pg.wait_for_timeout(200)
     pg.locator('.gp').nth(3).click(); pg.wait_for_timeout(350)
     pg.screenshot(path="i_fiche.png"); ferme()

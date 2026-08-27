@@ -6,7 +6,7 @@
   <h1>HEAT</h1>
   <div class="sub">Décembre 2015, Accord de Paris. Dix-sept tours de cinq ans, jusqu'en 2100.<br>
     <b>Objectif : faire plafonner les émissions mondiales, puis ramener le monde sous 20 GtCO₂/an — le plus tôt possible.</b><br>
-    Version jouable v0.9.2 — 112 leviers, doctrine réglable, chiffres calibrés sur le monde réel, modèle volontairement simple.<br>
+    Version jouable v0.11 — 112 leviers, doctrine réglable, chiffres calibrés sur le monde réel, modèle volontairement simple.<br>
     <span style="font-size:12.5px">Un guide de huit étapes s'ouvre au premier tour ; il se rouvre à tout moment depuis le bandeau du haut.</span></div>
 
   <div id="reprise"></div>
@@ -66,7 +66,7 @@
       « votre tour », au-dessus de la carte : vous pouvez en retirer un à tout moment (× sur le levier, ou Ctrl+Z),
       tout remettre à zéro, et voir en permanence ce que le plan devrait produire — projection 2100, score, coût,
       et jauge par jauge sur chaque bloc. Les paris, eux, ne sont tranchés qu'à la validation : l'aperçu suppose la réussite.<br><br>
-      <b>112 leviers</b> issus du catalogue, dont sept qui rapportent bien moins que ce qu'ils promettent — rien
+      <b>112 leviers</b> issus du catalogue, dont sept qui rapportent bien moins que ce qu'ils promettent et qui vous coûtent de la crédibilité quand l'écart se voit — rien
       sur la carte ne les distingue, seule la fiche le dit. Vous n'en voyez que douze à la fois : c'est votre doctrine
       qui décide lesquels. Un levier mondial ne se joue qu'une fois, un levier de bloc sur trois blocs au maximum &mdash; mais
       <b>un levier n'est consommé que par un effet obtenu</b> : une tentative qui échoue, ou une mesure que l'adversaire
@@ -75,6 +75,20 @@
       <b style="color:var(--s-reel)">soutien réel</b> (lent, incontrable),
       <b style="color:var(--s-percu)">soutien perçu</b> (volatile, c'est lui qui autorise les mesures),
       <b style="color:var(--s-fric)">friction</b> (au-delà de 55, une mesure est annulée).<br><br>
+      <b>La crédibilité est un rapport, pas une jauge.</b> Personne n'est cru dans l'absolu : on est cru <i>plutôt que l'autre</i>.
+      Le chiffre qui compte n'est donc pas votre niveau mais l'<b>écart</b>, affiché à côté de lui en haut de l'écran.
+      Tout ce qui la déplace la déplace des deux côtés : discréditer l'adversaire vous crédite de la moitié de ce que vous
+      lui prenez, vous discréditer le crédite d'autant. Vous n'avez pas de levier de réparation — vous remontez quand
+      l'autre se fait prendre. La somme n'est pas conservée : l'un perd 14, l'autre gagne 7, et un échange d'accusations
+      abîme les deux camps.<br>
+      Elle pèse sur vos paris, jusqu'à 10 points de probabilité. Et surtout elle règle <b>la vitesse à laquelle le soutien
+      perçu rattrape le soutien réel</b> : de 5 % par tour si l'adversaire a la parole, à 25 % si vous l'avez. C'est la
+      vitesse à laquelle ce qui est vrai finit par se savoir.<br>
+      Elle bouge aussi sans que personne ne la joue. Tous les quatre tours, la trajectoire tranche : elle a baissé, on
+      vous croit ; elle stagne, on croit l'autre. Un retour de flamme donne raison au camp attentiste, le pic des
+      émissions au camp actif, une échéance net zéro manquée coûte cher, et <b>un levier qui promet plus qu'il ne rend
+      se paie en crédibilité</b>. Enfin la controverse s'oublie : chaque tour, les deux crédibilités reviennent un peu
+      vers 50. Une avance ne se met pas en banque, elle s'entretient.<br><br>
       <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas d'action.<br><br>
       <b>Le climat tient en une ligne :</b> température = 1,0 + 0,00058 × CO₂ cumulé depuis 2015.
       La partie va jusqu'en <b>2100</b> : la température affichée n'est pas une extrapolation, c'est celle que votre partie atteint.
