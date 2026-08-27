@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib, statistics
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS = """
 (cfg)=>{const {camp,level,actif,seed}=cfg; rng=seed;
   const s=newGame(camp,level);

@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,statistics,sys,json
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 N=int(sys.argv[1]) if len(sys.argv)>1 else 24
 JS=r"""([camp,lvl,n,ACT,NS])=>{
   NIVEAUX.forEach((x,i)=>{ if(x) x.n=NS[i]; });

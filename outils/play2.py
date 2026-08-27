@@ -8,6 +8,8 @@ with sync_playwright() as p:
     pg.on("console",lambda m: errs.append("console: "+m.text) if m.type=="error" else None)
     pg.goto(url); pg.wait_for_timeout(500)
     pg.screenshot(path="h_home.png", full_page=True)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="3"]')
     pg.click("#start"); pg.wait_for_timeout(500)
     pg.screenshot(path="h_turn1.png")

@@ -16,6 +16,8 @@ with sync_playwright() as p:
             else: break
     pg.goto(url); pg.wait_for_timeout(400)
     print("bandeau vide visible:", pg.locator("#reprise .rpz.vide").count()==1)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="3"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(400)
     for i in range(4):
         calme()

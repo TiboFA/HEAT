@@ -5,6 +5,8 @@ with sync_playwright() as p:
     br=p.chromium.launch(); pg=br.new_page(viewport={"width":1680,"height":1250},device_scale_factor=2)
     errs=[]; pg.on("pageerror",lambda e:errs.append(str(e)))
     pg.goto(url); pg.wait_for_timeout(500)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="2"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(600)
     for lab,ca,cn in (("avance",78,42),("égalité",55,55),("retard",34,71)):
         pg.evaluate(f"()=>{{S.res.actif.cred={ca};S.res.att.cred={cn};render();}}"); pg.wait_for_timeout(250)

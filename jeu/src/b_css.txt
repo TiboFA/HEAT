@@ -36,6 +36,35 @@ button{font:inherit}
 .mini.go{background:var(--ink);color:#0b0b0b;border-color:var(--ink);font-weight:700}
 #start{width:100%;margin-top:6px;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;
  background:var(--ink);color:#0b0b0b;cursor:pointer}
+/* ---------- accueil : l'écran doit tenir en une page et donner envie ----------
+   Tout ce qui n'est pas le pitch, le choix du camp et le bouton est replié dans
+   un <details>. Rien n'a été supprimé : les règles complètes, la difficulté et
+   la doctrine sont à un clic, et c'est très bien là. */
+#home .pitch{margin:14px 0 26px;max-width:660px}
+#home .pitch p{color:var(--ink-2);font-size:15px;line-height:1.65;margin:0 0 10px}
+#home .pitch b{color:var(--ink)}
+#home .pitch i{color:var(--ink);font-style:italic}
+.hsec.camps{padding:18px 20px}
+.camps .opt{padding:16px 18px}
+.camps .opt b{font-size:17px;margin-bottom:6px}
+.camps .opt span{font-size:13px;line-height:1.55;color:var(--ink-2)}
+.camps .opt span i{display:block;margin-top:8px;color:var(--muted);font-style:normal;font-size:12px}
+.startnote{color:var(--muted);font-size:12px;line-height:1.55;margin:10px 2px 22px;text-align:center}
+.startnote b{color:var(--ink-2)}
+.hdet{border:1px solid var(--ring);border-radius:12px;background:var(--surface);margin-bottom:10px;overflow:hidden}
+.hdet>summary{cursor:pointer;list-style:none;padding:13px 18px;font-size:13px;font-weight:600;color:var(--ink-2);
+  display:flex;align-items:center;gap:9px;user-select:none}
+.hdet>summary::-webkit-details-marker{display:none}
+.hdet>summary::before{content:"▸";color:var(--muted);font-size:11px;transition:transform .12s}
+.hdet[open]>summary::before{transform:rotate(90deg)}
+.hdet>summary:hover{color:var(--ink)}
+.hdet[open]>summary{border-bottom:1px solid var(--ring);color:var(--ink)}
+.hdet>.rules,.hdet>.ct,.hdet>.opts,.hdet>.doc{margin-left:18px;margin-right:18px}
+.hdet>.rules:last-child{padding-bottom:16px}
+.hdet>.doc{padding-bottom:16px}
+.hdet>.opts{margin-bottom:4px}
+.vers{color:var(--muted);font-size:11px;line-height:1.5;margin-top:22px;text-align:center}
+.rpz.rien{border:0;background:none;padding:0;margin:-14px 0 22px;text-align:center;font-size:12px}
 #home .rules{color:var(--ink-2);font-size:12.5px;line-height:1.6}
 #home .rules b{color:var(--ink)}
 
@@ -352,7 +381,10 @@ svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius
 .verdict b{color:var(--ink)}
 .again{border:0;border-radius:9px;padding:12px 20px;font-weight:700;background:var(--ink);color:#0b0b0b;cursor:pointer}
 @media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}}
-@media (max-width:1180px){.board{grid-template-columns:1fr}.sideL,.sideR{max-height:none}.mb{grid-template-columns:1fr}.opts{grid-template-columns:1fr}}
+@media (max-width:1180px){.board{grid-template-columns:1fr}.sideL,.sideR{max-height:none}.mb{grid-template-columns:1fr}.opts{grid-template-columns:1fr}
+  /* l'accueil ne fait que 820 px : ses deux cartes de camp tiennent côte à côte bien plus longtemps */
+  .camps .opts{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.camps .opts{grid-template-columns:1fr}}
 
 /* ---------- doctrine ---------- */
 .doc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px}

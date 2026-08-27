@@ -19,6 +19,8 @@ with sync_playwright() as p:
     ferme=calme
     pg.goto(url); pg.wait_for_timeout(500)
     pg.screenshot(path="i_home.png", full_page=True)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="3"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(500)
     pg.screenshot(path="i_turn1.png")
     pg.click('.hand .card:not(.no)'); pg.wait_for_timeout(250)

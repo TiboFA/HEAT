@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import pathlib,statistics,itertools
-url="file://"+str(pathlib.Path("HEAT_jeu_v0.10.html").resolve())
+url="file://"+str(pathlib.Path("jeu.html").resolve())
 JS=r"""(cfg)=>{
   NIVEAUX.forEach((x,i)=>{ if(x) x.n=cfg[i]; });
   const out=[];

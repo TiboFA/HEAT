@@ -13,7 +13,10 @@ with sync_playwright() as p:
             if pg.locator("#ovl.open").count(): pg.evaluate("()=>fermer()"); pg.wait_for_timeout(120)
             else: break
     pg.goto(url); pg.wait_for_timeout(400)
-    pg.click('#optCamp .opt[data-v="att"]'); pg.click('#optLvl .opt[data-v="3"]')
+    pg.click('#optCamp .opt[data-v="att"]')
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)")
+    pg.click('#optLvl .opt[data-v="3"]')
     pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(400)
     for i in range(5):
         calme()

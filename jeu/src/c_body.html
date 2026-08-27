@@ -4,15 +4,36 @@
 <!-- ========== accueil ========== -->
 <div id="home">
   <h1>HEAT</h1>
-  <div class="sub">Décembre 2015, Accord de Paris. Dix-sept tours de cinq ans, jusqu'en 2100.<br>
-    <b>Objectif : faire plafonner les émissions mondiales, puis ramener le monde sous 20 GtCO₂/an — le plus tôt possible.</b><br>
-    Version jouable v0.11 — 112 leviers, doctrine réglable, chiffres calibrés sur le monde réel, modèle volontairement simple.<br>
-    <span style="font-size:12.5px">Un guide de huit étapes s'ouvre au premier tour ; il se rouvre à tout moment depuis le bandeau du haut.</span></div>
+  <div class="pitch">
+    <p>Décembre 2015, l'Accord de Paris vient d'être signé. Vous avez <b>dix-sept tours de cinq ans</b>, jusqu'en 2100.</p>
+    <p>Une objection revient sans cesse dès qu'on parle de climat : <i>« de toute façon, ça ne sert à rien. »</i>
+       Ce jeu la met à l'épreuve. Prenez le camp qui veut contraindre, ou celui qui veut gagner du temps —
+       les deux se jouent, les deux ont de vrais arguments, et à la fin c'est la physique qui tranche.</p>
+  </div>
 
   <div id="reprise"></div>
 
-  <div class="hsec">
-    <div class="ct">L'objectif</div>
+  <div class="hsec camps">
+    <div class="ct">Choisissez votre camp</div>
+    <div class="opts" id="optCamp">
+      <button class="opt" data-v="actif" aria-pressed="true"><b>Climato-actif</b>
+        <span>Vous voulez que les émissions plafonnent, puis chutent. Vos leviers sont lents, coûteux et contestés à chaque tour — mais ce que vous parvenez à verrouiller tient.
+        <i>Vous marquez le réchauffement évité.</i></span></button>
+      <button class="opt" data-v="att" aria-pressed="false"><b>Climato-attentiste</b>
+        <span>Vous n'avez rien à construire : il vous suffit que rien ne bouge. Vos leviers sont immédiats, bon marché, et n'ont presque jamais besoin d'un vote.
+        <i>Vous marquez les actifs préservés.</i></span></button>
+    </div>
+  </div>
+
+  <button id="start">Commencer la partie</button>
+  <div class="startnote">
+    Niveau <b>Standard</b>, doctrine équilibrée — modifiables juste en dessous.
+    Un guide de huit étapes s'ouvre au premier tour, et se rouvre à tout moment.<br>
+    <span class="lnk" id="rpfile2">Reprendre une partie enregistrée dans un fichier</span>
+  </div>
+
+  <details class="hdet">
+    <summary>Comment se juge une partie</summary>
     <div class="rules">
       Le monde émet <b>35,5 GtCO₂ par an</b> en 2015, et sans politique climatique il en émettra <b>57</b> en 2100.
       Votre partie se juge sur deux jalons datés :<br><br>
@@ -24,35 +45,23 @@
       La température de 2100 reste affichée — mais comme conséquence, pas comme but.<br><br>
       Le camp attentiste marque symétriquement : sur le <b>retard</b> des deux jalons, et sur le fait qu'ils ne soient jamais franchis.
     </div>
-  </div>
+  </details>
 
-  <div class="hsec">
-    <div class="ct">Votre camp</div>
-    <div class="opts" id="optCamp">
-      <button class="opt" data-v="actif" aria-pressed="true"><b>Climato-actif</b>
-        <span>Vous devez dépenser pour ne pas perdre. Vos leviers sont lents mais vos verrous sont juridiques et définitifs. Score : le réchauffement évité.</span></button>
-      <button class="opt" data-v="att" aria-pressed="false"><b>Climato-attentiste</b>
-        <span>Vous gagnez si rien ne bouge. Vos leviers sont immédiats et bon marché, et vous n'avez presque jamais besoin de faire voter quoi que ce soit. Score : les actifs préservés.</span></button>
-    </div>
-  </div>
-
-  <div class="hsec">
-    <div class="ct">Difficulté <span>elle ne règle que l'adversaire — vous avez le catalogue entier dès le premier niveau</span></div>
+  <details class="hdet">
+    <summary>Réglages — difficulté et doctrine</summary>
+    <div class="ct" style="margin-top:6px">Difficulté <span>elle ne règle que l'adversaire — vous avez le catalogue entier dès le premier niveau</span></div>
     <div class="opts four" id="optLvl">
       <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3 actions par tour contre vos 4. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
       <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 4 actions par tour, comme vous, avec les revenus pour les payer.</span></button>
       <button class="opt" data-v="3"><b>Réaliste</b><span>6 actions par tour contre vos 4. C'est le niveau sur lequel le jeu est calibré.</span></button>
       <button class="opt" data-v="4"><b>Expert</b><span>7 actions par tour contre vos 4, et de quoi les financer toutes.</span></button>
     </div>
-  </div>
-
-  <div class="hsec">
-    <div class="ct">Votre doctrine <span>elle décide quels leviers vous seront proposés</span></div>
+    <div class="ct" style="margin-top:16px">Votre doctrine <span>elle décide quels leviers vous seront proposés</span></div>
     <div class="doc home" id="docHome"></div>
-  </div>
+  </details>
 
-  <div class="hsec">
-    <div class="ct">Comment on joue</div>
+  <details class="hdet">
+    <summary>Les règles, en détail</summary>
     <div class="rules">
       <b>Quatre actions par tour</b>, et tous les leviers ne coûtent pas pareil. Un levier léger prend une action, un
       <b>levier lourd</b> en prend deux &mdash; ceux qui, à eux seuls, déplacent la trajectoire, retournent l'opinion
@@ -99,12 +108,13 @@
       un bloc porté à 100 de contrainte voit ses émissions baisser de 5,5 % par an. Un tour applique cinq années de ce régime :
       la contrainte installée tôt rapporte donc bien davantage que la même contrainte installée tard.
     </div>
-  </div>
+    <div class="rules" style="margin-top:14px;color:var(--muted)">
+      Clic sur un bloc sans carte sélectionnée : fiche détaillée. Échap : annuler la sélection.
+    </div>
+  </details>
 
-  <button id="start">Commencer la partie</button>
-  <div class="sub" style="margin-top:14px;font-size:11.5px">
-    Clic sur un bloc sans carte sélectionnée : fiche détaillée. Échap : annuler la sélection.
-  </div>
+  <div class="vers">HEAT v0.11.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+    Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
 <!-- ========== partie ========== -->

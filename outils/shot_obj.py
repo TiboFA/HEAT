@@ -8,6 +8,8 @@ with sync_playwright() as p:
     pg.on("console",lambda m: errs.append("console: "+m.text) if m.type=="error" else None)
     pg.goto(url); pg.wait_for_timeout(400)
     pg.locator("#home").screenshot(path="o_home.png")
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="2"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(400)
     pg.locator('#events').screenshot(path="o_t1.png")
     # milieu de partie : pic passé, seuil pas encore

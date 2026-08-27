@@ -1,6 +1,256 @@
-# HEAT — version jouable v0.9.1
+# HEAT — version jouable v0.11.1
 
-Fichier : `HEAT_jeu_v0.9.1.html`, autonome, aucune dépendance, s'ouvre par double-clic.
+Fichier : `jeu/jeu.html`, autonome, aucune dépendance, s'ouvre par double-clic.
+Le nom ne change plus d'une version à l'autre ; l'archive datée est à côté, sous `HEAT_jeu_vX.Y.html`.
+
+## v0.11.1 — l'écran d'accueil cesse d'être un manuel
+
+Retour de test, formulé sans détour : *« la première page fait peur et ne donne pas du tout envie de se lancer. »* C'est exact, et c'est ma faute — chaque version ajoutait son paragraphe de règles à l'accueil, sans que personne ne relise jamais l'ensemble.
+
+**Ce qu'elle était devenue.** 1 294 mots, 2 687 pixels de haut, **trois écrans à faire défiler avant d'atteindre le bouton**. Le choix du camp — la seule décision qui engage vraiment le joueur — était noyé au milieu, en petits caractères gris, entre un exposé sur les jalons et un tableau de difficulté. Un visiteur qui arrive par le lien public voit un cahier des charges, pas un jeu.
+
+**Ce qu'elle est.** 217 mots, 868 pixels : un écran, sans défilement.
+
+- Le titre, puis **deux paragraphes** qui posent la date, la durée, et la question à laquelle le jeu répond — l'objection « de toute façon ça ne sert à rien », mise à l'épreuve.
+- **Le choix du camp**, en deux grandes cartes côte à côte. Le texte a été réécrit : il dit ce qu'on va vivre et sur quoi on marque, plus le détail des mécaniques.
+- **Le bouton**, avec une ligne sous lui qui rassure — niveau Standard par défaut, doctrine équilibrée, guide au premier tour.
+- Trois volets repliés : *Comment se juge une partie*, *Réglages — difficulté et doctrine*, *Les règles, en détail*.
+
+**Rien n'a été supprimé.** Les 1 100 mots de règles sont intégralement dans le troisième volet, la difficulté et la doctrine dans le deuxième. Un clic, et tout est là. Ce sont des `<details>` natifs : pas une ligne de JavaScript, et le contenu reste dans la page pour qui la lit au clavier ou la cherche avec Ctrl+F.
+
+L'encadré « Aucune partie en cours dans ce navigateur » a disparu quand il n'y a rien à reprendre — annoncer une absence au-dessus du choix du camp n'aidait personne. Le lien pour charger un fichier est passé sous le bouton. Quand une partie **est** en cours, l'encadré reprend sa place en haut : c'est alors l'action la plus utile de l'écran.
+
+**Ce que ça a cassé, et qui est réparé.** Vingt-cinq harnais de test cliquaient sur un bouton de difficulté qui vit maintenant dans un volet replié : ils ouvrent les volets avant de cliquer. `play3.py`, `chk_save.py`, `chk_coh2.py` et `calib3.py` repassent, et un test d'accueil dédié vérifie que le choix du camp, les quatre niveaux et les quatre curseurs de doctrine sont toujours lus au démarrage.
+
+Vérifié aussi à 380 pixels de large : les deux cartes s'empilent, rien ne déborde.
+
+**La version de sauvegarde ne bouge pas.** `SAVE_V` reste à `0.11` : seul l'écran d'accueil a changé, le format d'une partie enregistrée est identique. Une partie commencée en v0.11 se recharge en v0.11.1 sans rien faire. C'est la première fois que le numéro affiché et le numéro de sauvegarde divergent — c'est voulu, et commenté dans le code à l'endroit qui compte.
+
+## v0.11 — la crédibilité devient un rapport entre les deux camps
+
+Consigne reçue : *« revois la crédibilité, c'est une interconnexion entre les deux joueurs. »* C'est le bon diagnostic, et il désigne exactement ce qui n'allait pas.
+
+### Ce qu'elle était
+
+Deux compteurs indépendants qui ne savaient que descendre. Douze endroits du code la déplaçaient ; onze la faisaient baisser. Un seul la relevait — un événement, +5, et seulement pour le camp actif. Le camp attentiste n'avait littéralement aucun moyen de reconstruire la sienne.
+
+Pour un seul usage : `p += (cred − 65) × 0,15`, soit entre −10 et +5 points de probabilité sur un pari. Une ressource affichée en permanence, qui ne faisait presque rien, et qu'on ne pouvait que perdre.
+
+### La règle
+
+**Personne n'est cru dans l'absolu : on est cru plutôt que l'autre.** Trois conséquences, et elles tiennent dans une fonction.
+
+**1. Toute variation se propage.** Discréditer l'adversaire vous crédite de la moitié de ce que vous lui prenez ; vous discréditer le crédite d'autant. Les vingt-neuf appels du code passent tous par là. Personne n'a de « levier de réparation » : on remonte quand l'autre se fait prendre. C'est la seule façon de sortir du cliquet descendant sans inventer une carte dont le seul objet serait de réparer un compteur.
+
+**2. La somme n'est pas conservée.** L'un perd 14, l'autre gagne 7. Un échange d'accusations décrédibilise les deux camps — ce qui est ce qu'on observe, et ce qui justifie le point suivant.
+
+**3. Ce qui décide est l'écart, jamais le niveau.** Le pari lit `écart × 0,25`, borné à ±40, soit ±10 points de probabilité. Mesuré sur la tarification carbone en Chine : 75 % de réussite à +36 d'écart, 66 % à égalité, 57 % à −37. Dix-huit points de basculement.
+
+### Ce qu'elle fait vraiment
+
+Peser sur les paris ne suffisait pas à justifier la mécanique. La crédibilité règle désormais **la vitesse à laquelle le soutien perçu rattrape le soutien réel**.
+
+Cette fraction valait 15 % par tour, quoi qu'il arrive. Elle vaut maintenant de **5 % à 25 %** selon l'écart de crédibilité — mesuré : 21 % à +36, 15 % à égalité, 9 % à −37. C'est la vitesse à laquelle ce qui est vrai finit par se savoir, et c'est le cœur du métier des deux camps : l'un veut que le réel remonte, l'autre veut qu'il traîne.
+
+C'est symétrique, et il faut le dire : quand le perçu est **au-dessus** du réel, une crédibilité active haute le fait redescendre tout aussi vite. Ce n'est pas un bonus déguisé, c'est un accélérateur de vérité dans les deux sens.
+
+### Ce qui la déplace sans que personne ne la joue
+
+C'est l'ajout qui compte le plus, parce qu'il branche la crédibilité sur les faits de la partie plutôt que sur le catalogue.
+
+| Ce qui se produit | Effet |
+|---|---|
+| **Le verdict des faits**, tous les quatre tours | La trajectoire a repris 0,10 °C ou plus : camp actif +6. Elle stagne sous 0,03 : camp attentiste +6. Entre les deux, rien. |
+| Retour de flamme sur un bloc | Camp attentiste +2 — sa prédiction se vérifie sous les yeux de tout le monde |
+| Pic des émissions passé · seuil des 20 GtCO₂/an franchi | Camp actif +8 chacun |
+| Référendum gagné · perdu | +5 au camp que le vote a désigné |
+| Échéance net zéro passée sans être tenue | Camp actif −5, à chaque échéance manquée |
+| **L'oubli**, chaque tour | Les deux crédibilités reviennent de 6 % vers 50 |
+
+Le verdict des faits est le seul endroit du jeu où la crédibilité se gagne sans que personne ne l'ait jouée, et c'est celui qui compte : les deux camps ont fait une prédiction, on la vérifie sur le chiffre même qui décide de la partie.
+
+L'oubli n'est pas un détail d'équilibrage. Sans lui, le camp qui prenait l'ascendant au tour 5 ne le rendait plus jamais : les trajectoires mesurées saturaient. Une avance de crédibilité ne se met pas en banque, elle s'entretient.
+
+### Deux corrections que la mesure a imposées
+
+La première version de la règle était fausse, et c'est un banc d'essai qui l'a dit — `mes_cred2.py`, qui instrumente chaque variation pour savoir d'où viennent les points.
+
+**Le plus gros flux de crédibilité du jeu était un événement, et il n'avait pas de miroir.** « Lanceur d'alerte » retirait 14 au camp attentiste, environ 1,7 fois par partie, soit **−24 par partie** — davantage que tous ses leviers réunis. Rien ne frappait symétriquement le camp actif. L'écart dérivait jusqu'à **+67 en faveur du camp actif au tour 17** quand on jouait attentiste : une spirale, exactement ce que la refonte devait supprimer.
+
+Ajout d'un événement miroir, **« Fraude aux crédits carbone »** : une enquête établit que la plupart des crédits d'un grand standard ne correspondent à aucune réduction, crédibilité du camp actif −14. Il est aussi documenté que le lanceur d'alerte, et il rétablit l'équilibre des flux d'événements.
+
+**Les pièges ne coûtaient rien.** L'infobulle promettait depuis toujours que la crédibilité chute « quand un levier annoncé comme efficace se révèle ne pas l'être » — et aucun des sept pièges ne le faisait, sauf A22. C'était l'endroit évident, et le plus utile pédagogiquement : annoncer une solution qui ne délivre pas est précisément ce qui détruit une crédibilité.
+
+A25 désinvestissement institutionnel −6 ; A26 nucléaire accéléré, A38 captage sur centrale, A42 hydrogène pour la voiture, A43 carburants de synthèse −4 chacun. Deux leviers attentistes gagnent au passage l'effet qui était le leur : T26 action en diffamation −6 sur le camp actif, T70 contestation du bilan carbone −5.
+
+**Ce que ça produit.** Mesuré sur 40 parties par configuration, joueur actif, en comparant une politique qui joue les pièges au hasard à une politique qui les évite :
+
+| | Découverte | Standard | Réaliste | Expert |
+|---|---|---|---|---|
+| Score en jouant les pièges | 347 | 318 | 261 | 224 |
+| Score en les évitant | 389 | 367 | 253 | 247 |
+| Écart de crédibilité final, pièges compris | −23 | −14 | −45 | −51 |
+| Écart de crédibilité final, sans les pièges | +11 | +7 | −9 | −37 |
+
+Lire les fiches rapporte **entre 23 et 49 points de score** sur trois niveaux sur quatre. Le niveau Réaliste donne −8, ce qui est du bruit : la température y est identique à 0,01 °C près et le seuil des 20 Gt est atteint 12 fois contre 11. Je ne le présente pas autrement — trois niveaux sur quatre montrent l'effet, le quatrième ne montre rien.
+
+### Ce que ça donne
+
+Trajectoire de l'écart de crédibilité, 30 parties par configuration, joueur automatique tirant au hasard :
+
+| Tour | joueur actif, niv. 1 | joueur actif, niv. 3 | joueur attentiste, niv. 1 | joueur attentiste, niv. 3 |
+|---|---|---|---|---|
+| 1 | +10 | +8 | +7 | +9 |
+| 5 | +22 | +16 | +19 | +27 |
+| 9 | +7 | −2 | +9 | +26 |
+| 13 | −11 | −23 | −7 | +34 |
+| 17 | −27 | −43 | −9 | +14 |
+
+Aucune partie ne sature à 0 ou à 100, contre deux à quatre sur vingt-quatre avant l'oubli et l'événement miroir. Les valeurs négatives côté joueur actif viennent des pièges que la politique aléatoire joue sans les lire : un joueur qui les évite finit à +11 au niveau Découverte.
+
+Il reste un déséquilibre assumé au niveau Réaliste joué attentiste : l'écart y monte à +34 au tour 13. Il ne vient pas de la mécanique mais de la partie — l'adversaire actif y est fort, la trajectoire baisse, le verdict des faits lui donne raison. C'est le comportement voulu : on perd la bataille de crédibilité quand on perd la bataille tout court.
+
+### Étalonnage v0.11
+
+Trente parties par configuration, joueur automatique tirant au hasard parmi les coups légaux.
+
+| | Découverte | Standard | Réaliste | Expert |
+|---|---|---|---|---|
+| Joueur actif — température 2100 | 2,57 °C | 2,61 °C | 2,71 °C | 2,74 °C |
+| Joueur actif — score | 337 | 315 | 258 | 233 |
+| Joueur attentiste — température 2100 | 2,52 °C | 2,30 °C | 2,10 °C | 1,97 °C |
+| Joueur attentiste — score | 433 | 312 | 227 | 186 |
+
+Ne rien faire donne toujours **3,48 °C**, à la décimale près. Les deux camps restent monotones. Les écarts avec la v0.10 (352/325/262/230 et 437/319/221/187) tiennent dans le bruit : **la refonte est neutre en équilibrage pour un joueur qui joue au hasard, et elle récompense celui qui lit.** C'est exactement ce qu'on lui demandait.
+
+### À l'écran
+
+Le bandeau de ressources affiche le niveau **et** l'écart : « Crédibilité 78 · +36 sur l'adversaire », en vert ; « −37 sur l'adversaire » en rouge ; « à égalité » quand les deux se valent. Le bilan de fin de tour a gagné une ligne « Écart avec l'adversaire » sous la ligne de crédibilité, avec l'infobulle qui dit pourquoi c'est celle-là qui compte. Le journal nomme chaque mouvement et les deux camps concernés. Deux manchettes de presse apparaissent au-delà de 30 points d'écart, dans un sens comme dans l'autre.
+
+### Ce qui reste ouvert
+
+**Le budget de puissance intégral**, toujours pas fait — remplacer le compteur d'actions par une somme de puissances plafonnée par la crédibilité. Le verrou qui l'empêchait est levé : la crédibilité est maintenant réversible et fait un vrai travail. Ce qui reste est le coût, inchangé — une estimation de puissance sur 112 leviers et un étalonnage sur quatre niveaux et deux camps.
+
+**Le troisième palier de poids** — trois actions pour A67, A65, T68, T73 — reste également ouvert.
+
+**L'adversaire ne joue pas la crédibilité.** Ses listes de priorités sont écrites à la main et ignorent l'écart : il joue A54 ou T48 parce qu'ils sont dans sa main, pas parce qu'il est en retard de crédibilité. Un joueur humain qui vise l'écart aura un avantage que les chiffres d'étalonnage ci-dessus ne mesurent pas.
+
+## v0.10 — tous les leviers ne coûtent pas la même chose
+
+Question posée : peut-on faire dépendre le nombre de leviers jouables de leur puissance, de la crédibilité du joueur, etc. ?
+
+L'état des lieux avant de répondre :
+
+- Le nombre d'actions était un `3` en dur, indépendant de tout.
+- Le coût existait mais ne mesurait pas la puissance. Sur les 112 leviers, il est presque toujours dans une seule ressource et va de 1 à 5. Il encode *quelle monnaie* — politique, capacité, attention — pas *quel poids*.
+- La crédibilité est quasi morte : un seul usage, `p += (cred−65) × 0,15`, soit entre −10 et +5 points de probabilité. Et elle ne monte jamais : une seule ligne dans tout le code la relève (+5, sur un événement, camp actif). Le camp attentiste n'a aucun moyen de la reconstruire.
+
+Ce dernier point est un verrou. Indexer le nombre d'actions sur la crédibilité alors que la crédibilité est un cliquet descendant fabrique une spirale de la mort. La v0.10 traite donc la puissance ; la crédibilité viendra quand elle sera réversible.
+
+### La règle
+
+**Quatre actions par tour. Un levier léger en coûte une, un levier lourd en coûte deux.** Trente-sept leviers sur 112 sont lourds — 22 côté actif, 15 côté attentiste. L'arbitrage de chaque tour devient : deux grands coups, ou un grand et deux petits, ou quatre petits.
+
+**L'adversaire paie exactement le même prix.** Son budget de niveau n'est plus un compte de cartes, c'est un budget d'actions dans la même monnaie que le vôtre. Il peut donc devoir renoncer à un grand coup faute de place, et son choix suivant tient compte de ce qu'il lui reste.
+
+### Le poids est mesuré, pas décrété
+
+Chaque levier a été rejoué seul sur un état de partie standard — tour 3, contrainte 35, réel 45, perçu 45, friction 25, deux mesures en vigueur par bloc, indice technologique 25, doctrine neutre, ressources non limitantes — puis la partie avancée de cinq tours sans adversaire, contre un témoin identique où le levier n'était pas joué. Le banc d'essai est reproductible : `mes_puissance.py` et `mes_puissance2.py`.
+
+Est lourd le levier qui, à lui seul, franchit un de ces quatre seuils :
+
+| Axe | Seuil | Combien de leviers |
+|---|---|---|
+| Trajectoire 2100 | 0,06 °C ou plus | 22 |
+| Opinion cumulée sur les huit blocs | 30 points | 8 |
+| Plafonds de contrainte | 20 points | 4 |
+| Indice technologique | 12 points | 1 |
+
+Les extrêmes mesurés : A67 protocole sectoriel contraignant, +0,13 °C à lui seul ; A65 accord multilatéral à cliquet, +0,12 ; T68 géo-ingénierie solaire à l'étude, −64 points d'opinion mondiale ; T73 test PME, −40 points de plafond cumulés.
+
+**Le sens ne compte pas.** Ce qui pèse est l'ampleur de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue. C'est pourquoi A25 — désinvestissement institutionnel, +72 points d'opinion pour +1 de contrainte, un piège — et T46 — cession des actifs sales, le seul levier attentiste qui améliore le soutien perçu de l'adversaire — sont lourds eux aussi. Un joueur qui apprend « lourd = fort » se fera avoir par A25 : c'est exactement ce que ce piège est censé faire.
+
+Cinquante leviers n'ont aucun effet mesurable sur la trajectoire. Ce n'est pas un défaut : ce sont les leviers d'opinion, de ressources et de tempo. Le second banc d'essai les mesure sur leurs propres axes, et huit d'entre eux sont lourds à ce titre.
+
+### Pourquoi quatre actions et non trois
+
+C'est la correction qu'il a fallu faire après mesure, et elle mérite d'être écrite parce que la première version était fausse.
+
+À trois actions, prendre un levier lourd coûtait un tiers du tour. Le calibrage l'a montré tout de suite : le joueur actif tombait de 398 à 272 de score au niveau Découverte, et le seuil de 20 GtCO₂/an n'était plus atteint que dans 11 parties sur 30 contre 25 auparavant. La raison est structurelle — **39 % du répertoire actif est lourd contre 27 % du répertoire attentiste**, et les leviers lourds du camp actif sont ses seuls vrais moteurs de trajectoire. Une mécanique censée créer de l'arbitrage devenait une taxe sur un seul camp, ce qui contredit frontalement ce que le jeu doit démontrer.
+
+Passer à quatre actions rend l'arbitrage réel sans le transformer en punition. Mesuré : le joueur pose 2,9 leviers par tour côté actif et 3,2 côté attentiste, contre 3,0 avant l'introduction du poids.
+
+Le budget de l'adversaire a été réétalonné dans la même monnaie, en visant le nombre de leviers qu'il posait effectivement avant : Découverte 3, Standard 4, Réaliste 6, Expert 7. À ce budget, l'adversaire attentiste pose 1,89 / 2,52 / 3,82 / 4,46 leviers par tour, contre 1,87 / 2,63 / 3,51 / 4,44 en v0.9.2.
+
+### Calibrage v0.10
+
+Trente parties par configuration, joueur automatique tirant au hasard parmi les coups légaux — et payant le poids des leviers comme un joueur humain.
+
+| | Découverte | Standard | Réaliste | Expert |
+|---|---|---|---|---|
+| Joueur actif — température 2100 | 2,57 °C | 2,61 °C | 2,70 °C | 2,76 °C |
+| Joueur actif — score | 352 | 325 | 262 | 230 |
+| Joueur attentiste — température 2100 | 2,53 °C | 2,32 °C | 2,08 °C | 1,98 °C |
+| Joueur attentiste — score | 437 | 319 | 221 | 187 |
+
+Ne rien faire donne toujours **3,48 °C**, à la décimale près. Les deux camps restent monotones : le score baisse à chaque niveau de difficulté, des deux côtés. Le joueur actif retranche 0,91 °C à la trajectoire passive au niveau Découverte, contre 0,98 en v0.9.2 — la démonstration tient.
+
+Un déplacement notable côté attentiste : il finissait à 1,94 °C au niveau Expert en v0.9.2, c'est-à-dire qu'en jouant le camp du blocage au niveau le plus dur on obtenait un meilleur climat que le camp actif au niveau le plus facile. Le rôle en devenait absurde. À 1,98 l'écart se réduit à peine, mais au niveau Découverte l'attentiste passe de 2,43 à 2,53 °C : il peut enfin peser dans le sens de son camp.
+
+### Ce que ça change à l'écran
+
+Chaque carte porte son poids : **⚖ 2 actions** en ambre pour les lourds, **1 action** en discret pour les autres. La fiche complète ouvre sur une ligne « Poids » qui explique la règle et le banc d'essai. Le bouton de fin de tour compte les actions du plan et non plus les cartes. Un levier lourd qu'il ne reste pas la place de jouer le dit dans son infobulle : « levier lourd : deux actions nécessaires, il n'en reste 1 ». Le panneau adverse annonce un budget d'actions, plus un nombre de coups.
+
+### Ce qui n'a pas été fait, et pourquoi
+
+**La crédibilité ne pilote toujours rien.** C'était la seconde moitié de la question. Elle reste bloquée sur son verrou : tant qu'un seul événement peut la remonter, et seulement pour un camp, l'indexer sur les actions punit sans offrir de sortie. Le chantier préalable est identifié — des leviers et des effets qui la reconstruisent des deux côtés — et il est petit.
+
+**Il n'y a que deux paliers de poids.** Un troisième palier, à trois actions pour les tout premiers leviers du catalogue — A67, A65, T68, T73 — donnerait un vrai sentiment de grand coup : un seul levier, tout le tour. Il demande un nouvel étalonnage complet et n'a pas été tenté.
+
+**Le budget de puissance intégral n'a pas été retenu** — remplacer le compteur d'actions par une somme de puissances plafonnée par la crédibilité. C'est la version la plus juste sur le papier ; elle suppose une estimation de puissance sur les 112 leviers qui ne soit pas de l'à-peu-près, et un étalonnage sur quatre niveaux et deux camps. À rouvrir une fois la crédibilité réparée.
+
+## v0.9.2 — un levier n'est consommé que par un effet obtenu
+
+Jusqu'ici, engager un levier le consommait, quoi qu'il advienne. Deux conséquences, toutes deux fausses.
+
+**Une tentative ratée brûlait la carte.** Un levier soumis à un pari — faire voter, gagner un procès, obtenir un accord — était retiré du catalogue même quand le pari échouait. Le joueur payait la moitié de la mise, encaissait 6 de friction, et perdait définitivement le levier sur ce bloc. Un contentieux perdu interdisait d'en intenter un autre.
+
+**Un levier contré était contré pour toujours.** Une mesure annulée par un retour de flamme, un recours en légalité, une clause de revoyure, une censure constitutionnelle ou un référendum perdu laissait le levier consommé. L'adversaire n'avait à défaire chaque mesure qu'une seule fois, et le duel n'avait lieu qu'une fois.
+
+### La règle
+
+Un levier n'est consommé que par un effet obtenu.
+
+**L'échec ne consomme rien.** La moitié de la mise revient, la friction de 6 reste, mais la carte redevient disponible. Le frein n'est pas la rareté, c'est le coût : mesuré sur une série de tentatives forcées à 25 % de réussite, la friction du bloc atteint 65 avant la première réussite — largement au-dessus du seuil de retour de flamme. Réessayer n'est pas gratuit, c'est simplement possible.
+
+**L'annulation rend le levier.** Sept mécanismes le déclenchent : le retour de flamme, la clause de revoyure, le recours en légalité (T25), l'attaque constitutionnelle (T28), le référendum perdu (T60), l'étude d'impact préalable (T72) et la neutralité technologique (T52) quand elle vide un effet différé. Trois annulations globales le déclenchent aussi : la clause de sauvegarde compétitivité (T65) rend l'ajustement aux frontières rejouable, la sortie d'alliance (T49) rend l'accord à cliquet, l'assurance publique de dernier ressort (T74) rend le retrait d'assurance. Et symétriquement, le contentieux publicité mensongère (A37) rend l'emprise médiatique rejouable à l'adversaire.
+
+**Un levier mondial fait exception.** Il a produit son effet sur les huit blocs : la destruction de sa mesure sur un seul d'entre eux ne le rend pas. Il ne redevient jouable que si son effet est annulé partout, et cela demande un levier dédié. Sans cette exception, un retour de flamme isolé en Europe rendait rejouable la fin des subventions aux fossiles pour le monde entier.
+
+### Ce que ça change à l'écran
+
+Un levier rendu porte la marque **↻ rejouable** dans la main, avec l'infobulle qui dit pourquoi. Le journal l'annonce ligne à ligne, et le bilan de fin de tour a une section « Leviers redevenus jouables » qui les récapitule avec le bloc concerné.
+
+Mesuré sur 20 parties au niveau Réaliste : environ **quatre leviers rendus par partie** côté joueur actif, et **267 tentatives ratées sur 340 tours** qui ne brûlent plus de carte. Ce n'est pas un ajustement de détail : c'est près d'une tentative par tour qui cesse d'être définitive.
+
+Une conséquence dérivée, correcte mais qu'il faut avoir en tête : `s.joues` sert aussi aux prérequis. Si la tarification carbone d'un bloc est annulée, la redistribution de son produit redevient verrouillée — il n'y a plus de produit à redistribuer. C'est cohérent, et ce n'était pas le cas avant.
+
+### Calibrage v0.9.2
+
+Trente parties par configuration, joueur automatique tirant au hasard.
+
+| | Découverte | Standard | Réaliste | Expert |
+|---|---|---|---|---|
+| Joueur actif — température 2100 | 2,50 °C | 2,49 °C | 2,62 °C | 2,71 °C |
+| Joueur actif — score | 398 | 363 | 304 | 263 |
+| Joueur attentiste — température 2100 | 2,43 °C | 2,21 °C | 2,05 °C | 1,94 °C |
+| Joueur attentiste — score | 383 | 260 | 200 | 167 |
+
+Ne rien faire donne toujours **3,48 °C** exactement. Les scores attentistes baissent d'une vingtaine de points par rapport à la v0.9.1 : le compteur de mesures évitées ne compte plus que les leviers réellement appliqués, alors qu'il comptait auparavant les tentatives ratées.
+
+---
+
+
 
 ## v0.9.1 — fermer la colonne Verdict
 

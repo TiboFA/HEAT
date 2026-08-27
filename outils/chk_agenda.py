@@ -5,6 +5,8 @@ with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":1680,"height":1250})
     errs=[]; pg.on("pageerror",lambda e:errs.append(str(e)))
     pg.goto(url); pg.wait_for_timeout(300)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="2"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(300)
     # aller au tour 2 (élections) avec un bloc démocratique juste sous 50
     pg.evaluate("""()=>{S.turn=2;S.year=2020;B(S,'eu').percu=44;B(S,'cn').fr=50;

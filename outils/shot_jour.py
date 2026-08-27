@@ -7,6 +7,8 @@ with sync_playwright() as p:
     pg.on("pageerror",lambda e:errs.append("pageerror: "+str(e)))
     pg.on("console",lambda m: errs.append("console: "+m.text) if m.type=="error" else None)
     pg.goto(url); pg.wait_for_timeout(400)
+    # la difficulté vit désormais dans un <details> replié : on l'ouvre avant de cliquer
+    pg.evaluate("()=>document.querySelectorAll('details.hdet').forEach(d=>d.open=true)");
     pg.click('#optLvl .opt[data-v="3"]'); pg.evaluate("()=>{GUIDE_VU=true;}"); pg.click("#start"); pg.wait_for_timeout(400)
     for tour in range(3):
         for _ in range(3):

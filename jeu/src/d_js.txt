@@ -3689,6 +3689,9 @@ function renderFin(){
    elle, recharger changerait tous les tirages à venir), l'échéance net zéro glissante,
    et les curseurs de doctrine mémorisés. Le défi du tour est stocké par son titre :
    c'est le seul objet de l'état qui porte des fonctions, donc le seul que JSON perd. */
+/* Version des sauvegardes. Elle ne suit pas le numéro affiché : elle ne change que
+   lorsque le format change vraiment. La v0.11.1 ne touche qu'à l'écran d'accueil,
+   une partie enregistrée en v0.11 s'y recharge donc telle quelle. */
 const SAVE_V="0.11", SAVE_K="heat.partie.v1";
 function serialiser(){
   const s=S;
@@ -3809,9 +3812,11 @@ function accueilReprise(){
   const r=resumeSauvegarde(lireAuto()||"");
   box.style.display="";
   if(!r || r.over){
-    box.innerHTML=`<div class="rpz vide"><div class="rpt">Aucune partie en cours dans ce navigateur. Une partie s'enregistre toute seule à la fin de chaque tour, et peut être exportée en fichier pour être reprise ailleurs.</div>
-       <div class="pbtn"><button class="mini" id="rpfile">Charger un fichier de partie…</button></div></div>`;
-    $("#rpfile").onclick=()=>importerPartie();
+    // pas de partie à reprendre : une ligne discrète suffit. Un encadré posé au-dessus
+    // du choix du camp pour dire qu'il n'y a rien à reprendre encombre l'entrée en jeu.
+    // pas de partie à reprendre : on n'affiche rien ici. Le lien pour charger un
+    // fichier vit sous le bouton, là où il ne coupe pas l'entrée en jeu.
+    box.innerHTML=""; box.style.display="none";
     return;
   }
   box.innerHTML=`<div class="rpz">
@@ -3918,6 +3923,7 @@ function finDeTour(){
 /* ---------- accueil ---------- */
 let choixCamp="actif", choixLvl=2;
 function initHome(){
+  const bf=$("#rpfile2"); if(bf) bf.onclick=()=>importerPartie();
   document.querySelectorAll("#optCamp .opt").forEach(o=>o.onclick=()=>{
     choixCamp=o.dataset.v; document.querySelectorAll("#optCamp .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o))); renderDocHome();});
   document.querySelectorAll("#optLvl .opt").forEach(o=>o.onclick=()=>{
