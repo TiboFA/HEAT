@@ -1,0 +1,236 @@
+# HEAT — version jouable v0.4
+
+Fichier : `HEAT_jeu_v0.4.html`, autonome, aucune dépendance, s'ouvre par double-clic.
+
+## v0.4 — le tour devient un plan, pas une suite de coups irréversibles
+
+### Le problème
+
+Jusqu'ici, cliquer une carte puis un bloc appliquait le levier immédiatement : ressources prélevées, jauges déplacées, dé jeté. Le joueur découvrait l'effet une fois qu'il n'était plus rattrapable, et n'avait aucun moyen de comparer deux façons de dépenser son tour. Sur un jeu qui prétend faire comprendre des arbitrages, c'était le contraire de ce qu'il faut : on ne peut pas arbitrer entre des options qu'on ne peut pas mettre côte à côte.
+
+### Ce qui a changé
+
+**Rien n'est appliqué au monde avant la validation du tour.** Les leviers engagés s'empilent dans un bandeau « votre tour », entre le tableau de bord et la carte. On en retire un d'un clic sur son ×, on vide tout d'un lien, on annule le dernier par Ctrl+Z. L'attribution de l'événement est devenue une entrée de plan comme les autres, donc annulable elle aussi.
+
+**Un clic par carte mondiale.** Un levier de bloc demande deux gestes, parce qu'il faut désigner la cible : on clique la carte, puis le bloc. Un levier mondial n'a rien à désigner — il gardait pourtant une confirmation intermédiaire (« carte mondiale — annuler · jouer ») héritée du temps où jouer une carte était irréversible. Ce n'est plus le cas : un clic l'engage directement dans le tour, et le × de sa puce l'en retire. La confirmation ne protégeait plus de rien.
+
+**L'aperçu est calculé, pas estimé.** Le jeu maintient en parallèle de l'état réel un état prévisionnel : une copie complète sur laquelle le plan est rejoué, en supposant les paris réussis. Toute l'interface lit cet état prévisionnel — jauges de la carte, tableau de bord, cartes injouables, progression du défi. Le bandeau, lui, n'affiche que des différences entre les deux : projection 2100 avant → après, score avant → après, coût engagé et ressources restantes, puis le détail jauge par jauge, bloc par bloc. Les valeurs prévisionnelles sont marquées « prévu » là où elles pourraient passer pour acquises, et les blocs concernés prennent un contour pointillé bleu sur la carte.
+
+**Les paris ne sont pas résolus à l'avance.** Un levier probabiliste affiche son taux de réussite dans le bandeau, et l'aperçu suppose la réussite en le disant explicitement. Le dé n'est jeté qu'à la validation. C'était la condition pour que la planification ne devienne pas une machine à relancer : si l'effet était appliqué au clic, retirer un levier après un échec reviendrait à rejouer le dé.
+
+**Le plan se revalide en permanence.** Régler la doctrine en cours de tour change le coût et l'effet des leviers : le plan est recalculé, et un levier devenu injouable est barré avec sa raison plutôt que silencieusement ignoré. Tant qu'il reste un levier barré, la validation refuse de partir. Le renouvellement de la main est bloqué tant que des leviers sont engagés, puisqu'ils sont encore dedans.
+
+**La résolution a gagné au change.** Les effets des leviers du joueur ne sont plus animés au clic, un par un : ils ouvrent maintenant la séquence de résolution, sous un intertitre « Vos leviers », avant les combos, l'adversaire et le monde. Les dés se jettent à l'écran. Au passage, deux fuites ont été bouchées : le compteur de tour et la courbe de trajectoire affichaient déjà le résultat pendant qu'on le révélait.
+
+**Le moteur n'a pas bougé.** Même harnais de simulation sur v0.3 et v0.4, 16 parties par configuration : les huit résultats sont identiques au centième. La phase de planification ne change que le moment où `jouer()` est appelé, pas l'ordre des opérations.
+
+### Le journal dit tout ce que la machine fait
+
+Le journal ne montrait que les décisions : vos leviers, ceux de l'adversaire, les retours de flamme, les élections. Tout le reste du moteur tournait en silence — les dérives naturelles, les effets persistants, la recharge des ressources, les tirages, les dommages. Un joueur qui voyait une jauge bouger sans savoir pourquoi n'avait aucun moyen de le retrouver.
+
+Chaque tour est maintenant écrit en entier, découpé par phase dans l'ordre exact de la résolution : vos leviers, combinaisons, l'adversaire, l'événement, effets différés, retours de flamme, élections, effets persistants, le monde bouge tout seul, physique du climat, dommages, défi et presse, mise en place du tour suivant. Chaque phase écrit une ligne même quand il ne s'est rien passé — « aucun bloc au-dessus du seuil de friction (55) », « pas d'élection ce tour : les blocs démocratiques votent un tour sur deux ». Une phase silencieuse ne se distingue pas d'une phase absente, et c'est précisément là que naissent les malentendus sur les règles.
+
+Sont sortis du silence : la dérive de chaque bloc au tour près (perçu, réel, friction, contrainte), les effets persistants encore actifs et leur échéance, la neutralisation de l'arbitrage investisseur-État et sa date d'expiration, les pertes d'attention infligées à l'adversaire, l'indice de dommages des deux groupes de blocs, les décès du tour et le cumul, le compteur d'actifs préservés du camp attentiste, la projection recalculée, la recharge chiffrée des deux camps, l'événement et le défi tirés, le nombre de leviers piochés, et le nombre de coups dont l'adversaire dispose au niveau choisi. Le journal dit aussi ce que l'adversaire *ne peut pas* faire — ne pas pouvoir attribuer un événement, s'arrêter faute de carte jouable — parce qu'une absence de coup est une information de jeu.
+
+C'est verbeux par construction : une cinquantaine de lignes par tour. D'où deux vues, basculables par un lien à côté du titre. « Tout » est la vue par défaut. « L'essentiel » ne garde que les décisions des deux camps et ce qui les sanctionne, et masque au passage les sous-titres devenus vides.
+
+Aucune de ces lignes n'a modifié le moteur : mêmes huit résultats de calibrage, au centième, avant et après.
+
+### Le défi, lisible d'un coup d'œil
+
+Le défi du tour tenait dans une ligne de texte et un mot d'état. Il est devenu une vraie carte, avec quatre choses qui doivent se lire sans effort : ce qu'il demande, où on en est, ce qu'il rapporte, et quand il est jugé.
+
+La récompense est désormais **annoncée avant** plutôt que découverte après — un objectif dont on ignore le prix n'oriente aucune décision. Chaque défi porte une jauge, et la règle de lecture est la même partout : **pleine et verte, tout va bien.** Les défis d'objectif la remplissent à mesure qu'on approche du but. Les défis de maintien — « aucun bloc au-dessus de 45 de friction » — affichent au contraire la **marge restante** : elle se vide quand on s'approche du seuil, et vire au rouge quand il est franchi. L'inverse aurait été plus direct à coder et aurait dit le contraire de ce qu'on voit.
+
+L'état est une pastille (EN COURS / REMPLI / TENU / SEUIL DÉPASSÉ), suivie du rappel que le défi est jugé à la résolution, **après le coup de l'adversaire** — ce qui explique pourquoi un défi affiché « rempli » peut être manqué. La carte lit l'état prévisionnel : la jauge bouge pendant qu'on construit son tour.
+
+### Les leviers : périmètre et jauges explicites
+
+Trois choses n'étaient pas identifiables sur une carte de levier.
+
+**Le périmètre.** Un levier mondial portait une étiquette « monde » ; un levier de bloc ne portait rien. L'asymétrie faisait du périmètre une information qu'on déduisait, alors que c'est la première décision : ai-je une cible à choisir ? Chaque carte affiche maintenant une pastille de périmètre — **◍ monde** en violet, **◎ bloc** en bleu — doublée d'un liseré de la même couleur sur le bord de la carte, pour que le tri se fasse à la périphérie du regard. La pastille « bloc » porte en plus **le nombre de blocs actuellement éligibles**, et son infobulle les nomme. Quand il n'y en a aucun, la carte dit pourquoi — « perçu insuffisant sur les 8 blocs » plutôt qu'un grisé muet.
+
+**L'influence de la doctrine.** Elle s'affichait en « doc 87 % », noyée parmi cinq étiquettes de même forme. C'est devenu une jauge à part entière, sur sa propre ligne, avec un remplissage à trois niveaux et l'infobulle qui explique ce qu'elle commande : la probabilité d'être proposée au tirage, et l'amplitude de l'effet une fois jouée.
+
+**Le pari.** L'étiquette disait « pari » sans dire combien. Elle affiche maintenant la **fourchette de réussite sur les blocs encore jouables** — « pari 61–80 % » — et l'infobulle nomme le meilleur bloc et le moins favorable. C'est ce qui transforme un avertissement en information de décision.
+
+Au passage, la temporalité est explicite sur toutes les cartes : « immédiat » en neutre, « effet dans 2 tours » en violet, puisque la latence est la vraie contrainte et méritait la couleur.
+
+### L'agenda du tour : ce qui arrivera sans vous
+
+Un bandeau « ce tour, quoi qu'il arrive » s'intercale entre les évènements et le tableau de bord. Il liste tout ce que la résolution produira sans que le joueur ait à le jouer, et que rien dans l'interface n'annonçait jusqu'ici :
+
+- **combien de leviers l'adversaire va jouer** à la difficulté choisie, plus son action gratuite — la seule part du tour qui reste cachée, et le dire est plus honnête que la laisser deviner ;
+- **les échéances politiques**, à commencer par les élections : les blocs démocratiques votent un tour sur deux, et le bandeau affiche le soutien perçu de chacun avec un ✓ ou un ✕ selon qu'il passe la barre des 50. Les tours sans scrutin le disent aussi, avec la date du suivant — une règle qu'on n'apprend pas si elle ne se manifeste que par son résultat ;
+- **l'effet automatique de l'évènement** du tour, ou le rappel qu'il n'en aura aucun tant que personne ne l'attribue ;
+- **les effets différés arrivant à échéance**, avec le levier qui les a posés ;
+- **les retours de flamme annoncés** : un bloc au-dessus du seuil de friction affiche qu'une mesure sautera, et il est encore temps de compenser ;
+- **les mécanismes installés qui repassent** : clause de revoyure, préemption qui se lève, institution de suivi, emprise médiatique, accord à cliquet, courbe d'apprentissage au-delà de 40, pertes d'attention en cours, neutralisation de l'arbitrage investisseur-État avec son échéance.
+
+Le bandeau est lu **sur l'état prévisionnel**, donc il se recalcule pendant que le joueur construit son tour. C'est ce qui le rend utile plutôt que décoratif : engager une campagne d'opinion fait basculer deux ✕ en ✓ sur la ligne des élections, engager une tarification carbone fait apparaître l'avertissement de retour de flamme sur le bloc visé, et retirer le levier le fait disparaître. Le joueur voit le calendrier réagir à ses arbitrages avant de les valider.
+
+Le même bandeau est repris dans le bilan de fin de tour, sous l'évènement et le défi du tour qui s'ouvre.
+
+### Un bilan de fin de tour, en pop-up
+
+La résolution animée montre les choses une par une et vite. Elle donne le rythme, elle ne donne pas la lecture. Dès que la séquence se termine, une fenêtre s'ouvre sur trois blocs :
+
+**Ce qui a changé**, en avant → après plutôt qu'en valeurs absolues : projection 2100, réchauffement, émissions, indice technologique, décès cumulés, dommages des blocs riches et de tous les autres, score et palier, résultat du défi, puis les quatre ressources dont vous disposez pour le tour qui commence. Chaque écart est coloré **du point de vue de votre camp** — vert quand la variation vous sert, rouge quand elle sert l'autre. Une friction qui baisse est verte pour l'actif, rouge pour l'attentiste, et c'est le même code sur les huit blocs.
+
+**Les huit blocs** dans une table compacte : contrainte, réel, perçu, friction, chacun avec son écart sur le tour, plus l'état du bloc (loi-cadre, préempté, compensé, friction critique). Les blocs que rien n'a touchés sont estompés, pour que l'œil aille aux trois ou quatre qui ont bougé. Dessous : les manchettes que la presse a retenues, puis l'événement et le défi du tour qui s'ouvre.
+
+**Le journal du tour**, en entier, avec le même basculement tout / essentiel que le panneau latéral. C'est la trace écrite de ce que la fenêtre du haut résume en chiffres : si un écart surprend, la ligne qui l'explique est juste en dessous.
+
+Une case à cocher en bas coupe l'ouverture automatique — le bilan reste alors accessible par un lien « bilan du tour N » dans le bandeau du haut, qui pointe toujours sur le dernier tour résolu.
+
+Le bilan lit un instantané pris au moment exact où le tour est validé, avant que le plan ne touche le monde. Il ne recalcule rien : il compare deux états. Calibrage inchangé.
+
+### Effet de bord utile
+
+Le bandeau rend criant un défaut déjà noté en v0.3 : dès le premier tour, trois bonnes cartes font tomber la projection de 3,48 à 2,91 °C. Ce n'était qu'un chiffre au tableau de bord ; c'est maintenant une promesse affichée avant même d'avoir joué. L'amortissement de l'extrapolation sur les deux premiers tours passe du statut de détail à celui de correctif nécessaire.
+
+## Le problème traité en v0.3
+
+La v0.2 était complète et morte. On jouait trois cartes, on cliquait « fin de tour », et des chiffres changeaient en silence dans un journal texte. Aucune tension, aucun risque, aucun retour immédiat, aucun objectif entre le premier tour et 2055. La v0.3 ne rajoute pas de contenu : elle ajoute du jeu.
+
+## 1. Du nerf
+
+**Retour immédiat.** Quand vous jouez un levier, les blocs touchés pulsent et les valeurs s'envolent au-dessus d'eux — « +11 contrainte », « +5 soutien perçu ». Plusieurs effets sur un même bloc s'empilent au lieu de se superposer. Les jauges s'animent au lieu de sauter.
+
+**Phase de résolution.** La fin de tour n'est plus instantanée. Un instantané des jauges est pris avant la résolution, puis la séquence se rejoue devant vous, étape par étape, avec un bandeau qui annonce ce qui se passe :
+
+1. vos combinaisons, s'il y en a ;
+2. l'adversaire joue, un coup après l'autre, chaque bloc touché réagissant à l'écran ;
+3. les effets différés qui tombent ;
+4. les retours de flamme ;
+5. les élections, quand c'est un tour pair ;
+6. la physique du climat ;
+7. le défi du tour, réussi ou manqué ;
+8. deux manchettes de presse ;
+9. **la révélation** : la nouvelle projection 2100, avec l'écart gagné ou perdu.
+
+Le tableau de bord est **figé** pendant toute la séquence : le résultat ne s'affiche plus en haut de l'écran avant d'avoir été révélé. C'était le principal tueur de tension de la v0.2. Un bouton « passer ▸ » saute la séquence pour ceux qui la connaissent par cœur.
+
+## 2. Du risque
+
+Vingt-quatre leviers sont devenus des **paris**, signalés par un badge sur la carte. Ce sont exactement ceux qu'il faut faire voter, gagner ou obtenir : tarification carbone, loi-cadre, contentieux, campagne électorale, accord transpartisan, préemption législative, capture réglementaire. Les leviers techniques, eux, ne ratent pas — une norme d'efficacité ou un réseau électrique ne dépendent d'aucune majorité.
+
+La probabilité n'est pas fixe. Elle monte avec le soutien perçu du bloc visé, descend avec la friction, varie selon le régime politique et la crédibilité du camp. Une campagne électorale à 64 % de base peut tomber à 35 % sur un bloc braqué, ou monter à 85 % sur un bloc acquis.
+
+Le jet est visible : une barre montre la zone de réussite, un curseur tombe, le résultat s'affiche. En cas d'échec, **la moitié de la mise revient** et le bloc gagne 6 de friction — on a essayé, ça s'est vu, ça n'a rien donné.
+
+Environ un tiers des paris tentés échouent sur une partie type.
+
+## 3. Des objectifs et des combos
+
+**Un défi par tour**, tiré parmi treize et adapté au camp joué et à l'avancement de la partie. Il s'affiche en haut de l'écran avec sa **progression en temps réel** — « Chine : 6 / 10 », « 1 bloc sur 2 », « 2,94 / 2,90 °C ». Réussi à la résolution, il rapporte des ressources.
+
+**Quinze combinaisons** entre deux leviers joués dans le même tour. Le chèque avec la taxe, plafond étanche, la courbe s'effondre, fenêtre d'attention, capital dérisqué, le coup de Kigali — et côté attentiste : colère ciblée, béton et contrats, la promesse sans date. Chacune porte un effet et une explication.
+
+Comme tirer les deux cartes d'une paire précise parmi 77 est improbable, les combos disponibles sont **signalés** : dès que le partenaire d'un levier est dans votre main, un badge « ⚡ combo » apparaît, avec le nom et l'effet de la combinaison au survol.
+
+**Un score et six paliers** — Sans effet, Marginal, Notable, Structurant, Décisif, Historique. Pour le camp actif il combine réchauffement évité, contrainte moyenne pondérée par les émissions, lois-cadres et indice technologique. Pour l'attentiste, trajectoire préservée, mesures évitées et infrastructure verrouillée. Les deux échelles ont été alignées pour être comparables.
+
+## 4. De la vie
+
+Le monde commente. À chaque résolution, deux manchettes sont générées selon l'état réel de la partie : mobilisation contre les mesures, seuil de 1,5 °C officiellement hors d'atteinte, bilan sanitaire, loi-cadre qui survit à l'alternance, collectivités interdites d'agir, lobby fossile qui perd sa crédibilité. Quand rien ne se passe, la presse le dit aussi : « Le climat quitte la une des journaux. »
+
+Elles apparaissent dans la séquence de résolution, puis restent affichées dans la colonne de droite.
+
+## 5. La fiche d'un levier se suffit à elle-même
+
+Premier retour d'usage : les trois pavés de droite parlaient le langage du moteur. « Rendement attendu par bloc : Chine 151 % » — 151 % de quoi ? « Contrainte +11 % (axe contrainte ou incitation) · contrainte +13 % (axe horizon assumé) » — deux fois la même chose avec des noms d'axes internes. « Coût affiché 3 capital / Coût réel 3 cap. » — deux cases identiques côte à côte.
+
+Ce qui a changé :
+
+**Les valeurs réelles remplacent les pourcentages.** La fiche rejoue le levier sur une copie de la partie en cours et affiche ce qu'il ferait vraiment : « Chine : +20 contrainte », « Europe : −25 friction, compensation installée ». Pour un levier ciblé, une ligne par bloc, triée, avec les blocs injouables grisés et la raison affichée dessous. Pour un levier mondial, la liste des blocs touchés. Quand le levier peut échouer, la probabilité de réussite figure sur chaque ligne — elle varie d'un bloc à l'autre.
+
+**Chaque terme de jeu est explicable au survol.** Contrainte, plafond, friction, soutien perçu, soutien réel, indice technologique, crédibilité, attention, capital : ces mots sont soulignés en pointillés partout où ils apparaissent, dans la fiche comme sur les cartes en main, et une infobulle dit ce qu'ils sont. Le plafond, en particulier, n'était défini nulle part alors que la moitié des leviers adverses ne fait que le baisser.
+
+**La doctrine est expliquée en français.** « Contrainte ou incitation — ce levier veut "contraindre" ; votre curseur est à 35⁄100, vous y êtes. » Puis une conclusion unique : « En conséquence : son effet est renforcé de 37 %, et la friction qu'il crée est réduite de 27 %. C'est déjà compris dans les chiffres ci-dessus. » Cette dernière phrase compte : elle dit au joueur qu'il n'a rien à recalculer.
+
+**Les propriétés répondent à une question, pas à un attribut.** « Latence » est devenu « Quand » ; « Réversibilité » est devenu « Si ça tourne mal » ; « Usages restants » est devenu « Encore jouable ». Le coût n'apparaît qu'une fois, avec le détail de l'écart en infobulle quand il diffère du coût de base.
+
+**La réversibilité est devenue mécanique.** Elle n'avait aucun effet en v0.3 initiale. Désormais, quand un bloc dépasse le seuil de friction, le retour de flamme annule d'abord les mesures les plus faciles à annuler, et ne touche jamais une mesure irréversible. Une loi-cadre ou un accord transpartisan vous protègent donc réellement.
+
+La solidité de la preuve reste indicative — elle dit à quel point il est démontré que le levier marche — mais l'infobulle le précise désormais, et signale que « contestée » ou « faible » trahit souvent un piège.
+
+## 6. Douze leviers par tour, et une seconde donne
+
+La main passe de sept à **douze leviers**, six par colonne. Pour que ça tienne à l'écran sans défilement, les cartes ont été resserrées : l'effet est tronqué à deux lignes et se déplie au survol, et les étiquettes sont passées en repères courts — « 4 pol. », « ≥ 45 », « +2 t », « monde », « doc 87 % », « pari », « ⚡ ». Chacune garde son infobulle.
+
+**Et si les douze ne vous plaisent pas**, le lien « autres leviers » en tête de colonne rend tous les leviers non joués et en tire douze autres. Coût : 1 attention, une fois par tour. Les leviers rendus ne reviennent pas avant le tour suivant, donc c'est bien vingt-quatre leviers différents accessibles dans un même tour — sur les soixante-dix-sept du catalogue.
+
+L'élargissement n'a pas déséquilibré la partie parce que l'adversaire tire dans la même main élargie. Le calibrage s'est même amélioré : la progression est désormais monotone dans les deux camps, ce qui n'était pas le cas avec sept cartes.
+
+## 7. Le camp attentiste cesse d'être décrit par ses adversaires
+
+Retour d'usage : les leviers attentistes étaient formulés très négativement, ce qui déséquilibrait la perception du rôle. C'était exact et le défaut était sérieux, pour deux raisons.
+
+**Ludique :** sur trente et un leviers, une bonne moitié portait un nom qui était déjà un verdict — whataboutisme, greenwashing, chantage à l'emploi, instrumentalisation, capture, détricotage, procédure-bâillon, fatalisme, individualisme. Personne ne se pense comme « celui qui fait du whataboutisme ». On ne joue pas un rôle qu'on vous décrit comme méprisable.
+
+**Pédagogique, et c'est le plus grave :** l'intérêt d'incarner ce camp repose sur la théorie de l'inoculation — comprendre de l'intérieur pourquoi ces arguments fonctionnent, pour les reconnaître ensuite. Si le jeu annonce d'emblée « ceci est un mensonge cynique », le joueur n'apprend rien : il regarde des méchants de carton. Dans la vie réelle, ces arguments ne se présentent jamais ainsi — ils se présentent comme du bon sens, de la prudence budgétaire, de la défense des ménages.
+
+### Ce qui a changé
+
+Deux registres qui étaient mélangés dans le même champ ont été séparés.
+
+**La voix du camp** — nom du levier, effet, mécanisme — est désormais formulée comme le camp se formule à lui-même, sans jugement :
+
+| Avant | Maintenant |
+|---|---|
+| Whataboutisme | Conditionner l'effort aux autres |
+| Instrumentalisation du coût de la vie | Défense du pouvoir d'achat |
+| Greenwashing publicitaire | Communication sur les engagements |
+| Chantage à l'emploi et à la délocalisation | Alerte sur l'emploi industriel |
+| Détricotage administratif | Simplification normative |
+| Capture de l'agence réglementaire | Allègement du contrôle |
+| Procédure-bâillon | Action en diffamation |
+| Fatalisme | Réalisme sur les délais |
+| Saturation de l'attention | Maîtrise du calendrier |
+| Verrouillage d'infrastructure | Investissement d'infrastructure |
+
+Le mécanisme suit. « Rendre chacun responsable de son empreinte dissout la demande de politique publique dans la culpabilité privée » devient « Chacun décide de ses trajets, de son chauffage, de son assiette. Rendre ces choix visibles est plus rapide, moins coûteux et moins clivant qu'une contrainte imposée d'en haut. »
+
+**L'analyse critique n'est pas supprimée** — elle serait remplacée par une fausse symétrie, ce qui serait pire. Elle est déplacée dans les deux champs qui sont explicitement des champs d'analyse, « Dans le monde réel » et « Ce qui peut le faire rater », où elle est datée et sourcée : « L'empreinte carbone individuelle a été popularisée par une campagne de BP en 2004. Les gestes individuels sans changement d'infrastructure plafonnent autour d'un quart de l'empreinte d'un ménage. »
+
+### Le camp actif a été audité aussi
+
+Remplacer un déséquilibre par l'inverse n'aurait rien réglé. Les superlatifs du camp actif ont été dégonflés : « meilleur rapport effet/coût du catalogue » devient « aucune technologie à déployer, aucun délai de mise en œuvre » ; « le levier le plus puissant du camp actif » devient « c'est ce qui a permis au Climate Change Act de survivre à quatre alternances » ; « imbattable » disparaît.
+
+L'étiquette « Piège. » a également été retirée du texte des six pièges — elle donnait la réponse gratuitement à qui ouvrait la fiche, y compris aux niveaux où les pièges ne sont plus signalés. L'analyse reste, sans l'étiquette : qui lit comprend, qui ne lit pas se fait avoir. Deux noms de pièges qui étaient des verdicts ont aussi changé : « Engagement net zéro 2050 sans étape » devient « Objectif net zéro 2050 », « Nucléaire présenté comme réponse à 2030 » devient « Programme nucléaire accéléré ».
+
+### Comment l'autre camp l'appelle
+
+Une section nouvelle dans chaque fiche donne le nom que le camp adverse emploie — dans les deux sens. La tarification carbone est « matraquage fiscal », la loi-cadre un « carcan juridique », le contentieux climatique un « gouvernement des juges », l'institution de suivi un « comité Théodule ». Symétriquement, « conditionner l'effort aux autres » est nommé whataboutisme, « défense du pouvoir d'achat » instrumentalisation du coût de la vie.
+
+Une phrase l'explicite : le nom que porte la carte est celui qu'emploient ceux qui la jouent, celui de la section est celui qu'emploient ceux qui la subissent, et aucun des deux n'est neutre. C'est probablement ce que le jeu enseigne de plus transférable.
+
+Quatorze leviers actifs et aucun attentiste n'ont pas d'alias — ce sont les leviers techniques qui ne font l'objet d'aucune dénomination hostile identifiable : réseau électrique, R&D, normes d'efficacité. Leur absence d'alias est en soi une information sur ce qui est polémique et ce qui ne l'est pas.
+
+## Calibrage après ces ajouts
+
+Moyennes sur 16 parties par configuration, adversaire compris. Les paris perdus ont durci la partie : le rendement des mesures a été remonté de 0,45 à 0,48 pour compenser.
+
+| | niveau 1 | niveau 2 | niveau 3 | niveau 4 |
+|---|---|---|---|---|
+| Joueur actif — projection 2100 | 2,34 °C | 2,44 °C | 2,52 °C | 2,56 °C |
+| Joueur actif — score | 381 | 338 | 313 | 294 |
+| Joueur attentiste — projection | 2,60 °C | 2,43 °C | 2,32 °C | 2,20 °C |
+| Joueur attentiste — score | 382 | 323 | 286 | 247 |
+
+Ne rien faire donne toujours **3,48 °C**. Les scores simulés plafonnent à « Notable » parce que l'adversaire automatique qui sert de joueur de test suit une liste de priorités écrite à la main : il ne cherche jamais les combos et joue presque toujours sur le plus gros bloc. Un humain qui vise les combinaisons et répartit ses coups montera nettement plus haut.
+
+## Ce qui reste ouvert
+
+**L'aperçu ignore l'adversaire**, et c'est assumé : montrer sa réponse probable reviendrait à la lui dévoiler. Le bandeau le dit dans l'infobulle de la projection, mais l'écart entre l'aperçu et le résultat réel reste la première source de surprise du jeu — ce qui est plutôt le rôle qu'on veut lui donner.
+
+**L'ordre des leviers dans le plan n'est pas modifiable.** Il compte pourtant : une redistribution jouée avant une taxe ne produit pas le même résultat qu'après. Le glisser-déposer sur les puces du bandeau est le prochain ajout naturel.
+
+**Le taux de réussite des défis est faible en simulation** (moins d'un sur huit) — mais c'est le même artefact : le joueur automatique joue tout sur la Chine, ce qui rend « deux blocs différents » quasi impossible. À vérifier sur une vraie partie avant de conclure qu'il faut les assouplir encore.
+
+**La projection 2100 réagit trop fort aux premiers coups.** Dès le premier tour, trois bonnes cartes la font tomber de 3,48 à 2,3 °C, ce qui donne un sentiment de facilité trompeur au début de partie. La fonction d'extrapolation mériterait d'être amortie sur les deux premiers tours.
+
+**Le camp attentiste reste moins riche à jouer** — c'est le chantier de fond identifié depuis la v0.2. Le risque et les combos l'ont un peu rattrapé, pas encore égalisé.
+
+**Aucun son, aucune musique.** C'est le prochain gain facile sur le ressenti, et le seul qui obligerait à sortir du fichier unique.

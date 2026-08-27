@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.bak
+*.bak[0-9]
+# captures d'écran des harnais de test : 41 Mo, régénérables par outils/shot_*.py
+*.png
+# fragments de transfert propres aux sessions de travail
+rel*/
+relay*/

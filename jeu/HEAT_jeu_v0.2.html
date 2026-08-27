@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAT — version jouable v0.2</title>
+<style>:root{
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
+  --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --ring:rgba(255,255,255,.10);
+  --s-traj:#3987e5; --s-reel:#199e70; --s-percu:#c98500; --s-fric:#d03b3b;
+  --s-base:#9085e9; --s-autres:#d95926; --ok:#0ca30c;
+  --land:#2f2f2c; --land-hi:#3f3f3a; --land-sel:#4b4b45; --land-lock:#3a2f2f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+ font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600}
+.wrap{max-width:1680px;margin:0 auto;padding:14px}
+button{font:inherit}
+
+/* ---------- accueil ---------- */
+#home{max-width:820px;margin:6vh auto;padding:0 18px}
+#home h1{font-size:44px;letter-spacing:.22em;font-weight:700}
+#home .sub{color:var(--muted);margin:8px 0 26px;font-size:14px}
+.hsec{border:1px solid var(--ring);border-radius:12px;background:var(--surface);padding:16px 18px;margin-bottom:12px}
+.hsec .ct{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:12px 14px;cursor:pointer;text-align:left}
+.opt[aria-pressed="true"]{border-color:var(--ink);background:#2c2c29}
+.opt b{display:block;font-size:14px;margin-bottom:3px}
+.opt span{color:var(--muted);font-size:11.5px;line-height:1.4;display:block}
+.opts.four{grid-template-columns:repeat(4,1fr)}
+#start{width:100%;margin-top:6px;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:15px;
+ background:var(--ink);color:#0b0b0b;cursor:pointer}
+#home .rules{color:var(--ink-2);font-size:12.5px;line-height:1.6}
+#home .rules b{color:var(--ink)}
+
+/* ---------- appli ---------- */
+.app{border:1px solid var(--ring);border-radius:14px;background:var(--surface);overflow:hidden}
+.topbar{display:flex;align-items:center;gap:14px;padding:10px 14px;border-bottom:1px solid var(--ring);
+ background:var(--surface-2);flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.16em;font-size:12.5px}
+.turn{color:var(--ink-2);font-size:12.5px}.turn b{color:var(--ink);font-variant-numeric:tabular-nums}
+.res{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
+.res div{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:help}
+.res .v{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.pill{width:8px;height:8px;border-radius:2px}
+.endturn{border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;background:var(--ink);color:#0b0b0b}
+.endturn:disabled{opacity:.45;cursor:default}
+
+.events{display:flex;gap:9px;padding:10px 14px;border-bottom:1px solid var(--ring);background:var(--surface-2);overflow-x:auto}
+.ev{flex:1;min-width:260px;border:1px solid var(--ring);border-left:3px solid var(--s-percu);border-radius:9px;
+ background:var(--surface);padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.ev.done{border-left-color:var(--ok)}
+.ev.cold{border-left-color:var(--muted)}
+.ev .eh{display:flex;align-items:baseline;gap:8px}.ev .eh h4{font-size:12px}
+.ev .eh .loc{color:var(--muted);font-size:10.5px;margin-left:auto;white-space:nowrap}
+.ev p{margin:0;color:var(--ink-2);font-size:11px}
+.mini{border:1px solid var(--ring);background:var(--surface-2);color:var(--ink);border-radius:7px;
+ padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer}
+.mini:hover:not(:disabled){border-color:var(--ink-2)}
+.mini:disabled{opacity:.4;cursor:default}
+.st{color:var(--muted);font-size:10.5px}
+
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ring);border-bottom:1px solid var(--ring)}
+.dcol{background:var(--surface);padding:9px 13px;cursor:help}
+.dcol .ct{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px}
+.hv{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.hs{font-size:10.5px;color:var(--muted);margin-top:2px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:2px 0;font-size:11.5px}
+.kv .k{color:var(--ink-2)}
+.kv .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kv .v small{font-size:10px;color:var(--muted);margin-left:2px;font-weight:600}
+.rl{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-2);margin-top:4px}
+.dtrack{height:7px;border-radius:4px;background:#2a2a28;overflow:hidden;margin-top:2px}
+.dfill{height:100%;border-radius:4px;transition:width .4s}
+.dfill.base{background:var(--s-base)}.dfill.autres{background:var(--s-autres)}
+
+.board{display:grid;grid-template-columns:272px 1fr 272px;gap:1px;background:var(--ring)}
+.mapcol{background:var(--surface);padding:9px 6px}
+.mapbox{position:relative;width:100%}
+svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius:10px}
+.bl{fill:var(--land);stroke:#0d0d0d;stroke-width:2;transition:fill .15s}
+.bl.on{fill:var(--land-hi)}
+.bl.tgt{fill:#3d4a58}
+.bl.lock{fill:var(--land-lock)}
+.gp{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:2}
+.chip{display:flex;align-items:flex-end;gap:3px;background:rgba(13,13,13,.86);border:1px solid var(--ring);
+ border-radius:7px;padding:4px 5px;transition:transform .12s,border-color .12s}
+.gp:hover .chip{transform:scale(1.1);border-color:var(--ink-2)}
+.gp.hot .chip{border-color:rgba(208,59,59,.85)}
+.gp.tgt .chip{border-color:var(--s-traj);box-shadow:0 0 0 2px rgba(57,135,229,.35)}
+.gp.lock .chip{opacity:.55}
+.cb{width:6px;height:24px;position:relative;display:flex;align-items:flex-end}
+.cb span.bg{position:absolute;inset:0;background:#33332f;border-radius:2px}
+.cb i{display:block;width:100%;border-radius:2px 2px 0 0;position:relative;transition:height .4s}
+.cb.reel i{background:var(--s-reel)}
+.cb.percu i{border:1.5px solid var(--s-percu);border-bottom:0;
+ background:repeating-linear-gradient(135deg,rgba(201,133,0,.32) 0 3px,transparent 3px 6px)}
+.cb.fric i{background:var(--s-fric)}
+.cb.contr i{background:var(--s-traj)}
+.chip b{font-size:8.5px;letter-spacing:.05em;color:var(--ink-2);margin-left:2px;align-self:center;font-weight:700}
+.gp .card2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;pointer-events:none;
+ background:rgba(8,8,8,.97);border:1px solid var(--ring);border-radius:9px;padding:8px 10px;width:158px;
+ transition:opacity .12s,transform .12s;box-shadow:0 8px 28px rgba(0,0,0,.7);z-index:3}
+.gp:hover .card2{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.gp.hot .card2{border-color:rgba(208,59,59,.6)}
+.c2h{display:flex;align-items:baseline;gap:6px;margin-bottom:5px;white-space:nowrap}
+.c2h b{font-size:11px}.c2h span{font-size:9.5px;color:var(--muted);margin-left:auto}
+.c2r{display:grid;grid-template-columns:46px 1fr 30px;align-items:center;gap:6px;font-size:9.5px;color:var(--muted);margin:2px 0}
+.c2t{height:6px;border-radius:3px;background:#33332f;position:relative;overflow:hidden}
+.c2f{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.c2f.reel{background:var(--s-reel)}
+.c2f.percu{border:1.5px solid var(--s-percu);background:repeating-linear-gradient(135deg,rgba(201,133,0,.32) 0 3px,transparent 3px 6px)}
+.c2f.fric{background:var(--s-fric)}
+.c2f.contr{background:var(--s-traj)}
+.c2r b{color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums;font-size:9.5px}
+.c2a{margin-top:5px;font-size:9px;font-weight:700;color:var(--s-fric);border-top:1px solid var(--grid);padding-top:4px}
+.c2c{margin-top:5px;font-size:9px;color:var(--muted);border-top:1px solid var(--grid);padding-top:4px}
+.traj{margin-top:7px;border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:8px 11px}
+.trh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.trh h3{font-size:12px}
+.trl{display:flex;gap:12px;margin-left:auto;font-size:10.5px;color:var(--ink-2)}
+.trl i{display:inline-block;width:12px;border-top:2px solid;vertical-align:middle;margin-right:4px}
+.traj svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;gap:13px;flex-wrap:wrap;padding:7px 6px 0;color:var(--muted);font-size:10.5px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+/* ---------- colonne droite : main + journal ---------- */
+.side{background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.side .ct{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;
+ display:flex;align-items:baseline;gap:8px}
+.side .ct span{margin-left:auto;color:var(--ink-2);font-weight:600}
+.hand{display:flex;flex-direction:column;gap:7px}
+.card{border:1px solid var(--ring);border-radius:9px;background:var(--surface-2);padding:8px 9px;
+ display:flex;flex-direction:column;gap:5px;cursor:pointer;position:relative;transition:border-color .12s,background .12s}
+.card:hover{border-color:var(--ink-2)}
+.card.sel{border-color:var(--s-traj);background:#1f2733;box-shadow:0 0 0 1px var(--s-traj)}
+.card.no{opacity:.42;cursor:not-allowed}
+.card .id{font-size:9.5px;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.card h4{font-size:12px;line-height:1.25}
+.card .eff{font-size:10.5px;color:var(--ink-2)}
+.meta{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:9.5px;padding:2px 5px;border-radius:5px;border:1px solid var(--ring);color:var(--ink-2)}
+.tag.cost{border-color:rgba(57,135,229,.45);color:#8fbdf2}
+.tag.now{border-color:rgba(12,163,12,.5);color:#5bd15b}
+.tag.slow{border-color:rgba(137,135,129,.55);color:var(--muted)}
+.tag.trap{border-color:rgba(250,178,25,.55);color:#fab219}
+.hint{border:1px dashed rgba(57,135,229,.6);border-radius:8px;padding:7px 9px;font-size:11px;color:#8fbdf2;
+ background:rgba(57,135,229,.07)}
+.jour{border:1px solid var(--ring);border-radius:9px;background:var(--surface-2);padding:8px 10px;
+ font-size:11px;color:var(--ink-2);max-height:230px;overflow:auto;flex:1}
+.jour .l{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.jour .l:last-child{border:0}
+.jour .l b{color:var(--ink)}
+.jour .l.g{color:#5bd15b}.jour .l.r{color:#e88}.jour .l.t{color:var(--muted);font-style:italic}
+.jour .th{color:var(--muted);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+ margin-top:6px;padding-bottom:2px}
+
+#tip{position:fixed;z-index:99;pointer-events:none;max-width:310px;background:#000;
+ border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:9px 11px;font-size:11.5px;line-height:1.45;
+ color:var(--ink-2);opacity:0;transition:opacity .1s;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+#tip b{color:var(--ink)}
+#tip .tl{display:flex;justify-content:space-between;gap:14px;font-variant-numeric:tabular-nums}
+[data-tip]{cursor:help}
+
+#ovl{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;z-index:50;align-items:center;justify-content:center;padding:22px}
+#ovl.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--ring);border-radius:14px;width:min(760px,100%);
+ max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.75)}
+.mh{display:flex;align-items:baseline;gap:12px;padding:15px 19px;border-bottom:1px solid var(--ring);
+ background:var(--surface-2);position:sticky;top:0;z-index:2}
+.mh h2{font-size:18px}.mh .sub{color:var(--muted);font-size:12px}
+.mh .x{margin-left:auto;border:1px solid var(--ring);background:transparent;color:var(--ink-2);
+ border-radius:7px;width:28px;height:28px;cursor:pointer;font-size:15px;line-height:1}
+.mb{padding:15px 19px 19px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mb .full{grid-column:1/-1}
+.ms{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:7px}
+.gauge{margin-bottom:11px}
+.gh2{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--ink-2)}
+.gh2 b{font-variant-numeric:tabular-nums;color:var(--ink)}
+.gt{height:10px;border-radius:5px;background:#2a2a28;margin-top:4px;position:relative;overflow:hidden}
+.gf{position:absolute;inset:0 auto 0 0;border-radius:5px}
+.gf.reel{background:var(--s-reel)}
+.gf.percu{border:2px solid var(--s-percu);background:repeating-linear-gradient(135deg,rgba(201,133,0,.32) 0 4px,transparent 4px 8px)}
+.gf.fric{background:var(--s-fric)}
+.gf.contr{background:var(--s-traj)}
+.gx{font-size:10.5px;color:var(--muted);margin-top:3px}
+.prof{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px}
+.prof dt{color:var(--muted)}.prof dd{margin:0;color:var(--ink-2)}
+.mlist{margin:0;padding-left:16px;font-size:12px;color:var(--ink-2)}
+.mlist li{margin:3px 0}
+.mlist li.k{color:var(--s-traj)}
+.mnote{font-size:12px;color:var(--ink-2);border-left:3px solid var(--s-percu);padding-left:10px}
+.mnote.hot{border-left-color:var(--s-fric)}
+/* ---------- fin de partie ---------- */
+.fin .hv{font-size:52px}
+.finrow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fbox{border:1px solid var(--ring);border-radius:10px;background:var(--surface-2);padding:13px 15px}
+.fbox .lab{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.fbox .num{font-size:30px;font-weight:700;margin-top:4px;letter-spacing:-.02em}
+.fbox .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.verdict{font-size:15px;line-height:1.55;color:var(--ink-2);border-left:3px solid var(--s-traj);padding-left:12px}
+.verdict b{color:var(--ink)}
+.again{border:0;border-radius:9px;padding:12px 20px;font-weight:700;background:var(--ink);color:#0b0b0b;cursor:pointer}
+@media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}}
+@media (max-width:1180px){.board{grid-template-columns:1fr}.sideL,.sideR{max-height:none}.dash{grid-template-columns:repeat(2,1fr)}.mb{grid-template-columns:1fr}.opts{grid-template-columns:1fr}}
+
+/* ---------- doctrine ---------- */
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px}
+.doc.home{margin-top:0}
+.drow{margin:9px 0 11px}
+.drow:first-child{margin-top:2px}
+.dlab{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;margin-bottom:3px}
+.dlab b{font-size:12px;color:var(--ink)}
+.dlab .dv{color:var(--s-traj);font-weight:600;font-size:11px;letter-spacing:.02em}
+.dends{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:1px}
+input[type=range].dsl{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;
+  background:linear-gradient(90deg,var(--s-percu),var(--s-traj));outline:none;cursor:pointer;margin:0}
+input[type=range].dsl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--ink);border:2px solid var(--plane);cursor:pointer;box-shadow:0 0 0 1px var(--line)}
+input[type=range].dsl::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ink);
+  border:2px solid var(--plane);cursor:pointer}
+input[type=range].dsl:disabled{opacity:.45;cursor:not-allowed}
+.dfoot{font-size:10.5px;color:var(--muted);margin-top:8px;padding-top:7px;border-top:1px solid var(--line);line-height:1.45}
+.dfoot b{color:var(--s-traj)}
+/* ---------- fiche levier ---------- */
+.card .info{position:absolute;top:5px;right:6px;width:16px;height:16px;border-radius:50%;
+  border:1px solid var(--line);color:var(--muted);font-size:10px;line-height:14px;text-align:center;
+  cursor:pointer;background:var(--surface-2);font-style:italic;font-family:Georgia,serif}
+.card .info:hover{color:var(--ink);border-color:var(--ink)}
+.card{position:relative}
+.fl-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.fl-h h3{margin:0;font-size:16px}
+.fl-fam{font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+.fl-sec{margin-top:11px}
+.fl-sec h5{margin:0 0 3px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.fl-sec p{margin:0;font-size:12.5px;line-height:1.5}
+.fl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:7px;margin-top:11px}
+.fl-kv{background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:6px 8px}
+.fl-kv span{display:block;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fl-kv b{font-size:11.5px;font-weight:500}
+.fl-doc{margin-top:11px;background:var(--surface-2);border:1px solid var(--line);border-left:2px solid var(--s-traj);
+  border-radius:5px;padding:8px 10px;font-size:11.5px;line-height:1.5}
+.fl-doc em{color:var(--muted);font-style:normal}
+.fl-blocs{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.fl-b{font-size:10.5px;border:1px solid var(--line);border-radius:3px;padding:2px 6px;background:var(--surface-2)}
+.fl-b b{color:var(--s-traj)}
+
+
+.dsum{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.dsum span{font-size:11px;color:var(--s-traj);display:block;line-height:1.3}
+.dsum i{display:block;font-style:normal;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+.sideL,.sideR{max-height:calc(100vh - 40px);overflow-y:auto;scrollbar-width:thin}
+.sideL::-webkit-scrollbar,.sideR::-webkit-scrollbar{width:6px}
+.sideL::-webkit-scrollbar-thumb,.sideR::-webkit-scrollbar-thumb{background:var(--ring);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- ========== accueil ========== -->
+<div id="home">
+  <h1>HEAT</h1>
+  <div class="sub">Décembre 2015, Accord de Paris. Huit tours de cinq ans, jusqu'en 2055.
+    Version jouable v0.2 — 77 leviers, doctrine réglable, chiffres calibrés sur le monde réel, modèle volontairement simple.</div>
+
+  <div class="hsec">
+    <div class="ct">Votre camp</div>
+    <div class="opts" id="optCamp">
+      <button class="opt" data-v="actif" aria-pressed="true"><b>Climato-actif</b>
+        <span>Vous devez dépenser pour ne pas perdre. Vos leviers sont lents mais vos verrous sont juridiques et définitifs. Score : le réchauffement évité.</span></button>
+      <button class="opt" data-v="att" aria-pressed="false"><b>Climato-attentiste</b>
+        <span>Vous gagnez si rien ne bouge. Vos leviers sont immédiats et bon marché, et vous n'avez presque jamais besoin de faire voter quoi que ce soit. Score : les actifs préservés.</span></button>
+    </div>
+  </div>
+
+  <div class="hsec">
+    <div class="ct">Difficulté</div>
+    <div class="opts four" id="optLvl">
+      <button class="opt" data-v="1"><b>Découverte</b><span>Pièges signalés, seuils abaissés, adversaire passif.</span></button>
+      <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire joue deux cartes par tour.</span></button>
+      <button class="opt" data-v="3"><b>Réaliste</b><span>Trois cartes, capture réglementaire et préemption entrent en jeu.</span></button>
+      <button class="opt" data-v="4"><b>Expert</b><span>Quatre cartes et un adversaire mieux doté.</span></button>
+    </div>
+  </div>
+
+  <div class="hsec">
+    <div class="ct">Votre doctrine <span>elle décide quels leviers vous seront proposés</span></div>
+    <div class="doc home" id="docHome"></div>
+  </div>
+
+  <div class="hsec">
+    <div class="ct">Comment on joue</div>
+    <div class="rules">
+      <b>Trois actions par tour.</b> Cliquez une carte de votre main, puis un bloc sur la carte du monde.
+      Les cartes mondiales se jouent depuis le bandeau. Le <b>i</b> en haut de chaque carte ouvre sa fiche complète :
+      mécanisme, ancrage réel daté, limite, contre-levier, et rendement attendu bloc par bloc.<br><br>
+      <b>77 leviers</b> issus du catalogue, dont six pièges. Vous n'en voyez que sept à la fois : c'est votre doctrine
+      qui décide lesquels. Un levier mondial ne se joue qu'une fois, un levier de bloc sur trois blocs au maximum.<br><br>
+      <b>Quatre jauges par bloc</b>, dans l'ordre des barres : <b style="color:var(--s-traj)">contrainte</b> (ce qui fait baisser les émissions),
+      <b style="color:var(--s-reel)">soutien réel</b> (lent, incontrable),
+      <b style="color:var(--s-percu)">soutien perçu</b> (volatile, c'est lui qui autorise les mesures),
+      <b style="color:var(--s-fric)">friction</b> (au-delà de 55, une mesure est annulée).<br><br>
+      <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas d'action.<br><br>
+      <b>Le climat tient en une ligne :</b> température = 1,0 + 0,00058 × CO₂ cumulé depuis 2015.
+      Sans action, la partie finit à 3,48 °C. Le monde réel, lui, est à 2,60 °C — c'est la ligne grise du graphe.
+      Une partie bien jouée atterrit entre 2,0 et 2,5 °C : l'action paie très largement, et 1,5 °C reste hors d'atteinte depuis 2015.
+    </div>
+  </div>
+
+  <button id="start">Commencer la partie</button>
+  <div class="sub" style="margin-top:14px;font-size:11.5px">
+    Clic sur un bloc sans carte sélectionnée : fiche détaillée. Échap : annuler la sélection.
+  </div>
+</div>
+
+<!-- ========== partie ========== -->
+<div id="game" style="display:none"><div class="wrap">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">HEAT</div>
+      <div class="turn" id="turn"></div>
+      <div class="res" id="res"></div>
+      <button class="endturn" id="endturn">Fin de tour</button>
+    </div>
+    <div class="events" id="events"></div>
+    <div class="dash" id="dash"></div>
+    <div class="board">
+      <div class="side sideL">
+        <div class="ct">Votre doctrine <span id="docEtat"></span></div>
+        <div class="doc" id="docPanel"></div>
+        <div class="ct" style="margin-top:4px">Vos leviers <span id="handHint"></span></div>
+        <div id="handL"></div>
+      </div>
+      <div class="mapcol">
+        <div class="mapbox" id="mapbox">
+          <svg class="map" viewBox="150 15 2340 1150" role="img" aria-label="Carte du monde par blocs"><path class="bl" id="p_cn" d="M1727 343l2 7,8 2,3 8,-3 3,11 4,4 8,12 3,11 10,7 14,-7 1,4 10,12 7,14 2,33 21,21 0,1 5,5 -7,20 3,13 -12,8 1,4 -3,5 6,-1 3,7 2,2 -3,10 9,2 14,-5 5,0 12,9 -2,1 6,6 4,-1 7,5 1,2 5,7 -3,6 5,-2 -11,16 0,9 -8,9 5,3 7,6 4,17 -1,4 12,4 -1,-2 -8,18 -5,2 -4,2 2,-2 -8,8 7,2 -4,7 0,-1 -2,9 -2,-2 -2,7 -3,3 -7,3 0,3 -8,3 1,-3 -12,3 2,4 -8,-2 -6,6 -2,-3 -3,3 0,-2 -3,2 -1,0 -4,-3 2,4 -4,-12 -4,7 -5,-12 -10,10 3,-20 -22,-8 -4,2 -13,2 2,1 -5,10 -2,1 -5,-16 -4,-6 6,-4 -1,-2 -5,-13 -7,0 -4,9 -2,12 -14,5 5,-4 8,5 1,-3 4,5 0,21 -17,1 -7,13 2,-4 -4,9 -4,-1 -4,9 5,-4 -3,3 -3,-9 -16,3 -4,9 2,-2 -20,-6 -8,-18 6,-10 -10,-27 -10,-29 -24,-14 -4,-17 1,-4 5,6 3,3 19,-8 4,-7 -2,0 14,3 4,18 -2,12 7,1 4,-14 1,-18 15,-12 -3,-2 6,6 6,-7 8,-24 5,-9 5,-26 -8,-37 -2,-14 -13,-31 -8,-13 -20,-27 -13,-7 6,3 11,-17 1,1 15,-16 2,11 16,-2 9,-11 8,-7 1,-4 5,-10 -1,-6 9zM2019 517l1 8,8 2,7 -15,-13 0,-3 5zM2098 481l8 14,3 -27,-7 1,-4 12z" fill-rule="evenodd"/><path class="bl" id="p_na" d="M193 204l-36 13,13 -3,7 -3,33 -7,57 -22,2 -5,40 -16,5 4,-16 1,-16 12,30 -6,5 -7,6 -2,-2 3,10 -2,-4 2,9 2,0 4,26 1,-3 3,8 10,5 -2,0 -4,5 1,-4 4,3 1,6 -6,-2 5,3 1,0 5,-4 3,2 4,-7 9,4 -2,-3 5,6 -2,-5 6,9 -4,-9 9,4 0,-5 1,1 6,8 -4,-11 10,5 -3,-4 6,10 -3,1 2,-10 3,-4 7,7 1,0 4,-13 -2,-1 3,5 -1,-6 4,6 2,2 2,-4 2,14 9,3 -3,-4 -15,6 1,-2 5,8 3,-4 2,2 3,-2 2,-2 4,0 2,-4 4,3 -7,-11 -2,-4 15,-26 33,-12 21,-1 20,6 0,-4 5,1 24,12 5,7 8,1 28,8 11,-2 8,-7 -1,17 15,-3 11,14 16,4 -2,-1 -7,-6 -6,-3 -21,-12 -28,3 -13,11 6,1 16,-3 4,3 -3,4 10,5 2,-1 5,7 8,-3 5,7 5,15 24,2 8,-4 13,3 5,50 30,10 2,12 -5,6 2,12 13,5 -13,10 0,-6 -10,4 -5,16 -1,7 -8,1 5,5 -17,6 -7,0 -5,-26 5,-12 22,-20 2,-12 -5,-10 -31,11 -31,-2 -12,3 1,1 -6,9 -7,25 -9,11 0,7 6,5 -4,6 5,-2 -5,2 -3,-6 -2,2 -2,4 1,23 -2,5 2,1 0,1 5,10 -4,7 10,-2 13,4 12,4 6,4 2,5 -18,0 -36,7 -9,30 -19,7 -1,-1 -6,8 -1,1 -3,-6 -1,6 -1,0 -4,1 6,0 -9,-3 1,-1 -2,3 -2,-1 -6,2 2,-2 -4,3 1,2 -7,2 9,-4 6,10 -10,0 -9,2 4,12 -14,16 -5,-11 2,3 -3,24 -4,-5 -5,9 -11,12 -8,5 1,29 -13,-4 4,9 1,-5 3,-1 -2,-15 7,2 -1,-3 7,3 2,15 -10,21 -6,-5 -4,-8 0,-9 -4,-1 -7,6 -5,-7 1,-4 -4,16 -3,2 -3,-5 -4,-21 4,-26 15,24 -18,17 -8,43 -1,13 -9,22 -7,-3 -4,6 -5,-3 -5,-7 2,4 -2,-2 -3,-20 6,23 -9,-10 -5,-8 0,3 -5,-8 -5,6 -5,-4 -4,3 -1,-4 -4,3 -3,-5 1,4 -3,0 -2,-5 0,5 -2,-3 -1,0 -7,-17 15,-1 -4,-11 7,1 -4,-11 5,8 -6,-6 -1,4 -4,-2 -6,8 -7,-11 -3,2 -2,-7 -6,-15 1,-6 -3,-10 4,2 4,-8 6,3 0,-2 6,-14 11,5 8,-6 12,-26 12,-3 20,-7 8,-1 -3,-5 3,0 4,-4 -4,-4 1,4 -5,-5 -3,0 -7,11 -17,-18 -2,-12 -6,-4 -7,-12 -3,-11 2,7 -13,-8 -3,9 -12,22 -14,19 -7,-12 -8,18 5,4 -4,13 -1,10 -6,-3 -2,16 -6,-3 -3,15 2,0 -6,2 5,15 -5,4 -4,-1 -6,9 -3,-2 -1,4 -2,-4 -1,1 -2,-16 -2,-3 4,3 2,-27 14,-1 -4,8 -7,-3 -4,-13 7,1 -8,6 -1,-10 -2,8 -3,-3 -5,2 -6,-4 -1,10 -4,-1 -2,10 0,19 -8,-16 -2,-14 3,-9 11,2 1,-19 9,2 1,-6 5,11 3,-10 5,5 -1,-1 3,-17 6,-2 4,-3 -3,7 -5,-9 -2,-5 1,-3 4,-21 1,-14 -5,1 -4,-21 5,18 -2,-14 4,-9 10,-2 -2,3 -5,-6 -2,3 -2,-14 3,-18 -1,11 -4,-2 -3,-31 -7,-15 2,4 -4,-14 4,-1 -8,-11 5,-9 1,8 -4,-38 6,-6 2,-1 4,-12 -7,-17 -3,-44 -3,-2 -2,2 -1,-10 -1,-10 1,5 -2,-1 -2,-42 8,-48 14,3 2,2 8,8 0,-3 3,-4 -2,-1 4,3 1,-17 0,6 -3,-35 7,5 3,-6 4,4 2,26 -2,-8 8,-24 4,-29 13,-1 4,3 -1,-8 5,0 5,22 -6,-21 16,14 -3,3 5,7 -5,-1 3,8 -1,-6 5,-41 19,-4 -2zM679 309l-22 0,6 -3,13 0,7 -4,-4 7zM608 296l7 -6,22 -3,-1 -3,22 4,3 9,-3 3,-5 -1,-3 -5,-2 7,-13 14,2 -11,-8 2,9 -11,-8 -6,-14 10,-10 20,-10 5,2 -11,10 -17zM627 325l2 -6,3 3,9 -5,19 -3,-25 12,-8 -1zM594 282l1 -3,-8 1,35 -18,10 4,0 5,7 0,-4 12,-2 -2,-14 2,-9 -3,7 -5,-23 7zM870 40l10 4,18 0,-27 4,12 2,-7 2,5 2,19 2,18 -2,10 2,-3 3,7 3,-5 3,4 1,-5 1,7 2,1 3,-4 2,3 0,0 3,-10 7,8 2,6 -6,0 4,4 1,-4 1,8 2,-4 1,5 4,-21 -2,15 5,-1 3,3 1,-4 2,4 0,-20 7,3 1,-4 -1,-7 8,4 3,-6 5,7 1,-6 1,4 5,-3 7,10 -5,4 0,0 4,-4 -2,-9 3,1 7,3 1,-1 5,4 2,-1 6,4 0,-4 1,4 1,-1 4,11 -1,-2 1,4 -1,3 -3,-4 4,8 1,-3 4,6 -2,3 4,4 -3,-4 -3,6 0,3 -5,-2 -1,6 -2,3 -6,-3 -2,16 -8,-2 -4,5 -1,-1 -5,16 -4,6 -6,3 1,-5 5,17 -5,22 -12,0 -6,4 4,8 0,22 -4,26 -10,-16 -3,-15 2,16 -4,-6 -2,6 -4,9 8,11 -2,1 -5,-4 0,3 -2,-17 -4,4 -2,-8 -2,8 -1,-9 -2,14 -3,18 2,3 -3,-6 -1,-2 2,-2 -3,4 -3,15 1,-12 -6,11 1,1 -4,-7 -1,5 -2,-12 -3,23 -1,-9 -4,5 -2,-13 1,7 -7,21 -8,-15 0,43 -9,-11 -1,-20 2,-9 -1,-15 4,9 -5,-20 2,6 -2,-8 -1,27 -3,-36 -5,-72 2,-8 1,12 4,-15 -2,9 4,-12 -3,-14 0,3 2,-5 1,-5 -2,-4 0,-4 3,2 -2,-8 -1,-19 1,4 2,-11 -1,-5 4,-36 5,12 1,-8 4,-44 7zM737 90l2 4,31 4,19 -1,-1 -4,3 -1,11 10,-8 4,7 -2,8 2,2 10,-6 3,2 2,-15 4,2 3,-3 1,-11 2,1 2,-9 -3,-10 5,7 4,14 -2,2 -3,0 4,4 -2,3 7,5 1,-5 1,2 2,16 8,12 2,1 -2,-10 -11,5 2,1 -3,11 9,4 -7,5 -2,-4 -4,3 -2,-7 -3,0 -5,-4 0,0 -4,6 1,-1 -3,7 -2,2 5,8 -2,-7 4,7 6,5 -7,4 1,5 -2,-2 -3,8 -2,-3 -3,-9 2,6 -4,-7 1,4 -3,-6 -1,2 -2,-7 2,2 -3,-6 -1,3 -1,-9 -1,6 -4,-7 0,14 -2,-9 -2,9 -2,-2 -3,-7 3,6 -5,-12 -1,3 -2,-10 2,8 -4,-9 -2,-4 3,1 -3,-3 0,4 -1,-7 0,6 -2,-9 1,6 -3,-10 -3,-10 3,1 3,-5 -5,-6 3,6 -7,-5 -4,-22 4,-3 5,4 0,-1 3,-9 0,4 2,-4 4,-7 1,0 -1,8 -1,-3 -6,3 -4,15 -7,-13 0,-12 3,-17 13,13 3,-13 1zM812 125l-3 -4,9 -2,5 4,-11 2zM770 30l1 4,13 -1,-11 2,7 5,30 -5,-11 6,16 -2,-11 6,10 -1,-1 2,-11 -1,-2 -3,-24 9,25 1,13 -2,4 2,-2 2,21 -5,-9 -3,38 -10,-13 -1,16 0,-6 -2,89 -17,-66 -3,-81 7,7 0,-2 1,3 0,-4 2,3 1,14 0,-4 2,4 0,38 -4,-1 3,-26 2,6 5,-9 -4,-15 0,3 2,-5 1,7 4,-5 0,9 1,-3 1,-10 -1,5 -2,-8 -2,3 -5,-6 1,-11 -6,-25 5,7 2,-10 1zM577 96l5 6,9 0,-3 5,13 0,31 -7,4 4,13 1,9 -5,-8 2,2 -3,13 -1,3 -3,-11 -4,8 -15,-2 -2,-8 -1,-7 10,-6 1,4 -6,-3 -3,-14 4,4 -2,-16 1,6 -4,-6 -1,-25 6,-10 6,14 1,-16 3,31 5,-34 2zM810 272l17 2,7 -2,-3 3,3 1,5 -3,-7 7,13 -8,-3 8,5 -2,-1 4,2 0,7 -12,-7 4,-1 -2,8 -7,-8 2,7 -7,-6 -2,-6 2,1 -2,-5 -1,4 -3,-4 -1,-6 3,15 -14,-9 2,-15 18,-10 4,5 1,-8 5zM549 82l4 0,3 6,15 -2,18 -8,30 -7,-9 -5,-31 -1,-3 5,-27 12zM741 50l4 3,12 -1,1 3,-6 8,50 2,14 -3,-3 -1,6 -2,-18 -3,-29 2,-3 -4,6 -1,-4 -2,-22 -3,-8 2zM622 59l14 2,7 -3,-3 2,8 1,-14 2,15 1,30 -3,11 -6,-11 1,3 -7,-12 3,2 2,-6 4,-7 0,-8 -6,-29 7zM679 77l8 9,12 -2,12 -7,-7 -2,12 -5,-3 -1,3 -2,-21 3,-5 1,6 2,-4 3,-13 1zM704 144l9 -1,-2 4,7 -1,13 -6,6 4,9 -1,-8 -2,2 -6,-10 -5,-3 1,2 -4,-4 0,-13 13,-8 4zM701 58l20 3,13 -9,-14 -2,-4 1,4 -1,-1 5,-4 -3,-14 6zM603 54l13 2,38 -10,-15 0,-36 8zM716 38l21 5,6 -5,-14 -5,-10 2,5 2,-8 1zM799 72l5 4,17 0,-3 -5,-15 -2,-4 3zM669 103l12 4,10 -2,-6 -6,-16 4zM245 198l17 -5,3 -4,-17 3,-3 6zM784 115l7 1,9 -7,-8 0,-8 6zM364 215l2 -5,1 4,5 -3,1 -9,-6 3,3 -1,-5 6,-1 5zM353 228l1 8,5 -8,-4 -1,11 -8,-6 0,-7 9zM790 291l7 -1,4 -2,-4 -3,4 -5,-7 4,-4 7zM363 203l10 -13,-2 -1,4 -1,-8 -1,-2 2,2 6,-4 8zM748 41l8 1,9 -3,-11 -3,-6 5zM729 61l11 3,2 -7,-8 1,-5 3z" fill-rule="evenodd"/><path class="bl" id="p_as" d="M2036 982l8 5,10 1,19 -10,25 0,26 -14,38 -7,16 6,5 16,-3 5,4 4,22 -20,-10 18,-6 4,7 -3,6 -6,-1 7,-5 5,7 0,2 8,-3 6,7 10,13 3,14 -8,-4 4,6 0,3 7,19 -11,13 -3,27 -34,13 -10,8 -10,14 -26,3 -20,-3 -10,-9 -12,1 -8,-4 -3,-1 4,-2 -1,-3 -19,-16 -11,-1 -35,-11 -5,-5 -31,-9 15,2 2,-14 40,-8 2,-30 -24,6 -12,5 -4,1 -10,-4 5,-3 -2,2 -4,-5 4,-8 -1,-16 -8,4 9,-16 2,-11 17,3 3,-2 4,-3 -3,-8 4,-4 -10,-4 -3,-3 3,-4 -1,-2 5,-2 -3,-2 3,0 5,-8 3,-1 7,-6 -1,2 6,-4 5,-3 -9,-7 7,0 6,-14 15,-27 9,-4 -1,-23 16,1 -6,-9 23,2 16,-4 -6,0 9,-2 -5,-1 2,6 25,-1 26,-11 19zM1522 265l21 19,8 -4,16 0,4 13,-9 -1,-4 6,3 2,-7 -1,19 17,0 8,4 4,-2 -5,7 -2,7 7,-5 4,-7 -4,1 10,5 2,-1 5,6 3,2 13,11 -6,10 -1,32 14,3 9,-4 13,6 20,8 5,-6 11,23 4,17 -5,-1 -6,4 -5,14 -3,2 -11,5 -4,-3 -5,6 0,4 -11,-5 -8,6 -5,14 -1,5 -5,-7 -11,-5 0,-1 -11,5 -5,8 2,25 -15,1 -9,-10 -16,17 -2,-3 -4,1 -12,13 1,3 -3,-3 -8,8 -7,-6 -5,-10 1,-18 -12,-10 2,-8 -4,-2 4,-34 -27,1 -3,-13 8,-6 0,-1 -5,-14 -1,-7 -8,-13 -2,-36 12,-11 0,9 7,-6 1,1 5,-4 4,11 5,0 3,-12 3,-8 -5,-13 1,-5 3,-24 -9,-4 2,-6 -2,-12 9,2 4,-2 3,-8 -5,-2 15zM1609 301l0 -12,9 -2,0 4,4 0,3 7,-3 6,-9 -3,2 -7,-4 -5,2 12,-4 0zM1893 501l18 21,3 24,2 -4,0 5,6 2,10 -9,0 -6,7 7,6 26,0 -3,5 12,-2 5,4 2,-1 31,13 15,11 31,16 13,6 -2,-6 -11,-2 -20,-14 -14,-8 -3,-6 -17,-5 -2,-1 -9,5 -16,0 -9,3 -3,4 1,0 7,8 1,9 8,1 6,3 -1,1 4,6 1,5 5,-1 11,10 -7,-2 -4,4 3,-2 -4,3 2,0 -8,4 3,14 -12,1 -10,-6 -21,-21 -20,-8 -13,6 -15,10 -5,-12 -4,-1 -8,-11 -5,-9 8,-16 0,1 11,-5 -5,-7 3,-2 -5,-5 -1,0 -7,-5 -5,-1 -5,-9 2,-1 -6,5 -11,0 -9,-12 -14,-2 11,-12 5,-4 24,-6 -1,0 14,-3 4,1 5,-3 1zM1796 261l8 7,15 6,14 21,31 8,13 12,36 2,26 8,34 -10,7 -8,-6 -6,1 -5,12 2,5 -5,7 -1,2 -7,20 -5,-17 -10,-15 3,-3 -3,0 -15,-18 -4,-18 9,-14 -1,-20 -8,-22 1,-17 -11,-20 -5,-1 10,5 5,-3 4,-16 -1,-22 -8,-24 15zM1389 332l5 1,-4 10,6 0,2 9,-5 -1,0 2,6 3,1 9,7 0,-6 2,8 -1,10 6,9 -6,15 6,19 -6,3 9,3 -8,19 0,25 -6,13 2,-8 -19,5 -2,-8 -4,-3 -9,-5 -3,-30 5,-25 -10,-14 1,-12 7,-12 -1,-2 3,4 2,-5 2,-15 0,15 -7,-8 -6,-7 -1,-6 11zM2202 697l6 1,4 6,12 -1,-2 5,-11 0,5 12,6 -8,0 4,34 18,5 11,-4 0,4 2,-3 0,2 3,-6 -1,-5 9,10 -1,0 -4,0 3,8 -2,7 10,13 1,4 -2,-5 -7,11 -2,-1 -5,6 1,11 4,12 18,20 5,3 -4,-7 -2,1 -3,-10 -6,-3 -8,-6 -5,-1 -6,6 -1,-3 -6,-12 -5,-2 -7,-8 -6,-48 -20,-12 6,-7 9,-5 0,-4 -5,-1 -16,-11 -4,-12 4,-1 5zM2033 677l3 15,5 4,2 15,11 -2,1 6,9 -5,4 4,7 0,1 6,4 -1,8 -7,3 -8,-2 -4,4 -6,6 -2,3 -16,8 0,-9 -7,1 -5,-6 -8,4 -3,-3 -4,4 -1,-2 -2,7 1,-3 -4,8 -4,-10 -6,-4 1,2 -4,-8 -6,-15 25,-5 -4,-7 12,-9 3,-3 4,-1 -3,-2 11,-11 -5,-5 10zM1928 636l8 15,19 18,3 12,19 32,20 21,2 1,-1 -2,6 -1,3 3,4 -24,-4 -5,-7 1,2 -4,-4 -8,-7 -3,1 -11,-8 1,4 -4,-5 -6,-3 -1,3 7,-6 -8,1 -2,-10 -2,-24 -27,-16 -3zM2144 396l4 6,3 0,-2 -3,4 2,1 12,4 2,0 -3,1 4,4 -3,0 -14,-11 -8,9 1,0 -4,14 -4,7 1,0 5,6 5,6 -7,-4 -6,4 4,11 -3,1 2,4 -7,3 5,2 -3,2 -5,-9 -18,3 -4,-2 -9,-13 -17,-4 -1,4 5,-7 -3,2 11,4 3,0 14,-6 9,-4 1,0 -6,-4 2,2 14,-24 2,-9 10,2 3,-8 5zM2082 338l4 4,6 0,3 8,-3 5,7 4,10 -5,-2 4,6 7,-6 1,8 6,-1 9,5 7,8 -7,7 0,0 -8,-4 -9,-23 -19,0 -5,9 -8,-3 -7,4 -6,-9 -6,1 5,-9 4,3 3,-11 -1,-2 7,-8 7zM2342 1082l9 5,10 -1,23 -17,17 -5,2 -5,25 -19,-9 1,3 -6,-7 3,-22 17,-27 11,-24 16zM2108 709l1 7,4 2,-1 15,7 0,0 -22,5 -3,4 17,3 2,6 -5,-3 -12,-6 -10,16 -9,-14 1,-6 5,-4 -5,-2 -8,3 -4,31 0,5 -10,-12 7,-17 -3,-8 2,-12 33zM2003 743l22 9,48 9,0 -6,4 6,5 -5,-19 -4,-3 -2,-1 -6,-25 0,-17 -8,-7 1,-7 6zM2429 1042l8 0,21 -18,6 0,12 -13,-12 2,-4 -3,1 -10,-3 6,-4 -3,5 -14,-6 -2,1 -5,-3 7,1 10,3 0,-3 9,-10 13,-8 4,5 7,-10 10zM2176 292l8 12,0 7,-5 -1,0 8,6 7,7 -2,-8 -6,21 5,0 -6,11 -6,-9 -8,-1 3,-5 -1,-25 -12zM2106 545l4 10,7 4,-2 6,9 -1,7 6,-1 -5,13 11,-5 -8,3 -2,-17 -3,-4 -12,6 -15,-5 -11,-11 -1,1 20,-5 1zM2130 623l6 -5,5 3,3 -3,3 3,0 8,9 3,1 4,2 -14,4 8,2 -7,-4 -19,-6 -4,1 7,-12 8,-4 -6,-8 8,-2 6zM2217 1059l7 1,5 -5,3 2,13 -20,-9 4,-13 -5,-6 23zM2333 734l14 5,14 -8,2 -9,-5 0,0 4,-6 6,-6 0,1 -4,-14 6zM2162 396l9 6,0 -5,6 0,2 -5,-6 -5,-7 3,-4 6zM2174 675l3 12,4 5,-3 -9,7 -1,-4 -5,3 -6,-8 6,3 -11,-5 9zM2144 576l6 7,0 3,-4 -1,6 13,-1 -10,6 1,-4 -10,-9 -3zM2178 715l2 -3,18 5,2 -2,-10 -6,-7 0,-5 6zM2132 599l7 6,0 -15,-2 0,-5 9zM2140 774l9 -3,4 -5,-1 -4,-5 5,-3 -1,-4 8zM2090 759l1 4,17 -4,-8 -4,-2 1,3 3,-11 0zM2113 759l10 3,17 -5,-14 2,-6 -3,-7 3zM2093 613l17 -18,-1 -9,-1 6,-15 21zM2126 583l2 4,0 7,8 -6,-10 -5z" fill-rule="evenodd"/><path class="bl" id="p_eu" d="M1139 350l3 -2,0 16,14 -2,9 11,10 -6,14 -1,17 -15,1 -13,5 -6,17 -10,0 -10,11 -4,11 4,15 -9,7 0,12 15,32 21,4 10,-4 7,2 0,8 -10,-4 -6,1 -3,4 -3,8 6,0 -2,-18 -12,2 -3,-9 -2,-13 -15,-6 -13,8 -3,4 8,2 -3,2 4,-1 -6,7 9,-2 0,13 9,-4 1,9 2,-4 -1,-3 1,12 2,7 7,0 12,14 18,5 0,-5 4,6 9,9 3,-3 -9,5 1,-3 -4,7 2,-2 -7,5 3,-9 -8,-4 1,2 -2,-1 -11,7 4,0 -3,3 1,-3 -5,14 0,4 -10,9 -1,-4 -4,7 -10,1 -10,14 -15,18 4,-7 7,6 1,1 5,20 -4,-19 -9,8 2,0 -3,0 2,5 -5,15 -4,4 -6,6 -1,0 -14,-14 -3,-6 -4,-11 0,-2 -5,-8 -2,1 -4,-5 -5,-13 2,-2 -9,7 -2,-12 -10,-4 -8,-16 -4,-4 -6,-3 -15,3 -5,-25 0,-3 3,0 3,7 3,-1 9,-4 1,-7 -6,-6 3,-1 14,14 6,1 8,-39 -7,-20 7,3 1,-2 2,-1 -3,-6 -2,3 -1,-2 -3,-16 6,2 -4,-7 1,-5 -4,2 -5,5 3,1 -5,-6 0,8 -7,-5 0,-1 -4,3 -6,-12 6,-3 3,0 8,5 6,-3 -1,-1 2,2 -1,3 9,-4 3,-7 -2,-1 5,-4 -3,-11 4,-6 8,2 3,-6 1,5 1,-17 4,0 6,-10 7,-14 -3,3 9,-12 -2,-11 4,3 0,-3 3,3 2,12 3,4 8,4 2,-2 17,-4 8,-40 -4,-11 6,3 7,-1 14,-7 17zM1246 157l3 8,-2 1,0 4,9 -1,-8 7,6 2,-4 2,6 7,13 -2,12 -10,4 10,4 2,0 6,4 5,2 11,9 -1,0 -3,13 -7,1 -15,8 -2,6 -7,-4 -6,-7 -2,0 -14,24 -15,-3 -3,6 -7,13 0,5 6,-16 13,-5 0,-2 5,4 9,-1 7,10 2,-3 3,3 -2,0 4,29 -6,19 -17,-9 -8,2 -4,-5 -5,1 -6,-7 -9,3 -6,-9 -9,12 -6,-9 -2,9 -3,-13 -3,-2 3,-1 -4,-9 4,0 -4,-8 6,5 -6,-2 -1,-15 5,2 2,-11 -1,5 3,-5 -1,-1 4,-5 1,1 -5,-2 4,-1 -3,-6 3,2 1,-11 5,-2 4,-9 2,2 2,-4 2,6 1,-11 2,-6 8,4 0,-4 5,-6 2,-1 3,-9 6,-3 3,-4 0,1 3,-6 -1,-4 2,5 1,-9 1,5 3,-14 2zM1172 192l4 4,4 -2,-5 4,7 0,-5 11,6 -5,-1 11,11 -2,-3 2,4 4,1 7,-12 0,2 1,-4 3,4 0,1 3,-8 7,16 1,-10 3,-11 9,47 -10,-4 -1,6 -7,-1 -5,-9 0,0 -10,-15 -16,-6 0,5 -1,-2 -2,9 -9,-14 0,6 -9,-11 0,-4 10,-8 -1zM1078 129l15 1,-13 4,12 4,-7 4,21 3,25 -6,9 -6,0 -4,-7 -4,3 -2,-9 -1,-8 4,-4 -2,0 4,-4 -4,-4 3,-3 -2,-7 6,-2 -6,-4 -3,-3 1,1 4,-3 -3,-8 5zM1143 236l4 0,-3 3,3 3,22 -7,3 -4,0 -10,5 -3,0 -4,-3 -3,-9 -1,-5 1,-3 7,-9 0,-1 7,7 2,-11 9zM1280 32l13 8,9 -4,6 2,-14 3,10 2,-7 3,11 5,13 -12,12 -3,-22 -6,-5 0,2 6,-7 -5,-5 2,-4 -3,-12 2zM1294 359l19 8,4 -13,-21 1,-2 4zM1264 331l1 16,9 -1,0 -16,-10 1zM1314 28l31 6,14 -4,-22 -4,-2 3,-21 -1zM1283 206l6 8,-6 0,6 2,4 -4,0 -8,-10 2zM1326 39l7 3,-2 3,19 -2,-24 -4zM1267 318l1 6,3 3,2 -14,-6 5z" fill-rule="evenodd"/><path class="bl" id="p_ru" d="M1379 104l10 9,-3 7,11 19,-3 4,10 7,-19 18,5 -1,9 5,-12 3,-2 7,3 15,5 7,17 4,3 9,11 8,-9 3,5 8,11 -2,6 5,-1 4,8 2,1 4,32 8,0 15,-7 0,-2 4,7 2,-10 4,5 4,-4 7,-7 2,36 21,2 10,12 1,5 11,8 3,-5 3,8 18,-3 2,-12 -2,-23 5,-19 -1,0 5,-5 3,3 10,-12 30,6 16,-1 12,6 3,17 30,9 7,5 20,12 12,15 25,1 14,7 22,5 0,54 -22,13 -13,13 -2,3 -6,16 -11,2 -14,3 1,7 -11,1 -7,-9 -10,-13 -5,-5 -6,-1 -12,-13 18,-19 2,-2 -6,-7 -2,-5 -15,-15 -16,-15 -5,5 -7,11 -1,2 -3,9 2,13 19,25 12,8 -2,2 -2,-3 0,4 -2,5 5,3 7,6 2,26 4,2 -10,9 -4,-6 -13,-15 -14,6 -8,-2 -5,-5 -1,-5 -14,-1 -30,-32 -14,-11 1,-10 6,1 4,-12 3,-23 -9,-4 -12,5 -11,4 1,-22 -21,-2 -10,-1 1,-7 -8,3 -9,9 -1,2 -4,-21 -19,3 -16,10 4,-3 -6,12 -9,17 2,10 8,0 -3,7 2,16 -4,10 5,7 -1,6 -5,-13 -6,6 -3,-2 -5,6 -1,-9 -7,10 0,38 -12,12 2,7 8,14 1,1 5,18 -8,-1 2,35 28,3 -4,7 4,11 -2,17 12,9 -1,7 5,27 -14,37 9,4 -5,-5 -5,2 -10,23 6,14 10,21 -1,15 7,19 2,22 -8,23 5,6 -5,-1 -16,-8 -6,4 -4,18 -1,16 6,27 24,25 8,11 10,20 -5,4 6,2 20,-9 -1,-3 4,9 15,-3 3,4 4,-2 -3,4 0,1 -5,13 4,7 -5,6 -19,3 -26,-11 -17,-2 -10,-11 -9,3 -1,-18 -10,-7 0,0 5,-4 1,-2 -6,-1 4,-17 -7,-1 -4,7 -10,6 -21,10 -3,30 1,-1 -4,23 7,16 -3,-8 -2,-2 -3,3 -15,16 -1,10 10,4 -6,6 -2,-8 -7,11 0,-3 1,9 12,-7 4,-1 19,-7 2,5 5,-2 4,48 47,2 -12,-3 -4,7 -2,-7 -10,7 -4,-8 -6,-3 -7,7 2,-13 -13,-12 -4,0 -7,-5 -6,8 0,3 -5,6 5,0 -4,6 -2,18 6,-3 -5,8 -10,12 -6,13 2,-1 -3,-24 -13,-17 -3,18 0,0 -6,-7 -6,13 6,9 0,37 9,-7 -3,1 -2,-3 -3,6 -1,-4 -5,-34 -7,11 7,-23 -11,-68 -15,-36 -3,14 8,-6 2,-20 -7,-35 1,-23 -9,-39 -1,-32 -9,-9 3,-5 -3,5 0,-38 -4,4 2,-6 0,2 3,7 4,-9 0,1 2,-14 -3,-4 3,-16 -3,3 3,-2 4,-24 -10,5 0,-12 -7,-31 -5,2 6,-76 -7,4 2,-20 6,24 -16,-3 -5,-23 -5,-19 1,0 -3,-20 -4,-10 2,2 5,-10 0,6 3,-32 0,-28 8,4 1,-5 -1,10 7,-32 4,20 10,-21 -4,-15 3,16 7,-18 -3,-9 -10,3 5,-6 5,11 6,-1 5,5 6,15 -1,11 6,-1 4,-11 -8,-9 2,4 8,-9 10,-14 -2,7 0,-2 -2,7 -3,1 -11,-8 -4,-5 -11,-7 -6,1 -5,-12 -5,-9 0,-1 9,-5 5,6 10,14 5,0 4,-33 -9,-16 -1,-2 1,5 4,-4 5,-5 -5,-29 6,3 -6,-4 1,-5 4,-20 4,2 1,-7 1,0 5,-5 1,-10 -4,9 -4,-5 -3,-16 -3,6 4,0 7,5 4,-1 5,-11 -4,-13 8,4 6,-20 -4,-3 2,11 5,-4 3,-15 -5,-4 -12,-15 -8,44 7,6 -3,-3 -8,-53 -16,-18 7zM1500 81l1 4,9 4,-1 -3,4 0,0 4,21 2,-16 -13,8 -8,-2 -2,3 1,-3 -3,4 1,0 -4,12 -5,33 -8,-7 -3,-54 12,3 5,-10 5,6 1,-9 6,3 0,-2 4,-3 0zM2127 218l6 5,-2 5,15 16,26 39,5 5,0 -6,8 5,-16 -15,-4 -12,14 5,-47 -45,-5 -2zM1661 29l3 2,4 0,16 -3,-10 4,37 3,-5 -4,-21 -2,4 -4,-14 -3,-11 2,2 2,-4 1,4 2,-5 0zM1924 55l3 4,18 4,23 -3,0 -2,-26 -4,1 3,-19 -2zM1715 41l20 -1,7 -2,-25 -5,-2 8zM1340 217l3 -2,-2 2,21 1,-1 -5,-14 -1,2 -2,-9 7zM2192 89l3 1,16 -2,-13 -3,-5 0,-1 4zM1441 26l16 -1,-7 2,5 2,17 -4,-6 -1,-25 2zM1973 57l9 4,19 0,-1 -1,-27 -3z" fill-rule="evenodd"/><path class="bl" id="p_in" d="M1650 426l16 15,5 9,-10 16,36 -1,10 14,8 0,-1 3,5 4,9 0,-9 4,0 3,13 12,9 -3,1 -10,4 0,3 4,-3 4,2 14,7 28,27 62,10 10,6 -8,8 -1,-3 -6,5 -4,0 -46,15 -9,-1 -3,21 -24,7 -1,4 -6,-1 -5,8 -7,2 4,2 -3,5 2,1 -4,2 3,1 -3,3 2,2 -6,1 5,-2 -10,11 8,5 13,1 -10,3 -5,0 -13,6 1,4 -23,10 -7,4 2,-1 -9,-7 -3,-5 -8,-4 3,-6 -2,-15 13,-16 -4,-8 8,-2 -6,-20 0,-33 -20,-7 2,-18 -11,-5 -10,7 -2,-7 -9,1 -4,-11 -10,-13 -4,-4 -7,-7 -2,-22 4,-3 4,5 7,-2 9,-7 1,2 5,-5 4,-1 11,-15 4,-4 5,1 7,-17 4,-23 -4zM1841 645l-2 19,7 14,8 -5,-4 -17,-1 0,-3 -6,-5 -5z" fill-rule="evenodd"/><path class="bl" id="p_la" d="M503 559l24 11,11 -1,2 8,10 11,-2 7,3 4,2 2,2 -2,6 5,8 11,4 -3,6 5,4 -1,1 6,7 -2,-2 -7,9 -6,9 6,-4 2,7 12,-1 23,3 1,-6 11,-6 3,-3 10,-9 3,-6 26,5 4,2 -3,2 4,-11 14,1 14,13 12,32 61,46 33,7 61,-1 45,7 27,-2 30,-3 0,9 19,-1 10,5 9,8 -1,3 23,5 2,-5 2,4 14,-5 0,0 -4,-6 1,3 2,-4 6,4 -3,9 5,-2 3,3 2,-4 0,8 7,-2 0,1 4,-4 -1,2 4,-4 0,9 6,-3 -8,2 4,2 -4,3 7,-3 0,3 2,-4 0,7 5,1 -2,1 2,-3 2,4 2,5 7,0 2,-5 -1,12 7,0 -2,1 -2,3 1,-4 1,2 3,-14 -3,9 5,4 -1,6 2,-3 -1,1 -3,5 -3,0 6,-4 0,7 3,3 -2,-2 -7,8 -4,6 1,-10 -6,2 -1,-4 -3,1 -6,2 -2,-3 -1,5 0,1 -10,7 -7,-4 -2,1 -6,-10 -3,-5 -7,10 -8,-2 -13,5 -4,-3 -3,7 1,-4 -5,-4 2,-3 -2,-5 -10,13 1,7 -4,-5 -15,20 -1,10 -4,4 -8,-1 -9,-17 -18,0 -11,1 8,4 4,14 5,11 -1,5 -5,28 -49,-3 -28,3 1,12 -13,7 -1,6 -7,19 0,7 -9,11 -39,0 -41,3 2,9 -17,14 -16,3 -14,-3 -17,-16 -7,-23 -17,-8 2,-17 -5,-5 3,1 -3,-5 6,2 -8,-3 0,0 -7,-3 1,-12 -7,-11 1,-2 7,-7 5,1 -4,-5 2,-6 -2,13 -2,3 -11,-16 0,-1 7,-1 -4,-4 6,-6 3,-3 0,6 -4,0 2,5 -7,-3 2,0 -3,13 -14,-6 -9,-3 -15,-13 -13,-7 -3,-2 2,-2 -3,-12 1,-6 -2,-4 4,-2 -7,-6 -5,-3 3,2 -4,-5 -9,-6 -4,0 1,-12 -1,4 -2,-1 0,2 -7,-15 -7,8 -3,-18 1,3 1,-10 3,-13 -4,-9 1,-13 -15,-3 5,1 2,-12 5,-1 -6,4 -3,-4 1,5 -5,-4 0,-8 6,-16 4,-18 26,-7 -9,-7 -3,-19 7,-7 -4,-10 -15,8 -35,-8 -7,-3 -1,-32 1,6 -9,2 -14,-7 9,0 -4,-14 1,-4 4,6 10,-10 1,-5 13zM824 960l5 -13,3 -1,-1 8,-7 6zM567 495l3 1,13 -7,8 0,-3 2,25 7,1 5,8 3,-4 7,18 0,9 -4,-39 -22,-10 -3,-17 3,-12 8zM642 526l19 3,2 3,6 -7,16 1,1 -3,-16 -10,-7 2,-12 -2,6 11,-13 -1,-2 3zM759 1136l-4 3,1 4,7 1,-3 4,10 5,-10 -2,-3 -5,2 5,-7 3,15 1,0 2,7 -2,22 1,-37 -20zM690 1046l3 12,4 2,0 -10,-7 -4zM611 527l9 4,8 -1,-8 -5,-9 2z" fill-rule="evenodd"/><path class="bl" id="p_af" d="M1069 558l7 6,0 4,4 1,-6 0,0 7,1 -2,7 1,-8 3,4 0,2 5,4 -2,3 0,-3 6,12 12,7 18,4 2,-5 0,34 25,7 3,12 -6,21 -3,10 5,19 -10,22 -4,7 0,8 7,3 10,17 -1,1 -3,10 9,1 -2,5 16,-3 -1,-4 15,5 4,-5 -1,-4 10,7 14,18 21,8 -3,-7 10,6 1,-5 2,11 42,-2 12,-8 10,-6 21,0 12,21 47,4 36,10 14,10 25,2 8,-3 6,4 12,10 3,22 -6,21 0,22 -14,30 -37,4 -17,-3 -2,21 -13,3 -19,-6 -21,13 -9,4 -7,23 -13,8 -13,-1 -36,-6 -7,-2 -24,-5 -11,3 -11,22 -33,44 -44,22 -45,1 -7,4 -2,-3 0,1 -11,-4 -2,-3 3,-40 10,-18 -10,5 -4,-2 -5,-29 -26,-7 -20,-10 -14,-1 -13,-5 -9,-9 -8,2 -7,-27 -49,1 -3,13 19,4 -15,-6 -17,-16 3,-1 -4,-7 -1,-14 7,-29 -7,-25 -11,-12 8,1 8,-7 7,-25 -11,-5 -8,-22 -4,-12 -7,4 -15,-4 -7,4 -5,0 -2,-5 2,-4 -4,-8 3,-51 4,-28 12,-25 -6,-10 17,-16 11,-6 24,-11 12,-12 4,-25 37,-9 25,1 -2,3 3,2 6,-2 5,3 14,-4 15,3 -4,-11 16zM1459 791l1 -24,6 18,1 23,-8 -17zM1443 709l2 -23,10 -5,9 7,-10 15,4 1,-7 6,-4 -6,-4 5zM1424 737l0 -22,5 26,9 18,-5 -1,-9 -21zM1525 876l3 20,5 7,6 3,12 -4,23 -63,4 -20,2 3,3 -4,-8 -28,-8 14,-3 -1,-1 9,-5 6,-21 7,-4 13,2 20,-10 18z" fill-rule="evenodd"/></svg>
+        </div>
+        <div class="traj">
+          <div class="trh"><h3>Projection 2100, vue de chaque tour</h3>
+            <div class="trl"><span><i style="border-color:var(--s-traj)"></i>Votre partie</span>
+              <span><i style="border-color:var(--muted);border-top-style:dashed"></i>Monde réel</span></div></div>
+          <div id="traj"></div>
+        </div>
+        <div class="legend">
+          <span data-tip="<b>Contrainte</b><br>Ce qui fait réellement baisser les émissions du bloc.<br>Plafonnée par le verrouillage d'infrastructure adverse."><i style="background:var(--s-traj)"></i>Contrainte</span>
+          <span data-tip="<b>Soutien réel</b><br>Lent, difficile à déplacer, insensible aux campagnes adverses.<br>Monte tout seul avec les dommages subis."><i style="background:var(--s-reel)"></i>Réel</span>
+          <span data-tip="<b>Soutien perçu</b><br>Volatile. C'est lui qui détermine ce que les décideurs osent faire.<br>Écart réel/perçu documenté : 69 % contre 43 % (Andre et al., 2024)."><i style="background:var(--s-percu)"></i>Perçu</span>
+          <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure non compensée. Au-delà de 55, retour de flamme : une mesure est annulée."><i style="background:var(--s-fric)"></i>Friction</span>
+          <span style="margin-left:auto">Survol : explication · clic sur un bloc : fiche</span>
+        </div>
+      </div>
+      <div class="side sideR">
+        <div class="ct">Vos leviers <span id="handInfo"></span></div>
+        <div id="handR"></div>
+        <div class="ct" style="margin-top:4px">Journal</div>
+        <div class="jour" id="jour"></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div id="fin" style="display:none"></div>
+<div id="tip"></div>
+<div id="ovl"><div class="modal" id="modal"></div></div>
+<script>
+/* ==================== HEAT — données ==================== */
+const TCRE=0.00058, T0=1.00, NTURNS=8, YPT=5, SEUIL_FR=55;
+const T_BASELINE=3.48;              // trajectoire 2100 si personne n'agit (calculée par le moteur)
+const GHOST=[3.48,3.20,2.95,2.80,2.72,2.68,2.66,2.62,2.60]; // le monde réel, tour par tour
+
+const BDEF=[
+ {k:"cn",nom:"Chine",           code:"CN",reg:"auto",e:10.8,g:0.10,reel:55,percu:40,fr:10,dmg:0.9,x:80.5,y:30.5,rich:0.45,rentN:1,
+  pib:"13 k$/hab",rente:"Faible à l'export, forte au charbon domestique",
+  note:"Le bloc le plus lourd du jeu : 30 % des émissions. Sans lui, aucune trajectoire ne descend."},
+ {k:"na",nom:"Amérique du Nord", code:"AN",reg:"demo",e:6.5,g:-0.02,reel:44,percu:30,fr:20,dmg:0.8,x:17,y:27,rich:1.0,rentN:2,
+  pib:"72 k$/hab",rente:"Moyenne — pétrole et gaz de schiste",
+  note:"Soutien perçu très bas. La préemption législative y menace vos mesures locales."},
+ {k:"as",nom:"Reste de l'Asie",  code:"AS",reg:"hyb", e:5.2,g:0.14,reel:58,percu:38,fr:15,dmg:1.3,x:86,y:58,rich:0.3,rentN:2,
+  pib:"17 k$/hab",rente:"Variable — GNL, charbon, hydro",
+  note:"Bloc composite. Les contrats GNL de long terme y verrouillent vingt ans."},
+ {k:"eu",nom:"Europe",           code:"EU",reg:"demo",e:3.7,g:-0.05,reel:62,percu:48,fr:25,dmg:0.7,x:51.8,y:18.5,rich:0.95,rentN:0,
+  pib:"41 k$/hab",rente:"Faible — forte dépendance importée",
+  note:"Le plus facile à contraindre, et le plus prompt au retour de flamme."},
+ {k:"ru",nom:"Golfe & Russie",   code:"GR",reg:"auto",e:3.7,g:0.06,reel:38,percu:22,fr:5,dmg:1.0,x:73.5,y:10.5,rich:0.75,rentN:3,
+  pib:"19 k$/hab",rente:"Très élevée — l'export fossile est le budget",
+  note:"Les campagnes d'opinion n'y produisent presque rien. Seule la voie économique compte."},
+ {k:"in",nom:"Inde",             code:"IN",reg:"demo",e:2.5,g:0.22,reel:60,percu:35,fr:12,dmg:1.5,x:71.5,y:40,rich:0.12,rentN:1,
+  pib:"9 k$/hab",rente:"Moyenne — charbon domestique",
+  note:"Écart réel/perçu de 25 points : la meilleure cible de « Révéler la majorité »."},
+ {k:"la",nom:"Amérique latine",  code:"AL",reg:"demo",e:1.6,g:0.06,reel:64,percu:43,fr:18,dmg:1.2,x:28,y:65,rich:0.35,rentN:2,
+  pib:"11 k$/hab",rente:"Moyenne — pétrole, et usage des sols",
+  note:"Émissions surtout liées à l'usage des sols. Soutien réel élevé."},
+ {k:"af",nom:"Afrique",          code:"AF",reg:"auto",e:1.5,g:0.28,reel:68,percu:41,fr:8,dmg:1.6,x:49,y:47,rich:0.05,rentN:3,
+  pib:"4 k$/hab",rente:"Élevée pour quelques États exportateurs",
+  note:"Soutien réel le plus élevé, capacité d'agir la plus faible. Le financement est le seul levier."},
+];
+const REGN={demo:"Démocratie électorale",auto:"Régime autoritaire",hyb:"Régimes hybrides"};
+
+/* ==================== doctrine ====================
+   Quatre réglages persistants. Ils ne jouent aucune carte : ils décident
+   lesquelles vous sont proposées, et ce qu'elles rendent une fois jouées. */
+const DOCAX={
+ actif:[
+  {k:"d1",t:"Contrainte ou incitation",a:"contraindre",z:"inciter",
+   tip:"<b>Contraindre ou inciter</b><br>À gauche : normes, interdictions, prix du carbone. Effet plus fort et plus rapide, friction plus élevée.<br>À droite : subventions, garanties de prix, politique industrielle. Presque aucune friction, mais plus lent et plus cher.<br><i>Ancrage : taxe carbone française gelée en 2018 ; Inflation Reduction Act américain de 2022, jamais contesté dans la rue.</i>"},
+  {k:"d2",t:"Compensation sociale",a:"aucune",z:"élevée",
+   tip:"<b>Compensation sociale</b><br>Part du produit des mesures rendue de façon visible aux ménages.<br>Élevée : la friction générée par vos leviers chute fortement, mais chaque mesure coûte un point de capital de plus.<br><i>Ancrage : dividende carbone canadien, chèque trimestriel identifiable.</i>"},
+  {k:"d3",t:"Priorité géographique",a:"blocs riches",z:"blocs émergents",
+   tip:"<b>Priorité géographique</b><br>Où vous concentrez l'effort. Vos leviers rendent jusqu'à 30 % de plus sur la moitié du monde que vous privilégiez, et jusqu'à 30 % de moins sur l'autre.<br><i>Les blocs riches émettent aujourd'hui ; les blocs émergents émettront demain. Aucune des deux réponses n'est neutre.</i>"},
+  {k:"d4",t:"Horizon assumé",a:"2030",z:"2060",
+   tip:"<b>Horizon assumé</b><br>Court : les leviers immédiats rendent plus, les leviers à latence coûtent un point de plus.<br>Long : les leviers à effet différé coûtent un point de moins et rendent davantage, mais vous encaissez les dégâts en attendant.<br><i>Le budget carbone se dépense chaque année : ce que vous reportez, vous le payez en température.</i>"}],
+ att:[
+  {k:"d1",t:"Nier ou retarder",a:"nier",z:"retarder",
+   tip:"<b>Nier ou retarder</b><br>À gauche : contestation frontale, guerre culturelle, défense du mode de vie. Effet immédiat et fort, mais visible et attaquable.<br>À droite : acceptation de principe, report technique, procédure. Beaucoup moins visible, et bien plus efficace depuis 2015.<br><i>La stratégie du camp a basculé de la négation au délai autour de 2010.</i>"},
+  {k:"d2",t:"Attiser ou rassurer",a:"attiser",z:"rassurer",
+   tip:"<b>Attiser ou rassurer</b><br>Attiser : maximise la friction que vous créez (+25 %), mais déplace peu l'opinion perçue.<br>Rassurer : la friction retombe (−25 %), mais votre action sur le soutien perçu gagne 40 %.<br><i>Deux écoles : le conflit social et le greenwashing.</i>"},
+  {k:"d3",t:"Terrain défendu",a:"blocs riches",z:"blocs émergents",
+   tip:"<b>Terrain défendu</b><br>Où vous concentrez la défense. Vos leviers rendent jusqu'à 30 % de plus sur la moitié du monde que vous privilégiez."},
+  {k:"d4",t:"Horizon défendu",a:"gagner le tour",z:"verrouiller la décennie",
+   tip:"<b>Horizon défendu</b><br>Court : discours, polémique, contentieux rapide. Effet immédiat, rien ne reste.<br>Long : infrastructures, contrats, capture institutionnelle. Rien ne se voit dans le tour, tout devient irréversible.<br><i>Le verrouillage physique est le seul irréversible du camp.</i>"}]
+};
+const DOC0={actif:{d1:35,d2:60,d3:40,d4:45}, att:{d1:70,d2:45,d3:35,d4:65}};
+
+function DOCC(s){return s.doc[s.cur||"actif"];}
+function affin(c,D){
+  const ks=c.dw?Object.keys(c.dw):[];
+  if(!ks.length) return 0.5;
+  let t=0; ks.forEach(k=>t+=1-Math.abs(D[k]-c.dw[k])/100);
+  return t/ks.length;
+}
+function poidsTirage(c,D){return 0.30+1.40*affin(c,D);}
+function alg(D,c,k,amp){
+  if(!c||!c.dw||c.dw[k]==null) return 1;
+  return 1+(50-Math.abs(D[k]-c.dw[k]))/50*amp;
+}
+function mGeo(s,b){
+  const D=DOCC(s), bp=Math.round((1-b.rich)*100);
+  return 1+(50-Math.abs(D.d3-bp))/50*0.30;
+}
+/* helpers d'effet : tous les leviers passent par là, donc la doctrine s'applique partout */
+function C(s,b,v,src){
+  const c=card(src), D=DOCC(s);
+  const m=alg(D,c,"d1",0.22)*alg(D,c,"d4",0.18)*mGeo(s,b);
+  addContr(s,b,Math.max(1,Math.round(v*m)),src);
+}
+function FR(s,b,v){
+  const D=DOCC(s);
+  const m=(s.cur==="att")?(0.75+(100-D.d2)/100*0.50):(1-D.d2/100*0.45);
+  b.fr=Math.max(0,b.fr+Math.round(v*m));
+}
+function PC(s,b,v){
+  const D=DOCC(s);
+  const m=(s.cur==="att")?(0.80+D.d2/100*0.40):1;
+  b.percu=Math.max(0,Math.min(100,b.percu+Math.round(v*m)));
+}
+function RE(s,b,v){b.reel=Math.max(0,Math.min(100,b.reel+v));}
+/* explication lisible de l'effet de la doctrine sur une carte donnée */
+function docEffet(s,c,camp){
+  const D=s.doc[camp], out=[];
+  const a1=alg(D,c,"d1",0.22), a4=alg(D,c,"d4",0.18);
+  if(Math.abs(a1-1)>0.04) out.push("contrainte "+(a1>1?"+":"")+Math.round((a1-1)*100)+" % (axe « "+DOCAX[camp][0].t.toLowerCase()+" »)");
+  if(Math.abs(a4-1)>0.04) out.push("contrainte "+(a4>1?"+":"")+Math.round((a4-1)*100)+" % (axe « "+DOCAX[camp][3].t.toLowerCase()+" »)");
+  if(camp==="actif"&&D.d2>0) out.push("friction −"+Math.round(D.d2*0.45)+" % (compensation sociale)");
+  if(camp==="att") out.push("friction "+(D.d2<50?"+":"−")+Math.round(Math.abs(50-D.d2)*0.5)+" %, opinion "+(D.d2>50?"+":"−")+Math.round(Math.abs(D.d2-50)*0.4)+" %");
+  return out;
+}
+
+
+/* ==================== leviers ====================
+   dw = affinité doctrinale (0-100 par axe, absent = indifférent)
+   d1 contrainte↔incitation · d2 compensation · d3 riches↔émergents · d4 horizon court↔long   */
+const CARDS=[
+/* ---------- ACTIF · réglementaire ---------- */
+{id:"A01",c:"actif",n:"Tarification carbone nationale",fam:"Réglementaire",cible:"bloc",cp:4,lvl:1,seuil:45,
+ dw:{d1:10,d2:60,d4:20},rev:"Facile à annuler",rob:"Élevée",contre:"T39",
+ e:"Contrainte +20, friction +22. Friction divisée par deux si la redistribution a été installée.",
+ mec:"Un prix sur la tonne renchérit l'usage fossile dans toute l'économie du bloc, sans désigner de secteur. L'effet est large mais la douleur est visible et datée.",
+ anc:"Taxe carbone française 2014-2018, gelée en décembre 2018 après les Gilets jaunes. Prix du carbone suédois autour de 120 €/t depuis 2018, maintenu.",
+ lim:"Sans redistribution visible, la friction s'accumule jusqu'au retour de flamme. C'est le levier le plus annulé de l'histoire récente.",
+ f:(s,b)=>{C(s,b,20,"A01");FR(s,b,b.compens?11:22);}},
+
+{id:"A02",c:"actif",n:"Marché de quotas (ETS)",fam:"Réglementaire",cible:"bloc",cp:3,lvl:1,seuil:45,
+ dw:{d1:35,d4:45},rev:"Difficile à annuler",rob:"Élevée",contre:"T22",
+ e:"Contrainte +18, friction +9.",
+ mec:"Plafond décroissant sur les émetteurs, échangeable. Le coût passe par les prix sans jamais apparaître comme un impôt : friction citoyenne faible.",
+ anc:"EU ETS depuis 2005 ; prix passé de 5 € (2017) à plus de 80 €/t (2023). ETS2 bâtiment et transport prévu pour 2027.",
+ lim:"Vulnérable aux exemptions sectorielles obtenues discrètement : le plafond tient, le périmètre se vide.",
+ f:(s,b)=>{C(s,b,18,"A02");FR(s,b,9);}},
+
+{id:"A03",c:"actif",n:"Ajustement carbone aux frontières",fam:"Réglementaire",cible:"bloc",cp:4,lvl:2,seuil:35,
+ dw:{d1:25,d3:15,d4:40},rev:"Difficile à annuler",rob:"Moyenne",contre:"T45",
+ e:"Contrainte +12 ici, +5 sur les autres blocs riches. Immunise le bloc contre le whataboutisme.",
+ mec:"Taxe l'empreinte des importations au niveau du prix intérieur. Supprime l'argument « nos usines partiront ailleurs » en supprimant l'avantage du moins-disant.",
+ anc:"MACF/CBAM européen : phase déclarative depuis octobre 2023, financière à partir de 2026.",
+ lim:"Provoque des représailles commerciales et des accusations de protectionnisme vert de la part des blocs exportateurs.",
+ f:(s,b)=>{C(s,b,12,"A03");b.cbam=1;s.blocs.forEach(z=>{if(z!==b&&z.rich>=0.7)C(s,z,5,"A03");});}},
+
+{id:"A04",c:"actif",n:"Norme d'émission véhicules",fam:"Réglementaire",cible:"bloc",cp:2,lvl:1,lat:1,
+ dw:{d1:20,d4:40},rev:"Difficile à annuler",rob:"Élevée",contre:"T52",
+ e:"Contrainte +19 au tour suivant, friction +7.",
+ mec:"Contraint les constructeurs, pas les conducteurs. Le coût est industriel, invisible du citoyen, et l'effet court sur tout le parc renouvelé.",
+ anc:"Règlement européen 95 gCO₂/km ; fin du thermique neuf actée pour 2035, avec clause de revoyure 2026.",
+ lim:"Cible privilégiée des exemptions technologiques : une niche inscrite dans le texte suffit à en vider l'effet.",
+ f:(s,b)=>{b.pend.push({t:1,v:19,src:"A04"});FR(s,b,7);}},
+
+{id:"A05",c:"actif",n:"Interdiction de vente datée",fam:"Réglementaire",cible:"bloc",cp:4,lvl:1,seuil:55,lat:1,
+ dw:{d1:5,d4:35},rev:"Facile à annuler",rob:"Moyenne",contre:"T23",
+ e:"Contrainte +27 au tour suivant, friction +17.",
+ mec:"Une date butoir déclenche l'anticipation industrielle bien avant l'échéance : les investissements se réorientent dès l'annonce.",
+ anc:"Fin du thermique neuf 2035 (UE) ; interdiction des chaudières fioul en France en 2022 ; interdiction des ampoules à incandescence.",
+ lim:"Plus la date est lointaine, plus elle est facile à voter et à annuler. Une clause de revoyure suffit à la rouvrir.",
+ f:(s,b)=>{b.pend.push({t:1,v:27,src:"A05"});FR(s,b,17);}},
+
+{id:"A07",c:"actif",n:"Fin des subventions aux fossiles",fam:"Réglementaire",cible:"global",cp:5,lvl:1,
+ dw:{d1:15,d3:55,d4:25},rev:"Facile à annuler",rob:"Élevée",contre:"T39",
+ e:"Contrainte +9 et friction +11 sur tous les blocs.",
+ mec:"Supprime la subvention à la consommation fossile. Meilleur rapport effet/coût du catalogue : aucune technologie à déployer, seulement une décision.",
+ anc:"Engagement du G20 depuis 2009 ; subventions explicites toujours de l'ordre de 1 200 Md$/an selon le FMI.",
+ lim:"Politiquement le plus difficile de tous : dans plusieurs blocs, le prix subventionné du carburant est un contrat social.",
+ f:(s)=>{s.blocs.forEach(b=>{C(s,b,9,"A07");FR(s,b,11);});}},
+
+{id:"A10",c:"actif",n:"Normes d'efficacité des appareils",fam:"Réglementaire",cible:"bloc",cp:1,lvl:1,
+ dw:{d1:30,d4:55},rev:"Difficile à annuler",rob:"Élevée",contre:"—",
+ e:"Contrainte +11, friction +1. Aucun contre-levier connu.",
+ mec:"Retire du marché les produits les moins efficaces. Effet cumulatif sur des décennies, sans que personne ne s'en aperçoive.",
+ anc:"Étiquetage énergétique et écoconception UE ; sortie de l'incandescence. Consommation moyenne d'un réfrigérateur divisée par trois depuis 1990.",
+ lim:"Aucun effet spectaculaire : ce levier n'apporte jamais de gain d'opinion. C'est ce qui le rend imbattable.",
+ f:(s,b)=>{C(s,b,11,"A10");FR(s,b,1);}},
+
+
+{id:"A11",c:"actif",n:"Réduction des fuites de méthane",fam:"Réglementaire",cible:"bloc",cp:2,lvl:1,seuil:25,
+ dw:{d1:35,d4:5},rev:"Difficile à annuler",rob:"Élevée",contre:"T22",
+ e:"Contrainte +13, friction +2. Le seul levier actif vraiment rapide.",
+ mec:"Le méthane a un pouvoir de réchauffement 80 fois supérieur au CO₂ sur vingt ans, mais une durée de vie courte : colmater agit dans la décennie, pas dans le siècle.",
+ anc:"Global Methane Pledge (2021), plus de 150 signataires ; règlement méthane européen (2024) ; détection satellitaire opérationnelle depuis 2023.",
+ lim:"Ne remplace rien : c'est un gain de temps, pas une trajectoire. Le CO₂ reste le stock qui compte.",
+ f:(s,b)=>{C(s,b,13,"A11");FR(s,b,2);}},
+
+{id:"A12",c:"actif",n:"Loi-cadre climat contraignante",fam:"Réglementaire",cible:"bloc",cp:5,lvl:1,seuil:55,
+ dw:{d1:10,d4:70},rev:"Irréversible",rob:"Élevée",contre:"T21",
+ e:"Verrouille le bloc : les mesures y résistent au retour de flamme et aux exemptions.",
+ mec:"Inscrit une trajectoire et un budget carbone dans la loi. Les mesures suivantes deviennent l'exécution d'une obligation, plus des choix révocables.",
+ anc:"UK Climate Change Act (2008), adopté à cinq voix contre. Loi Énergie-Climat française (2019).",
+ lim:"Exige un perçu élevé au moment du vote. Après polarisation, la fenêtre se referme pour toute la partie.",
+ f:(s,b)=>{b.verrou=true;}},
+
+{id:"A15",c:"actif",n:"Reporting extra-financier obligatoire",fam:"Réglementaire",cible:"bloc",cp:2,lvl:2,
+ dw:{d1:55,d4:50},rev:"Facile à annuler",rob:"Moyenne",contre:"T20",
+ e:"Contrainte +7 et perçu +5 : l'exposition carbone devient visible des investisseurs.",
+ mec:"Ce qui est mesuré et publié devient un risque financier. Le capital se retire avant que la réglementation ne morde.",
+ anc:"CSRD européenne (2022), largement allégée par le paquet omnibus de 2025.",
+ lim:"Démontré détricotable : la simplification administrative vide la norme sans jamais l'abroger.",
+ f:(s,b)=>{C(s,b,7,"A15");PC(s,b,5);}},
+
+{id:"A17",c:"actif",n:"Interdiction de la publicité fossile",fam:"Réglementaire",cible:"bloc",cp:2,lvl:2,seuil:40,
+ dw:{d1:25,d4:45},rev:"Facile à annuler",rob:"Moyenne",contre:"T31",
+ e:"L'adversaire perd 1 point d'Attention pendant deux tours.",
+ mec:"Coupe l'accès du camp adverse à sa ressource principale. Effet indirect, mais il s'applique à toutes ses campagnes suivantes.",
+ anc:"Amsterdam (2020) ; loi Climat et Résilience française (2021), périmètre finalement restreint au fossile pur.",
+ lim:"Le greenwashing contourne l'interdiction en déplaçant le message vers l'entreprise plutôt que le produit.",
+ f:(s)=>{s.pubOff=2;}},
+
+{id:"A48",c:"actif",n:"Réduction des émissions agricoles",fam:"Réglementaire",cible:"bloc",cp:5,lvl:2,seuil:50,
+ dw:{d1:20,d2:75,d4:55},rev:"Facile à annuler",rob:"Moyenne",contre:"T41",
+ e:"Contrainte +13, friction +20. Le secteur le plus verrouillé politiquement.",
+ mec:"Méthane entérique, fertilisation azotée, cheptel. Un cinquième des émissions mondiales, presque jamais contraint.",
+ anc:"Objectifs agricoles retirés du Pacte vert européen après les mobilisations de 2024.",
+ lim:"Déclenche mécaniquement la fracturation de la coalition : c'est le levier préféré de l'adversaire pour détacher un groupe social.",
+ f:(s,b)=>{C(s,b,13,"A48");FR(s,b,20);}},
+/* ---------- ACTIF · économique et technologique ---------- */
+{id:"A18",c:"actif",n:"Subvention massive au déploiement",fam:"Économique",cible:"global",cap:5,lvl:1,lat:2,
+ dw:{d1:85,d4:70},rev:"Difficile à annuler",rob:"Élevée",contre:"—",
+ e:"Indice technologique +18 dans deux tours. Profite à tous les blocs, y compris à l'adversaire.",
+ mec:"Payer le déploiement fait descendre la courbe d'apprentissage. Le prix baisse pour tout le monde, définitivement.",
+ anc:"EEG allemand 2000-2015, environ 200 Md€, à l'origine de la chute mondiale du prix du photovoltaïque (−90 % entre 2010 et 2020).",
+ lim:"Passager clandestin inversé : vous payez, les autres blocs en bénéficient gratuitement. Le gain d'opinion national est nul.",
+ f:(s)=>{s.techPend.push({t:2,v:18});}},
+
+{id:"A19",c:"actif",n:"Politique industrielle verte",fam:"Économique",cible:"bloc",cap:5,lvl:1,
+ dw:{d1:90,d2:70,d3:25},rev:"Facile à annuler",rob:"Élevée",contre:"T50",
+ e:"Contrainte +16, friction −4. Achète l'adhésion au lieu de contraindre.",
+ mec:"Crédits d'impôt et commandes publiques rendent la décarbonation rentable. Les industriels deviennent la coalition au lieu de l'opposition.",
+ anc:"Inflation Reduction Act américain (2022), environ 369 Md$ climat ; Net-Zero Industry Act européen.",
+ lim:"Cible directe de la capture de subvention : l'aide est encaissée sans que la trajectoire change.",
+ f:(s,b)=>{C(s,b,16,"A19");b.fr=Math.max(0,b.fr-4);b.subv=1;}},
+
+{id:"A20",c:"actif",n:"Contrat pour différence",fam:"Économique",cible:"bloc",cap:3,lvl:2,
+ dw:{d1:80,d4:60},rev:"Difficile à annuler",rob:"Élevée",contre:"—",
+ e:"Contrainte +14 et plafond +6 : le coût du capital chute.",
+ mec:"L'État garantit un prix de vente. Le risque disparaît, le taux d'actualisation s'effondre, le projet se finance.",
+ anc:"CfD britanniques sur l'éolien en mer : prix adjugés divisés par trois entre 2015 et 2022.",
+ lim:"Levier discret et sans récit : il ne rapporte aucun point d'opinion, ce qui le rend rarement prioritaire.",
+ f:(s,b)=>{C(s,b,14,"A20");b.cap=Math.min(100,b.cap+6);}},
+
+{id:"A21",c:"actif",n:"Réseau électrique et stockage",fam:"Technologique",cible:"bloc",cap:4,lvl:1,
+ dw:{d1:75,d4:65},rev:"Difficile à annuler",rob:"Élevée",contre:"T40",
+ e:"Plafond +18 et contrainte +6. Prérequis physique de tous les leviers électriques.",
+ mec:"Sans réseau ni flexibilité, l'électrification sature : les renouvelables sont écrêtés et les usages ne basculent pas.",
+ anc:"Files d'attente de raccordement de plusieurs années en Europe et aux États-Unis ; le réseau est devenu le premier goulot.",
+ lim:"Aucun effet visible dans le tour. C'est un levier qui n'existe que par ce qu'il rend possible ensuite.",
+ f:(s,b)=>{b.cap=Math.min(100,b.cap+18);C(s,b,6,"A21");}},
+
+{id:"A27",c:"actif",n:"Retrait de l'assurance sur les projets fossiles",fam:"Économique",cible:"global",cap:2,lvl:2,
+ dw:{d1:45,d3:20,d4:35},rev:"Facile à annuler",rob:"Moyenne",contre:"T44",
+ e:"Contrainte +7 sur les blocs à forte rente fossile. Un projet non assurable ne se finance pas.",
+ mec:"Sans couverture, aucune banque ne prête. Le verrou est privé, donc hors de portée du législateur adverse.",
+ anc:"Retraits successifs des réassureurs sur le charbon et les sables bitumineux depuis 2017.",
+ lim:"Des assureurs de second rang et des captives publiques prennent le relais dans les blocs à rente élevée.",
+ f:(s)=>{s.blocs.forEach(b=>{if(b.rente>=2)C(s,b,7,"A27");});}},
+
+{id:"A29",c:"actif",n:"Financement climat Nord-Sud",fam:"International",cible:"global",cap:5,lvl:1,
+ dw:{d1:80,d2:85,d3:90},rev:"Facile à annuler",rob:"Moyenne",contre:"T02",
+ e:"Contrainte +10 et perçu +6 sur l'Inde, l'Afrique, l'Amérique latine et le reste de l'Asie.",
+ mec:"Le capital est le facteur limitant des blocs émergents, pas la volonté. Le financement lève directement la contrainte.",
+ anc:"100 Md$/an promis en 2009, atteints en 2022 ; nouvel objectif de 300 Md$/an acté à Bakou en 2024.",
+ lim:"Sans lui, aucun accord mondial ne tient. Avec lui, la facture est visible chez vous et invisible ailleurs.",
+ f:(s)=>{["in","af","la","as"].forEach(k=>{const b=B(s,k);C(s,b,10,"A29");PC(s,b,6);});}},
+
+{id:"A31",c:"actif",n:"Redistribution du produit de la taxe",fam:"Économique",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:60,d2:100},rev:"Facile à annuler",rob:"Élevée",contre:"T08",
+ e:"Friction −26 et compensation durable installée sur le bloc.",
+ mec:"Rendre le produit sous forme de chèque visible transforme un impôt en transfert. La mesure survit à l'alternance.",
+ anc:"Dividende carbone canadien, chèque trimestriel identifiable. Absence de redistribution lisible en France en 2018.",
+ lim:"Carte ennuyeuse et décisive : sans elle, la tarification ne passe pas deux tours.",
+ f:(s,b)=>{b.fr=Math.max(0,b.fr-26);b.compens=1;}},
+
+{id:"A39",c:"actif",n:"R&D publique",fam:"Technologique",cible:"bloc",cap:3,lvl:2,lat:3,
+ dw:{d1:95,d4:95},rev:"Difficile à annuler",rob:"Moyenne",contre:"—",
+ e:"Indice technologique +14 dans trois tours. Aucun effet immédiat.",
+ mec:"Prépare les leviers des tours suivants. Le seul levier dont le rendement est entièrement reporté.",
+ anc:"Mission Innovation lancée en 2015 en marge de la COP21 ; budgets publics de R&D énergie.",
+ lim:"Ne remplace jamais le déploiement : chercher sans déployer ne fait pas baisser les prix.",
+ f:(s)=>{s.techPend.push({t:3,v:14});}},
+
+{id:"A40",c:"actif",n:"Électrification des usages",fam:"Technologique",cible:"bloc",cap:3,lvl:1,seuil:40,
+ dw:{d1:70,d4:50},rev:"Difficile à annuler",rob:"Élevée",contre:"P04",
+ e:"Contrainte +16, augmentée par l'indice technologique. Friction +5.",
+ mec:"Un moteur électrique convertit trois à quatre fois mieux qu'un moteur thermique. Le gain est physique, avant même de décarboner le mix.",
+ anc:"Ventes de voitures électriques passées de 1 % à plus de 20 % du marché mondial entre 2015 et 2024.",
+ lim:"Sature si le réseau n'a pas été renforcé. Ciblée par les faux vecteurs alternatifs.",
+ f:(s,b)=>{C(s,b,16+Math.floor(s.tech/25),"A40");FR(s,b,5);}},
+
+{id:"A44",c:"actif",n:"Captage sur émissions industrielles",fam:"Technologique",cible:"bloc",cap:5,lvl:3,seuil:30,
+ dw:{d1:65,d4:80},rev:"Difficile à annuler",rob:"Contestée",contre:"—",
+ e:"Contrainte +8 seulement, sans friction. Utile là où rien d'autre n'existe.",
+ mec:"Ciment et chimie émettent par la réaction elle-même, pas par la combustion : l'électrification n'y peut rien.",
+ anc:"Sous-performance documentée de Boundary Dam et Petra Nova, taux de captage réels inférieurs aux annonces.",
+ lim:"Devient un piège dès qu'il est appliqué à la production électrique — voir P07, même technologie, usage opposé.",
+ f:(s,b)=>{C(s,b,8,"A44");}},
+
+{id:"A46",c:"actif",n:"Programme nucléaire",fam:"Technologique",cible:"bloc",cap:5,lvl:2,lat:3,
+ dw:{d1:50,d4:100},rev:"Difficile à annuler",rob:"Élevée",contre:"T41",
+ e:"Contrainte +15 dans trois tours, friction +8 immédiate.",
+ mec:"Effet réel et durable sur le mix, avec un délai de douze à dix-sept ans par réacteur. Le calendrier est le sujet, pas la technologie.",
+ anc:"Relance EPR2 en France (2022) ; dérives de Flamanville et Hinkley Point C.",
+ lim:"Fracture la coalition écologiste. Arme à double tranchant : voir P10, le même programme présenté comme réponse à 2030.",
+ f:(s,b)=>{b.pend.push({t:3,v:15,src:"A46"});FR(s,b,8);}},
+
+{id:"A47",c:"actif",n:"Hydrogène pour l'industrie et le maritime",fam:"Technologique",cible:"bloc",cap:5,lvl:3,lat:2,
+ dw:{d1:75,d4:85},rev:"Difficile à annuler",rob:"Contestée",contre:"—",
+ e:"Contrainte +9 dans deux tours.",
+ mec:"Pertinent là où l'électrification directe est impossible : acier, ammoniac, navires longue distance.",
+ anc:"Stratégies hydrogène européennes et nationales depuis 2020, révisées à la baisse en 2024-2025.",
+ lim:"Devient un piège s'il est étendu à la voiture particulière — voir P04, même vecteur, usage absurde.",
+ f:(s,b)=>{b.pend.push({t:2,v:9,src:"A47"});}},
+/* ---------- ACTIF · opinion, judiciaire, coalition ---------- */
+{id:"A49",c:"actif",n:"Attribution rapide d'un événement extrême",fam:"Narratif",cible:"global",att:2,lvl:1,
+ dw:{d4:10},rev:"Facile à annuler",rob:"Élevée",contre:"T36",
+ e:"Perçu +10 sur le bloc frappé, +4 ailleurs. Immunise contre la saturation ce tour-ci.",
+ mec:"Sans étude d'attribution, une catastrophe reste un fait divers météorologique. Avec, elle devient une conséquence datée et chiffrée.",
+ anc:"World Weather Attribution publie des études en quelques jours depuis 2015 ; canicule européenne de 2022 rendue au moins dix fois plus probable.",
+ lim:"La fenêtre se referme en une semaine. Jouée trop tard, la carte ne déplace plus rien.",
+ f:(s)=>{const b=B(s,s.ev.bloc);s.satur=false;PC(s,b,10);s.blocs.forEach(z=>{if(z!==b)PC(s,z,4);});}},
+
+{id:"A50",c:"actif",n:"Révéler la majorité silencieuse",fam:"Narratif",cible:"bloc",att:2,lvl:1,
+ dw:{d2:60},rev:"Facile à annuler",rob:"Élevée",contre:"T33",
+ e:"Le perçu rattrape 60 % de son écart avec le soutien réel. Deux usages par partie.",
+ mec:"Les gens sous-estiment massivement le soutien des autres et se taisent en conséquence. Publier le chiffre réel casse la spirale du silence.",
+ anc:"Andre et al., Nature Climate Change 2024 : 69 % de soutien réel pour 43 % de soutien perçu, dans 125 pays.",
+ lim:"Ne crée rien : ne fait que révéler ce qui existe déjà. Sur un bloc au soutien réel faible, elle ne sert à rien.",
+ f:(s,b)=>{b.percu=Math.min(100,Math.round(b.percu+(b.reel-b.percu)*0.6));}},
+
+{id:"A51",c:"actif",n:"Mobilisation de masse",fam:"Narratif",cible:"global",att:3,lvl:1,
+ dw:{d1:15,d4:15},rev:"Facile à annuler",rob:"Moyenne",contre:"T36",
+ e:"Perçu +14 sur les trois blocs les plus favorables, puis −6 au tour suivant.",
+ mec:"Rouvre la fenêtre politique en rendant le soutien visible dans la rue. Effet fort et rapidement amorti.",
+ anc:"Marches climat mondiales de septembre 2019, plusieurs millions de participants ; reflux net après 2020.",
+ lim:"Un mouvement ne se rallume pas deux fois au même endroit. La démobilisation est plus rapide que la mobilisation.",
+ f:(s)=>{[...s.blocs].sort((a,z)=>z.reel-a.reel).slice(0,3).forEach(b=>{PC(s,b,14);b.pendPc=(b.pendPc||0)-6;});}},
+
+{id:"A53",c:"actif",n:"Éducation et formation",fam:"Narratif",cible:"bloc",cap:2,lvl:1,lat:1,
+ dw:{d4:90},rev:"Irréversible",rob:"Élevée",contre:"—",
+ e:"Soutien réel +5 sur le bloc, définitivement. Aucun contre-levier.",
+ mec:"Le seul levier qui déplace le soutien réel et non le perçu. Ce qui est acquis ici ne se reperd pas.",
+ anc:"Intégration des enjeux climatiques dans les cursus ; formation des cadres dirigeants et des élus depuis 2019.",
+ lim:"Effet minuscule à l'échelle d'un tour. C'est un levier de fin de partie joué en début de partie.",
+ f:(s,b)=>{RE(s,b,5);}},
+
+{id:"A54",c:"actif",n:"Journalisme d'investigation",fam:"Narratif",cible:"bloc",cap:3,lvl:2,
+ dw:{d1:20,d4:25},rev:"Irréversible",rob:"Élevée",contre:"T26",
+ e:"Crédibilité adverse −14, perçu +6 sur le bloc. Un seul coup par cible.",
+ mec:"Révéler ce que l'adversaire savait et quand il le savait déplace le débat du désaccord vers le mensonge.",
+ anc:"Exxon Knew (2015) : projections internes exactes dès les années 1970, publiquement contredites ensuite.",
+ lim:"Cible directe des procédures-bâillon : la source peut être supprimée avant la publication suivante.",
+ f:(s,b)=>{s.res.att.cred=Math.max(0,s.res.att.cred-14);PC(s,b,6);}},
+
+{id:"A57",c:"actif",n:"Récit désirable plutôt que punitif",fam:"Narratif",cible:"bloc",att:2,lvl:1,
+ dw:{d1:80,d2:80},rev:"Facile à annuler",rob:"Moyenne",contre:"T09",
+ e:"Soutien réel +4 et friction −9.",
+ mec:"Décrire ce que l'on gagne plutôt que ce que l'on perd désarme la défense du mode de vie sans rien concéder sur le fond.",
+ anc:"Bascule des campagnes de rénovation vers le confort et la facture plutôt que la contrainte carbone.",
+ lim:"Inopérant si les mesures effectivement jouées sont punitives : le récit ne survit pas au démenti.",
+ f:(s,b)=>{RE(s,b,4);b.fr=Math.max(0,b.fr-9);}},
+
+{id:"A33",c:"actif",n:"Contentieux climatique contre l'État",fam:"Judiciaire",cible:"bloc",cap:2,lvl:1,
+ dw:{d1:10,d4:45},rev:"Difficile à annuler",rob:"Élevée",contre:"T26",
+ e:"Contrainte +12 sans condition de soutien perçu. Sans effet en régime autoritaire.",
+ mec:"Contourne l'arène électorale : le juge impose ce que la majorité ne vote pas. Le seul levier qui ignore la jauge d'opinion.",
+ anc:"Urgenda (Pays-Bas, 2019), Affaire du Siècle (France, 2021), Neubauer (Allemagne, 2021).",
+ lim:"Gagner un procès n'exécute rien : l'État condamné peut payer et continuer.",
+ f:(s,b)=>{if(b.reg!=="auto")C(s,b,12,"A33");}},
+
+{id:"A35",c:"actif",n:"Recours devant une cour régionale des droits humains",fam:"Judiciaire",cible:"global",cap:3,lvl:2,lat:1,
+ dw:{d1:10,d3:20,d4:70},rev:"Irréversible",rob:"Élevée",contre:"—",
+ e:"Contrainte +9 au tour suivant sur tous les blocs démocratiques.",
+ mec:"Crée une obligation opposable à tous les États membres d'un seul coup, sans passer par aucun parlement.",
+ anc:"CEDH, KlimaSeniorinnen contre Suisse, avril 2024 : première condamnation d'un État pour inaction climatique par une cour des droits humains.",
+ lim:"Ne touche que les blocs soumis à la juridiction. Les plus gros émetteurs n'y sont pas.",
+ f:(s)=>{s.blocs.forEach(b=>{if(b.reg==="demo")b.pend.push({t:1,v:9,src:"A35"});});}},
+
+{id:"A36",c:"actif",n:"Avis consultatif de juridiction internationale",fam:"Judiciaire",cible:"global",cp:3,lvl:2,lat:2,
+ dw:{d1:25,d4:85},rev:"Irréversible",rob:"Élevée",contre:"T24",
+ e:"Contrainte +6 et perçu +5 partout dans deux tours. Neutralise l'arbitrage investisseur-État.",
+ mec:"Établit que les obligations climatiques relèvent du droit international général : toutes les procédures suivantes s'y adossent.",
+ anc:"Avis consultatif de la Cour internationale de justice sur les obligations des États, 23 juillet 2025.",
+ lim:"Non contraignant en lui-même. Sa force est entièrement dans ce que les juges nationaux en font ensuite.",
+ f:(s)=>{s.avis=2;s.blocs.forEach(b=>{b.pend.push({t:2,v:6,src:"A36"});});}},
+
+{id:"A59",c:"actif",n:"Faire du climat un enjeu de campagne",fam:"Électoral",cible:"bloc",cp:3,lvl:1,seuil:50,
+ dw:{d1:30,d4:15},rev:"Facile à annuler",rob:"Élevée",contre:"T38",
+ e:"Contrainte +14 si le perçu dépasse 50. Sinon la campagne est perdue : perçu −8.",
+ mec:"Convertit le soutien perçu en mandat. C'est le seul levier qui transforme une opinion en autorisation d'agir.",
+ anc:"Élections européennes de 2019, vague verte ; reflux net de 2024.",
+ lim:"Vérifier la jauge avant de jouer : sur un perçu bas, la carte se retourne intégralement.",
+ f:(s,b)=>{if(b.percu>=50)C(s,b,14,"A59");else PC(s,b,-8);}},
+
+{id:"A60",c:"actif",n:"Coalition climat, emploi et pouvoir d'achat",fam:"Électoral",cible:"bloc",cp:4,lvl:1,
+ dw:{d1:70,d2:90},rev:"Difficile à annuler",rob:"Élevée",contre:"T41",
+ e:"Friction −14 et immunité partielle contre l'instrumentalisation du coût de la vie.",
+ mec:"Vendre la politique climatique comme politique industrielle et sociale retire à l'adversaire son angle d'attaque principal.",
+ anc:"Architecture de l'Inflation Reduction Act, présenté comme une loi sur l'inflation et l'emploi.",
+ lim:"Coûte cher en concessions : chaque groupe rallié obtient son exemption.",
+ f:(s,b)=>{b.fr=Math.max(0,b.fr-14);b.coal=1;}},
+
+{id:"A61",c:"actif",n:"Ancrage local et réseaux de villes",fam:"Électoral",cible:"bloc",cp:2,lvl:1,
+ dw:{d1:45,d3:40,d4:40},rev:"Facile à annuler",rob:"Élevée",contre:"T19",
+ e:"Contrainte +8. Jouable même sur un bloc préempté.",
+ mec:"Contourne le blocage national par l'échelon urbain, où les majorités climatiques sont plus solides.",
+ anc:"C40 Cities ; Convention des maires. Zones à faibles émissions déployées dans plus de 300 villes européennes.",
+ lim:"Neutralisé par la préemption législative : plus de vingt États américains interdisent à leurs villes de bannir le gaz depuis 2020.",
+ f:(s,b)=>{C(s,b,8,"A61");}},
+
+{id:"A62",c:"actif",n:"Dépolitisation et accord transpartisan",fam:"Électoral",cible:"bloc",cp:5,lvl:3,seuil:60,
+ dw:{d1:55,d4:100},rev:"Irréversible",rob:"Élevée",contre:"T38",
+ e:"Verrouille le bloc et le rend insensible à la guerre culturelle pour le reste de la partie.",
+ mec:"Sortir le sujet du clivage partisan rend la politique insensible à l'alternance. Le levier le plus puissant du camp actif.",
+ anc:"Climate Change Act britannique de 2008, adopté à cinq voix contre, jamais abrogé depuis malgré quatre alternances.",
+ lim:"Presque impossible à obtenir après polarisation. Si la guerre culturelle a déjà été jouée ici, la carte est morte.",
+ f:(s,b)=>{if(b.guerre){PC(s,b,-4);}else{b.verrou=true;b.transp=1;}}},
+
+{id:"A63",c:"actif",n:"Institution indépendante de suivi",fam:"Électoral",cible:"bloc",cp:2,lvl:1,
+ dw:{d1:40,d4:75},rev:"Difficile à annuler",rob:"Élevée",contre:"T21",
+ e:"Perçu +4 par tour sur le bloc jusqu'à la fin de la partie. Révèle la capture de subvention.",
+ mec:"Ne décide rien, mais rend l'écart entre annonces et actes publiquement mesurable à chaque tour.",
+ anc:"Committee on Climate Change britannique (2008) ; Haut Conseil pour le Climat français (2019).",
+ lim:"Un rapport annuel ignoré reste un rapport annuel. Son pouvoir dépend entièrement de la reprise médiatique.",
+ f:(s,b)=>{b.suivi=1;}},
+
+{id:"A65",c:"actif",n:"Accord multilatéral à cliquet",fam:"International",cible:"global",cp:4,lvl:1,lat:2,
+ dw:{d3:60,d4:90},rev:"Difficile à annuler",rob:"Élevée",contre:"T07",
+ e:"Contrainte +4 partout dans deux tours, puis +2 par tour ensuite. Aucun effet immédiat.",
+ mec:"Ne réduit rien directement : installe un mécanisme de révision périodique qui rend le recul coûteux en réputation.",
+ anc:"Accord de Paris, décembre 2015 — le point de départ de cette partie. Trajectoire mondiale passée de 3,6 °C à 2,6 °C entre 2015 et 2025.",
+ lim:"Aucune sanction. Tout repose sur la transparence et la pression des pairs.",
+ f:(s)=>{s.cliquet=1;s.blocs.forEach(b=>b.pend.push({t:2,v:4,src:"A65"}));}},
+
+{id:"A67",c:"actif",n:"Protocole sectoriel contraignant",fam:"International",cible:"global",cp:4,lvl:2,lat:1,
+ dw:{d1:20,d4:60},rev:"Irréversible",rob:"Élevée",contre:"—",
+ e:"Contrainte +11 partout au tour suivant. Irréversible.",
+ mec:"Le format le plus efficace jamais signé : cible étroite, substitut disponible, calendrier daté, sanctions commerciales.",
+ anc:"Amendement de Kigali au Protocole de Montréal (2016) sur les HFC : jusqu'à 0,4 °C évités à lui seul.",
+ lim:"Ne fonctionne que sur des gaz ou secteurs à substitut existant. Inapplicable au CO₂ énergétique.",
+ f:(s)=>{s.blocs.forEach(b=>b.pend.push({t:1,v:11,src:"A67"}));}},
+/* ---------- PIÈGES · proposés au camp actif ---------- */
+{id:"P01",c:"actif",n:"Compensation carbone volontaire",fam:"Piège",cible:"bloc",cap:1,lvl:1,trap:true,
+ dw:{d1:85,d4:30},rev:"Facile à annuler",rob:"Faible",contre:"A15",
+ e:"Contrainte +2 seulement. Crédibilité −8 quand l'écart est révélé.",
+ mec:"Semble neutraliser vos émissions résiduelles pour presque rien. Le crédit est réel, la réduction ne l'est pas.",
+ anc:"Revue de 25 ans de projets forestiers : majorité jugée non additionnelle. Marché volontaire en baisse de plus de 60 % depuis 2022.",
+ lim:"Piège. Le coût dérisoire est le signal : une tonne évitée ne coûte pas trois euros.",
+ f:(s,b)=>{C(s,b,2,"P01");s.res.actif.cred-=8;}},
+
+{id:"P04",c:"actif",n:"Hydrogène pour la voiture particulière",fam:"Piège",cible:"bloc",cap:4,lvl:1,trap:true,lat:2,
+ dw:{d1:80,d4:85},rev:"Difficile à annuler",rob:"Faible",contre:"A40",
+ e:"Contrainte +3 dans deux tours, pour un coût de 4. Retarde l'électrification directe.",
+ mec:"Rendement global trois à quatre fois inférieur à la batterie : électrolyse, compression, pile à combustible, chaque étape perd.",
+ anc:"Abandons successifs des programmes hydrogène automobile depuis 2020 ; parc mondial resté marginal.",
+ lim:"Piège. Le même vecteur est pertinent pour l'industrie et le maritime — voir A47.",
+ f:(s,b)=>{b.pend.push({t:2,v:3,src:"P04"});}},
+
+{id:"P05",c:"actif",n:"Carburants de synthèse pour l'automobile",fam:"Piège",cible:"bloc",cap:4,lvl:1,trap:true,
+ dw:{d1:75,d4:75},rev:"Difficile à annuler",rob:"Faible",contre:"A04",
+ e:"Contrainte +2 et plafond −8 : ouvre une exemption réglementaire durable.",
+ mec:"Coût et rendement prohibitifs à l'échelle. Sert surtout à maintenir légalement le moteur thermique.",
+ anc:"Exemption e-fuels obtenue en 2023 sur le règlement européen de fin du thermique en 2035.",
+ lim:"Piège. Ce n'est pas une technologie de transition, c'est une clause de sortie.",
+ f:(s,b)=>{C(s,b,2,"P05");b.cap=Math.max(10,b.cap-8);}},
+
+{id:"P07",c:"actif",n:"Captage et stockage sur centrale électrique",fam:"Piège",cible:"bloc",cap:5,lvl:1,trap:true,lat:2,
+ dw:{d1:60,d4:80},rev:"Difficile à annuler",rob:"Faible",contre:"A20",
+ e:"Contrainte +4 dans deux tours, pour un coût de 5. Prolonge le parc fossile.",
+ mec:"Techniquement possible, économiquement absurde face au renouvelable : on paie deux fois pour produire la même électricité.",
+ anc:"Boundary Dam et Petra Nova : taux de captage réels très inférieurs aux annonces, arrêts prolongés.",
+ lim:"Piège. La même technologie est défendable sur le ciment et la chimie — voir A44.",
+ f:(s,b)=>{b.pend.push({t:2,v:4,src:"P07"});}},
+
+{id:"P08",c:"actif",n:"Engagement net zéro 2050 sans étape",fam:"Piège",cible:"global",att:1,lvl:1,trap:true,
+ dw:{d4:100},rev:"Facile à annuler",rob:"Faible",contre:"A12",
+ e:"Perçu +9 partout immédiatement. Aucune contrainte, jamais.",
+ mec:"Marque des points d'opinion sans engager la moindre décision dans l'horizon de jeu.",
+ anc:"Généralisation des annonces net zéro 2050 sans trajectoire 2030 intermédiaire.",
+ lim:"Piège. Un objectif sans étape intermédiaire est une intention, pas une politique.",
+ f:(s)=>{s.blocs.forEach(b=>PC(s,b,9));}},
+
+{id:"P10",c:"actif",n:"Nucléaire présenté comme réponse à 2030",fam:"Piège",cible:"bloc",cap:5,lvl:1,trap:true,
+ dw:{d1:45,d4:20},rev:"Difficile à annuler",rob:"Faible",contre:"A46",
+ e:"Contrainte +3 et plafond −6 : le budget part, la centrale arrive après la partie.",
+ mec:"Le levier est réel sur l'horizon long. Présenté comme réponse à la décennie, il sert d'argument de report.",
+ anc:"Délais de douze à dix-sept ans par réacteur ; Flamanville, douze ans de retard.",
+ lim:"Piège de calendrier, pas de technologie. Le même programme joué sur l'horizon long est légitime — voir A46.",
+ f:(s,b)=>{C(s,b,3,"P10");b.cap=Math.max(10,b.cap-6);}},
+
+/* ---------- ATTENTISTE · discours ---------- */
+{id:"T01",c:"att",n:"Individualisme",fam:"Discours",cible:"bloc",att:2,lvl:1,
+ dw:{d1:70,d2:70,d4:30},rev:"Facile à annuler",rob:"Élevée",contre:"A50",
+ e:"Perçu −9. Déplace la cible de la production vers le consommateur.",
+ mec:"Rendre chacun responsable de son empreinte dissout la demande de politique publique dans la culpabilité privée.",
+ anc:"Calculateur d'empreinte carbone individuelle lancé par BP en 2004, aujourd'hui universel.",
+ lim:"Ne résiste pas à la publication du soutien réel : la majorité découvre qu'elle est majoritaire.",
+ f:(s,b)=>{PC(s,b,-9);}},
+
+{id:"T02",c:"att",n:"Whataboutisme",fam:"Discours",cible:"bloc",att:1,lvl:1,
+ dw:{d1:55,d3:35,d4:20},rev:"Facile à annuler",rob:"Élevée",contre:"A03",
+ e:"Perçu −13 si le bloc pèse moins de 10 % des émissions mondiales, −5 sinon.",
+ mec:"« Et la Chine ? » Annule l'élan d'un bloc à faibles émissions relatives en rendant son effort dérisoire.",
+ anc:"Argument central des débats parlementaires français et européens sur toute mesure contraignante.",
+ lim:"Désamorcé par l'ajustement aux frontières et par le financement Nord-Sud, qui rendent l'effort conditionnel visible.",
+ f:(s,b)=>{const part=b.e/totE(s);PC(s,b,-(part<0.10?13:5));}},
+
+{id:"T04",c:"att",n:"Optimisme technologique",fam:"Discours",cible:"global",att:2,lvl:1,
+ dw:{d1:95,d2:80,d4:90},rev:"Facile à annuler",rob:"Élevée",contre:"A39",
+ e:"Perçu −5 partout, et les effets différés du camp actif sont retardés d'un tour.",
+ mec:"« Attendons la technologie. » Ne nie rien, ne conteste rien : déplace simplement la décision dans le futur.",
+ anc:"Promesses successives sur la fusion, le captage direct dans l'air, l'hydrogène généralisé.",
+ lim:"S'effondre quand la technologie promise arrive vraiment et se révèle déployable tout de suite.",
+ f:(s)=>{s.blocs.forEach(b=>{PC(s,b,-5);b.pend.forEach(p=>p.t++);});}},
+
+{id:"T07",c:"att",n:"Beaucoup d'annonces, peu d'actes",fam:"Discours",cible:"global",att:2,lvl:1,
+ dw:{d1:90,d2:85,d4:95},rev:"Facile à annuler",rob:"Élevée",contre:"A63",
+ e:"Perçu +6 partout pour le camp attentiste, sans aucune réduction. Sans effet si une institution de suivi existe.",
+ mec:"Annoncer un objectif 2050 sans étape intermédiaire achète de la légitimité sans rien coûter.",
+ anc:"Prolifération des engagements net zéro 2050 sans trajectoire 2030 opposable.",
+ lim:"Une institution indépendante de suivi transforme l'annonce en dette publique mesurée chaque année.",
+ f:(s)=>{s.blocs.forEach(b=>{if(!b.suivi)PC(s,b,-6);});}},
+
+{id:"T08",c:"att",n:"Appel à la justice sociale",fam:"Discours",cible:"bloc",att:2,lvl:1,
+ dw:{d1:60,d2:20,d3:65},rev:"Facile à annuler",rob:"Élevée",contre:"A31",
+ e:"Friction +19. Effet réduit des deux tiers si la redistribution a été installée.",
+ mec:"« Ce sont les pauvres qui paieront. » Retourne l'argument social contre la mesure, souvent avec raison.",
+ anc:"Argumentaire déployé contre les zones à faibles émissions et contre toute tarification non redistribuée.",
+ lim:"Le seul contre est de rendre la redistribution visible avant d'être attaqué, pas après.",
+ f:(s,b)=>{FR(s,b,b.compens?6:19);}},
+
+{id:"T09",c:"att",n:"Défense du mode de vie",fam:"Discours",cible:"bloc",att:2,lvl:1,
+ dw:{d1:25,d2:15,d4:25},rev:"Difficile à annuler",rob:"Élevée",contre:"A57",
+ e:"Soutien réel −4 et friction +12. Attaque le réel, pas seulement le perçu.",
+ mec:"« On veut vous priver de votre voiture, de votre steak, de vos vacances. » L'un des rares leviers qui déplace le soutien de fond.",
+ anc:"Polémiques récurrentes sur la viande, l'avion et la voiture individuelle depuis 2019.",
+ lim:"Neutralisé par un récit de gain plutôt que de privation, s'il est déployé avant l'attaque.",
+ f:(s,b)=>{RE(s,b,-4);FR(s,b,12);}},
+
+{id:"T11",c:"att",n:"Fatalisme",fam:"Discours",cible:"bloc",att:2,lvl:2,
+ dw:{d1:80,d2:55,d4:60},rev:"Facile à annuler",rob:"Élevée",contre:"A51",
+ e:"Perçu −10, et −16 dès que le réchauffement dépasse 1,6 °C.",
+ mec:"« C'est trop tard de toute façon. » Le seul levier qui se renforce à mesure que la partie se dégrade.",
+ anc:"Montée documentée de l'éco-anxiété résignée chez les moins de 25 ans depuis 2020.",
+ lim:"Contré par toute démonstration visible qu'un levier a marché — d'où l'intérêt de la ligne de trajectoire.",
+ f:(s,b)=>{PC(s,b,-(s.T>1.6?16:10));}},
+/* ---------- ATTENTISTE · institutionnel, judiciaire ---------- */
+{id:"T13",c:"att",n:"Lobbying direct",fam:"Institutionnel",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:60,d3:25,d4:40},rev:"Facile à annuler",rob:"Élevée",contre:"A15",
+ e:"Friction +13 et contrainte −5.",
+ mec:"Agit sur le texte avant le vote, là où personne ne regarde. Le rapport coût/effet le plus favorable du camp.",
+ anc:"InfluenceMap : plusieurs centaines de millions de dollars par an d'influence climatique obstructive documentée.",
+ lim:"Le reporting obligatoire et les registres de transparence en réduisent le rendement.",
+ f:(s,b)=>{FR(s,b,13);b.contr=Math.max(0,b.contr-5);}},
+
+{id:"T17",c:"att",n:"Capture de l'agence réglementaire",fam:"Institutionnel",cible:"bloc",cap:4,lvl:3,
+ dw:{d1:75,d4:70},rev:"Difficile à annuler",rob:"Élevée",contre:"A12",
+ e:"Contrainte −17. Sans effet sur un bloc verrouillé par une loi-cadre.",
+ mec:"Le vote reste, l'effet disparaît. Sous-doter le contrôle est moins visible qu'abroger la règle.",
+ anc:"Sous-dotation chronique des autorités de contrôle environnemental dans plusieurs blocs.",
+ lim:"Une loi-cadre avec budget carbone opposable rend la capture inopérante.",
+ f:(s,b)=>{if(!b.verrou)b.contr=Math.max(0,b.contr-17);}},
+
+{id:"T19",c:"att",n:"Préemption législative",fam:"Institutionnel",cible:"bloc",cp:3,lvl:2,
+ dw:{d1:20,d4:50},rev:"Difficile à annuler",rob:"Élevée",contre:"A61",
+ e:"Le camp actif ne peut plus jouer sur ce bloc pendant deux tours, sauf par l'échelon local.",
+ mec:"Interdire aux collectivités d'agir supprime l'échelon où les majorités climatiques existent.",
+ anc:"Plus de vingt États américains interdisant à leurs villes de bannir le gaz depuis 2020.",
+ lim:"Les réseaux de villes internationaux contournent partiellement le blocage.",
+ f:(s,b)=>{b.bloque=2;}},
+
+{id:"T20",c:"att",n:"Détricotage administratif",fam:"Institutionnel",cible:"bloc",cap:3,lvl:3,
+ dw:{d1:85,d4:65},rev:"Facile à annuler",rob:"Élevée",contre:"A12",
+ e:"Contrainte −14 et plafond −6. Passe sous le radar médiatique.",
+ mec:"Vider une norme par simplification plutôt que par abrogation : personne ne défend un seuil de reporting.",
+ anc:"Paquet omnibus européen de 2025, réduisant fortement le périmètre de CSRD et CSDDD.",
+ lim:"Inopérant contre les mesures inscrites dans une loi-cadre à trajectoire opposable.",
+ f:(s,b)=>{if(!b.verrou){b.contr=Math.max(0,b.contr-14);b.cap=Math.max(10,b.cap-6);}}},
+
+{id:"T21",c:"att",n:"Consultation et étude d'impact à répétition",fam:"Institutionnel",cible:"bloc",cp:2,lvl:2,
+ dw:{d1:90,d2:75,d4:55},rev:"Facile à annuler",rob:"Élevée",contre:"A12",
+ e:"Tous les effets différés en cours sur ce bloc sont retardés de deux tours.",
+ mec:"Ne s'oppose jamais publiquement. Demande seulement une étude de plus, puis une concertation, puis une évaluation.",
+ anc:"Multiplication des phases de concertation préalable sur les projets réglementaires.",
+ lim:"Une loi-cadre avec échéances datées rend le report juridiquement attaquable.",
+ f:(s,b)=>{b.pend.forEach(p=>p.t+=2);}},
+
+{id:"T22",c:"att",n:"Exemption sectorielle",fam:"Institutionnel",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:70,d4:45},rev:"Difficile à annuler",rob:"Élevée",contre:"A12",
+ e:"Contrainte −12. Sans effet si le bloc est verrouillé.",
+ mec:"Le vote a lieu, la mesure passe, et l'effet vous épargne. Négocié en commission, jamais en séance.",
+ anc:"Aviation et maritime longtemps hors ETS ; dérogations agricoles obtenues en 2024.",
+ lim:"Chaque exemption obtenue affaiblit la crédibilité du texte et ouvre la porte au contentieux.",
+ f:(s,b)=>{if(!b.verrou)b.contr=Math.max(0,b.contr-12);}},
+
+{id:"T23",c:"att",n:"Clause de revoyure",fam:"Institutionnel",cible:"bloc",cp:1,lvl:2,
+ dw:{d1:95,d4:60},rev:"Facile à annuler",rob:"Élevée",contre:"A62",
+ e:"Programme l'annulation d'une mesure du bloc dans trois tours.",
+ mec:"Insérer une révision datée coûte presque rien au moment du vote et rouvre tout au moment choisi.",
+ anc:"Clause de réexamen 2026 inscrite dans le règlement européen de fin du thermique en 2035.",
+ lim:"Un accord transpartisan retire la revoyure du jeu politique ordinaire.",
+ f:(s,b)=>{b.revoyure=3;}},
+
+{id:"T24",c:"att",n:"Arbitrage investisseur-État",fam:"Judiciaire",cible:"global",cap:4,lvl:3,
+ dw:{d1:40,d3:20,d4:80},rev:"Difficile à annuler",rob:"Élevée",contre:"A36",
+ e:"Contrainte −8 sur les deux blocs les plus contraints. Sans effet si un avis international a été rendu.",
+ mec:"Fait payer à l'État le coût de sa propre politique climatique. L'effet dissuasif dépasse largement le cas jugé.",
+ anc:"RWE et Uniper contre Pays-Bas (environ 1,4 Md€) ; Rockhopper contre Italie (190 M€), via le Traité sur la Charte de l'énergie.",
+ lim:"Les retraits successifs du Traité sur la Charte de l'énergie depuis 2023 réduisent le terrain de jeu.",
+ f:(s)=>{if(s.avis)return;[...s.blocs].sort((a,z)=>z.contr-a.contr).slice(0,2).forEach(b=>{b.contr=Math.max(0,b.contr-8);});}},
+
+{id:"T25",c:"att",n:"Recours contentieux contre la norme",fam:"Judiciaire",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:65,d4:35},rev:"Facile à annuler",rob:"Élevée",contre:"A33",
+ e:"Suspend la dernière mesure prise sur le bloc : contrainte −10.",
+ mec:"Gagner n'est pas nécessaire, retarder suffit. Trois à cinq ans de suspension valent mieux qu'une victoire.",
+ anc:"Contentieux systématiques contre les réglementations environnementales fédérales américaines.",
+ lim:"Sans effet sur les mesures adossées à une obligation juridictionnelle supérieure.",
+ f:(s,b)=>{const m=b.mesures.pop();if(m)b.contr=Math.max(0,b.contr-Math.min(10,m.v));else b.contr=Math.max(0,b.contr-4);}},
+
+{id:"T26",c:"att",n:"Procédure-bâillon",fam:"Judiciaire",cible:"bloc",cap:3,lvl:3,
+ dw:{d1:15,d4:60},rev:"Difficile à annuler",rob:"Élevée",contre:"A54",
+ e:"Le camp actif perd 1 point d'Attention pendant deux tours.",
+ mec:"Épuiser financièrement une ONG ou un journaliste supprime durablement une source d'attribution, sans jamais gagner au fond.",
+ anc:"Poursuites contre des ONG environnementales en Europe et aux États-Unis ; directive européenne anti-SLAPP de 2024.",
+ lim:"La directive anti-SLAPP rend la procédure risquée pour son auteur dans les blocs européens.",
+ f:(s)=>{s.attOff=2;}},
+/* ---------- ATTENTISTE · narratif et économique ---------- */
+{id:"T31",c:"att",n:"Greenwashing publicitaire",fam:"Narratif",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:85,d2:90,d4:35},rev:"Facile à annuler",rob:"Moyenne",contre:"A17",
+ e:"Perçu −11 pour le camp actif : le sentiment que le problème est déjà traité.",
+ mec:"Acheter du soutien perçu sans réduire une tonne. L'opinion croit l'effort fait et se démobilise.",
+ anc:"Campagnes des majors sur leurs investissements bas carbone, souvent inférieurs à 5 % de leurs dépenses d'investissement.",
+ lim:"Vulnérable au contentieux publicitaire et à l'interdiction de publicité fossile.",
+ f:(s,b)=>{PC(s,b,-11);}},
+
+{id:"T33",c:"att",n:"Contrôle capitalistique des médias",fam:"Narratif",cible:"bloc",cap:5,lvl:3,
+ dw:{d1:45,d4:95},rev:"Difficile à annuler",rob:"Élevée",contre:"A54",
+ e:"Perçu −7 sur le bloc à chaque tour jusqu'à la fin de la partie.",
+ mec:"Transforme la ressource Capital en contrôle durable de la ressource Attention. Le seul levier attentiste vraiment cumulatif.",
+ anc:"Concentration croissante de la propriété des médias d'information dans plusieurs blocs depuis 2015.",
+ lim:"Cher, lent, et très visible : expose à l'investigation et au débat sur la concentration.",
+ f:(s,b)=>{b.media=1;}},
+
+{id:"T36",c:"att",n:"Saturation de l'attention",fam:"Narratif",cible:"global",cap:3,lvl:1,
+ dw:{d1:75,d4:15},rev:"Facile à annuler",rob:"Élevée",contre:"A49",
+ e:"Aucune attribution d'événement possible ce tour-ci.",
+ mec:"Décaler les annonces sensibles vers les périodes de forte actualité rend la catastrophe inaudible.",
+ anc:"Pratique documentée de publication des rapports défavorables les veilles de week-end et de grands événements.",
+ lim:"Une équipe d'attribution rapide publie avant la fenêtre de saturation.",
+ f:(s)=>{s.satur=true;}},
+
+{id:"T38",c:"att",n:"Guerre culturelle",fam:"Narratif",cible:"bloc",att:4,lvl:2,
+ dw:{d1:10,d2:10,d4:85},rev:"Irréversible",rob:"Élevée",contre:"—",
+ e:"Perçu −12 et dépolitisation rendue impossible sur ce bloc pour toute la partie.",
+ mec:"Transformer le climat en marqueur identitaire ferme définitivement la voie de l'accord transpartisan.",
+ anc:"Polarisation partisane croissante du sujet climatique depuis 2010, mesurée dans plusieurs démocraties.",
+ lim:"Coûteuse et irréversible aussi pour son auteur : elle interdit tout retour au compromis.",
+ f:(s,b)=>{PC(s,b,-12);b.guerre=1;}},
+
+{id:"T39",c:"att",n:"Instrumentalisation du coût de la vie",fam:"Narratif",cible:"bloc",att:2,lvl:1,
+ dw:{d1:35,d2:5,d4:20},rev:"Facile à annuler",rob:"Élevée",contre:"A31",
+ e:"Friction +24. Divisée par deux si la redistribution est installée, encore réduite si la coalition élargie existe.",
+ mec:"Le levier numéro un du camp depuis 2022 : associer chaque mesure climatique à la facture du mois.",
+ anc:"Crise énergétique de 2022 ; retournement du discours européen sur le Pacte vert dans la foulée.",
+ lim:"Perd presque tout son effet face à une compensation visible et à une coalition qui inclut le pouvoir d'achat.",
+ f:(s,b)=>{let v=24;if(b.compens)v=12;if(b.coal)v=Math.round(v*0.6);FR(s,b,v);}},
+
+{id:"T40",c:"att",n:"Instrumentalisation de la sécurité énergétique",fam:"Narratif",cible:"bloc",att:2,lvl:1,
+ dw:{d1:50,d3:30,d4:30},rev:"Difficile à annuler",rob:"Élevée",contre:"A21",
+ e:"Plafond −10 : des projets fossiles rouverts au nom de la souveraineté.",
+ mec:"La peur de la coupure autorise en quelques semaines ce qu'aucun débat n'aurait accordé en dix ans.",
+ anc:"Relance des terminaux GNL européens après 2022 ; réouverture temporaire de centrales à charbon.",
+ lim:"Le renforcement du réseau et du stockage retire l'argument de la fragilité.",
+ f:(s,b)=>{b.cap=Math.max(10,b.cap-10);}},
+
+{id:"T41",c:"att",n:"Fracturation de la coalition adverse",fam:"Narratif",cible:"bloc",att:3,lvl:1,
+ dw:{d1:30,d2:25,d4:30},rev:"Difficile à annuler",rob:"Élevée",contre:"A60",
+ e:"Friction +17 et perçu −6. Effet doublé si le bloc a subi une mesure agricole ou nucléaire.",
+ mec:"Détacher un groupe social — agriculteurs, automobilistes, ruraux, salariés d'un secteur — coûte moins cher que convaincre tout le monde.",
+ anc:"Mobilisations agricoles européennes de 2024 ; Gilets jaunes de 2018.",
+ lim:"Une coalition construite dès le départ sur l'emploi et le pouvoir d'achat offre peu de prise.",
+ f:(s,b)=>{const d=b.mesures.some(m=>m.src==="A48"||m.src==="A46")?2:1;FR(s,b,17*d);PC(s,b,-6);}},
+
+{id:"T43",c:"att",n:"Verrouillage d'infrastructure",fam:"Économique",cible:"bloc",cap:5,lvl:1,
+ dw:{d1:55,d4:100},rev:"Irréversible",rob:"Élevée",contre:"A27",
+ e:"Plafond −22, irréversible. Contrainte −4.",
+ mec:"Ce qui est coulé dans le béton engage quarante ans. Le principal irréversible du camp attentiste.",
+ anc:"Vague de terminaux GNL et de gazoducs lancés avant durcissement réglementaire depuis 2022.",
+ lim:"Le retrait des assureurs et des financeurs est le seul levier qui bloque un projet avant la coulée.",
+ f:(s,b)=>{b.cap=Math.max(10,b.cap-22);b.contr=Math.max(0,b.contr-4);}},
+
+{id:"T44",c:"att",n:"Contrat d'approvisionnement de long terme",fam:"Économique",cible:"global",cap:4,lvl:2,
+ dw:{d1:70,d4:95},rev:"Irréversible",rob:"Élevée",contre:"A05",
+ e:"Plafond −9 sur les trois blocs les plus contraints. Verrouillé par le droit privé.",
+ mec:"Verrouille par contrat ce que la réglementation ne peut plus atteindre : rompre coûte plus cher qu'exécuter.",
+ anc:"Contrats GNL de vingt à vingt-cinq ans signés en Europe et en Asie depuis 2022.",
+ lim:"Une date butoir annoncée très tôt dissuade la signature avant qu'elle n'ait lieu.",
+ f:(s)=>{[...s.blocs].sort((a,z)=>z.contr-a.contr).slice(0,3).forEach(b=>{b.cap=Math.max(10,b.cap-9);});}},
+
+{id:"T45",c:"att",n:"Chantage à l'emploi et à la délocalisation",fam:"Économique",cible:"bloc",att:2,lvl:1,
+ dw:{d1:45,d2:30,d3:25},rev:"Facile à annuler",rob:"Élevée",contre:"A03",
+ e:"Friction +15 et contrainte −6. Sans effet si l'ajustement aux frontières protège le bloc.",
+ mec:"Convertit une mesure nationale en menace territoriale immédiate. Très efficace en période électorale.",
+ anc:"Menaces de fermeture de sites industriels lors de chaque débat sur le prix du carbone.",
+ lim:"L'ajustement carbone aux frontières supprime l'avantage du moins-disant et donc l'argument.",
+ f:(s,b)=>{if(b.cbam){FR(s,b,4);}else{FR(s,b,15);b.contr=Math.max(0,b.contr-6);}}},
+
+{id:"T50",c:"att",n:"Capture de la subvention",fam:"Économique",cible:"bloc",cap:2,lvl:2,
+ dw:{d1:80,d4:50},rev:"Difficile à annuler",rob:"Moyenne",contre:"A63",
+ e:"Contrainte −11 si le bloc a reçu une politique industrielle verte. Sans effet sinon, ni si une institution de suivi existe.",
+ mec:"Encaisser l'aide publique sans modifier la trajectoire retourne le levier adverse contre son émetteur.",
+ anc:"Aides à la transition perçues sans réduction d'émissions vérifiée, dans plusieurs dispositifs nationaux.",
+ lim:"Une institution indépendante de suivi rend l'écart visible dès le rapport suivant.",
+ f:(s,b)=>{if(b.subv&&!b.suivi)b.contr=Math.max(0,b.contr-11);}},
+
+{id:"T51",c:"att",n:"Compensation à la place de la réduction",fam:"Économique",cible:"global",cap:1,lvl:1,
+ dw:{d1:90,d2:70,d4:40},rev:"Facile à annuler",rob:"Faible",contre:"A15",
+ e:"Perçu −6 partout : l'effort paraît fait alors qu'il ne l'est pas.",
+ mec:"Acheter des crédits bon marché plutôt que réduire. L'effet climatique réel est très inférieur à l'affiché.",
+ anc:"Effondrement du marché volontaire du carbone : valeur en baisse de plus de 60 % depuis 2022.",
+ lim:"Le reporting obligatoire distingue réduction réelle et crédit acheté, et le récit s'effondre.",
+ f:(s)=>{s.blocs.forEach(b=>PC(s,b,-6));}},
+
+{id:"T52",c:"att",n:"Obtention d'une exemption technologique",fam:"Économique",cible:"bloc",cap:3,lvl:2,
+ dw:{d1:85,d4:70},rev:"Difficile à annuler",rob:"Élevée",contre:"A04",
+ e:"Contrainte −13 et annule un effet différé en attente sur le bloc.",
+ mec:"Faire inscrire une technologie non viable dans le texte suffit à en vider l'effet sans jamais s'y opposer.",
+ anc:"Exemption e-fuels obtenue en 2023 sur le règlement européen de fin du thermique en 2035.",
+ lim:"Sans effet sur un bloc verrouillé par une trajectoire opposable.",
+ f:(s,b)=>{if(!b.verrou){b.contr=Math.max(0,b.contr-13);if(b.pend.length)b.pend.pop();}}},
+
+{id:"T05",c:"att",n:"Le gaz, énergie de transition",fam:"Économique",cible:"bloc",cap:3,lvl:1,
+ dw:{d1:75,d2:60,d4:75},rev:"Difficile à annuler",rob:"Élevée",contre:"A21",
+ e:"Contrainte −9 et plafond −6 : du fossile financé sur budget climat.",
+ mec:"Le gaz émet moitié moins que le charbon à la combustion. Présenté comme une étape, il finance une infrastructure de quarante ans.",
+ anc:"Classement du gaz dans la taxonomie verte européenne, 2022. Fuites de méthane amont qui annulent une large part du gain affiché.",
+ lim:"Le renforcement du réseau et du stockage supprime l'argument de la nécessité du gaz pour l'équilibrage.",
+ f:(s,b)=>{b.contr=Math.max(0,b.contr-9);b.cap=Math.max(10,b.cap-6);}},
+];
+
+
+/* ==================== événements ==================== */
+const EVDEF=[
+ {t:"Dôme de chaleur",attr:true,txt:"Records de température battus. Effet sur l'opinion nul tant que l'événement n'est pas attribué."},
+ {t:"Inondations majeures",attr:true,txt:"Crues centennales. Dommages matériels lourds, effet d'opinion conditionné à l'attribution."},
+ {t:"Méga-incendies",attr:true,txt:"Saison des feux hors norme. Pertes assurées en hausse."},
+ {t:"Sécheresse et récoltes perdues",attr:true,txt:"Insécurité alimentaire en hausse dans plusieurs régions."},
+ {t:"Flambée du prix de l'énergie",attr:false,eff:"prix",txt:"Toute mesure non compensée coûte double ce tour-ci : friction +8 partout."},
+ {t:"Percée industrielle",attr:false,eff:"tech",txt:"Coûts en baisse plus vite que prévu : indice technologique +8."},
+ {t:"Sommet international",attr:false,eff:"sommet",txt:"Déclaration commune, sans mécanisme contraignant : perçu +4 partout."},
+];
+
+/* ==================== état et moteur ==================== */
+let S=null, sel=null, rng=1;
+function rnd(){rng=(rng*1103515245+12345)&0x7fffffff;return rng/0x7fffffff;}
+function B(s,k){return s.blocs.find(b=>b.k===k);}
+function addContr(s,b,v,src){
+  const av=b.contr;
+  b.contr=Math.min(b.cap,b.contr+v);
+  if(b.contr>av) b.mesures.push({src,v:b.contr-av,tour:s.turn});
+}
+function totE(s){return s.blocs.reduce((a,b)=>a+b.e,0);}
+
+function newGame(camp,level){
+  const s={
+    turn:1, year:2015, camp, level,
+    blocs:BDEF.map(b=>({...b, cap:100, contr:0, pend:[], mesures:[], verrou:false, bloque:0, compens:0,
+      cbam:0,subv:0,coal:0,guerre:0,transp:0,suivi:0,media:0,revoyure:0,pendPc:0,faits:[]})),
+    doc:{actif:{...DOC0.actif}, att:{...DOC0.att}}, cur:null, docChg:0,
+    pubOff:0, attOff:0, avis:0, cliquet:0, joues:[],
+    tech:0, techPend:[], cum:0, T:T0,
+    res:{actif:{cp:8,cap:6,att:3,cred:70}, att:{cp:3,cap:12,att:4,cred:60}},
+    dmgBase:0,dmgAutres:0,morts:0, actifs:1000, evitees:0, report:0,
+    reveles:2, satur:false, actions:3,
+    hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:3.48,g:GHOST[0]}],
+    over:false, elec:0
+  };
+  if(level===1){s.res.actif.cp+=4;s.res.actif.cap+=4;}
+  if(level>=4){s.res.att.cap+=4;s.res.att.att+=1;}
+  tirerEvenement(s); refill(s); refillAI(s);
+  jlog(s,"th","Tour 1 — 2015 à 2020");
+  jlog(s,"t","Accord de Paris signé. La partie commence ici.");
+  return s;
+}
+const MAIN=7;
+function pool(s,camp){return CARDS.filter(c=>c.c===camp && c.lvl<=s.level && !(c.id==="A50"&&s.reveles<=0));}
+/* tirage orienté par la doctrine : une carte alignée est environ quatre fois
+   plus probable qu'une carte opposée, sans qu'aucune ne devienne inaccessible */
+function tire(s,cand,D){
+  const w=cand.map(c=>poidsTirage(c,D));
+  let t=w.reduce((a,z)=>a+z,0), r=rnd()*t;
+  for(let i=0;i<cand.length;i++){r-=w[i];if(r<=0)return cand[i];}
+  return cand[cand.length-1];
+}
+function remplir(s,main,camp){
+  const p=pool(s,camp), D=s.doc[camp==="actif"?"actif":"att"];
+  while(main.length<MAIN){
+    const cand=p.filter(c=>!main.includes(c.id)&&!epuise(s,c));
+    if(!cand.length)break;
+    main.push(tire(s,cand,D).id);
+  }
+}
+function epuise(s,c){
+  const n=s.joues.filter(x=>x===c.id).length;
+  return c.cible==="global" ? n>=1 : n>=3;
+}
+function refill(s){remplir(s,s.hand,s.camp==="actif"?"actif":"att");}
+function refillAI(s){remplir(s,s.handAI,s.camp==="actif"?"att":"actif");}
+function card(id){return CARDS.find(c=>c.id===id);}
+function jlog(s,cls,txt){s.log.push({cls,txt});}
+
+function cout(s,c,camp){
+  const r={cp:c.cp||0,cap:c.cap||0,att:c.att||0};
+  if(camp==="actif"&&s.tech>=30&&r.cap>1) r.cap-=1;      // la courbe d'apprentissage rend le capital plus efficace
+  const D=s.doc[camp==="actif"?"actif":"att"];
+  // horizon : le long terme rend les leviers différés moins chers, le court terme les pénalise
+  if(c.lat>=1){ if(D.d4>=65){ if(r.cap>1)r.cap-=1; else if(r.cp>1)r.cp-=1; }
+                else if(D.d4<=35){ if(r.cap)r.cap+=1; else r.cp+=1; } }
+  else if(D.d4>=80 && (r.cap||r.cp)) { if(r.cap)r.cap+=1; else r.cp+=1; }
+  // compensation sociale : chaque mesure coûte un point de capital de plus
+  if(camp==="actif"&&D.d2>=65&&(r.cap||r.cp)){ if(r.cap)r.cap+=1; else r.cp+=1; }
+  return r;
+}
+function seuilEff(s,c,b){
+  if(!c.seuil) return 0;
+  let v=c.seuil;
+  if(b.reg==="auto") return 0;            // pas de seuil d'opinion, mais surcoût (voir jouable)
+  if(b.reg==="hyb") v-=10;
+  if(s.level===1) v-=10;
+  return v;
+}
+function jouable(s,c,b,camp){
+  const r=s.res[camp==="actif"?"actif":"att"], k=cout(s,c,camp);
+  let cap=k.cap + ((camp==="actif"&&b&&b.reg==="auto"&&c.seuil)?1:0);   // diplomatie en régime autoritaire
+  if(r.cp<k.cp||r.cap<cap||r.att<k.att) return "ressources insuffisantes";
+  if(c.cible==="bloc"&&!b) return "choisissez un bloc";
+  if(b&&camp==="actif"&&b.bloque>0) return "bloc préempté pour "+b.bloque+" tour(s)";
+  if(b&&c.seuil&&b.percu<seuilEff(s,c,b)) return "perçu insuffisant ("+b.percu+" / "+seuilEff(s,c,b)+" requis)";
+  if(c.id==="A50"&&s.reveles<=0) return "plus d'usage disponible";
+  if(b&&b.faits.includes(c.id)) return "déjà appliqué sur ce bloc";
+  if(epuise(s,c)) return "levier épuisé";
+  return null;
+}
+function jouer(s,id,bk,camp){
+  const c=card(id), b=bk?B(s,bk):null;
+  const k=cout(s,c,camp);
+  const r=s.res[camp==="actif"?"actif":"att"];
+  let cap=k.cap + ((camp==="actif"&&b&&b.reg==="auto"&&c.seuil)?1:0);
+  r.cp-=k.cp; r.cap-=cap; r.att-=k.att;
+  s.cur=(camp==="actif"?"actif":"att");
+  c.f(s,b);
+  s.joues.push(c.id);
+  if(b)b.faits.push(c.id);
+  s.cur=null;
+  if(c.id==="A50")s.reveles--;
+  if(camp==="att"){s.evitees++;}
+  const où=b?" — "+b.nom:"";
+  jlog(s,camp==="actif"?"g":"r",(camp==="actif"?"▸ ":"◂ ")+"<b>"+c.n+"</b>"+où);
+  const h=camp===s.camp?s.hand:s.handAI;
+  const i=h.indexOf(id); if(i>=0)h.splice(i,1);
+}
+
+/* ---------- attribution ---------- */
+function attribuer(s,camp){
+  const r=s.res[camp==="actif"?"actif":"att"];
+  if(r.att<1||!s.ev||!s.ev.attr||s.satur||s.attribue!==0) return false;
+  r.att-=1;
+  if(camp==="actif"){
+    s.attribue=1; const b=B(s,s.ev.bloc);
+    b.percu=Math.min(100,b.percu+14);
+    s.blocs.forEach(z=>{if(z!==b)z.percu=Math.min(100,z.percu+4);});
+    jlog(s,"g","▸ <b>Attribution</b> — "+b.nom+" : perçu +14 sur place, +4 ailleurs");
+  }else{
+    s.attribue=-1;
+    jlog(s,"r","◂ <b>Désattribution</b> — l'événement ne déplace aucune jauge");
+  }
+  return true;
+}
+
+/* ---------- résolution de fin de tour ---------- */
+function finTour(s){
+  jlog(s,"th","Résolution du tour "+s.turn);
+  // 1. attribution non faite
+  if(s.ev&&s.ev.attr&&s.attribue===0) jlog(s,"t","Événement non attribué : aucun effet sur l'opinion.");
+  if(s.ev&&s.ev.eff==="prix"){s.blocs.forEach(b=>{if(!b.compens)b.fr+=8;});jlog(s,"t","Flambée des prix : friction +8 sur les blocs non compensés.");}
+  if(s.ev&&s.ev.eff==="tech"){s.tech+=8;jlog(s,"t","Percée industrielle : indice technologique +8.");}
+  if(s.ev&&s.ev.eff==="sommet"){s.blocs.forEach(b=>b.percu=Math.min(100,b.percu+4));jlog(s,"t","Sommet international : perçu +4 partout.");}
+  // 2. effets différés
+  s.blocs.forEach(b=>{
+    b.pend=b.pend.filter(p=>{p.t--;if(p.t<=0){addContr(s,b,p.v,p.src);jlog(s,"g","Effet différé — "+b.nom+" : contrainte +"+p.v+" ("+p.src+")");return false;}return true;});
+  });
+  s.techPend=s.techPend.filter(p=>{p.t--;if(p.t<=0){s.tech+=p.v;jlog(s,"g","Courbe d'apprentissage : indice technologique +"+p.v);return false;}return true;});
+  // 3. retour de flamme
+  s.blocs.forEach(b=>{
+    if(b.fr>SEUIL_FR){
+      if(b.verrou){jlog(s,"t",b.nom+" : friction au-dessus du seuil, mais la loi-cadre protège les mesures.");b.fr-=12;}
+      else{
+        const perte=b.mesures.pop();
+        if(perte){b.contr=Math.max(0,b.contr-perte.v);jlog(s,"r","⚠ Retour de flamme — "+b.nom+" : mesure annulée, contrainte −"+perte.v);}
+        else jlog(s,"r","⚠ Retour de flamme — "+b.nom+" : rien à annuler, l'opinion se braque.");
+        b.percu=Math.max(0,b.percu-8); b.fr=Math.max(0,b.fr-30);
+      }
+    }
+  });
+  // 4. élections (blocs démocratiques, un tour sur deux)
+  if(s.turn%2===0){
+    s.blocs.filter(b=>b.reg==="demo").forEach(b=>{
+      if(b.percu>=50){s.res.actif.cp+=1;jlog(s,"g","Élection — "+b.nom+" : majorité favorable, capital politique +1");}
+      else{s.res.att.cap+=2;b.fr=Math.max(0,b.fr-6);jlog(s,"r","Élection — "+b.nom+" : alternance, l'adversaire gagne 2 de capital");}
+    });
+  }
+  // 4bis. effets persistants installés par les leviers de structure
+  s.blocs.forEach(b=>{
+    if(b.suivi){b.percu=Math.min(100,b.percu+4);}
+    if(b.media){b.percu=Math.max(0,b.percu-7);}
+    if(b.pendPc){b.percu=Math.max(0,Math.min(100,b.percu+b.pendPc));b.pendPc=0;}
+    if(b.revoyure>0&&--b.revoyure===0&&!b.transp){
+      const m=b.mesures.pop();
+      if(m){b.contr=Math.max(0,b.contr-m.v);jlog(s,"r","Clause de revoyure — "+b.nom+" : mesure rouverte, contrainte −"+m.v);}
+    }
+  });
+  if(s.cliquet){s.blocs.forEach(b=>{if(b.contr>0)addContr(s,b,2,"A65");});
+    jlog(s,"g","Mécanisme de révision : contrainte +2 sur les blocs déjà engagés.");}
+  if(s.avis>0)s.avis--;
+  if(s.pubOff>0){s.res.att.att=Math.max(0,s.res.att.att-1);s.pubOff--;}
+  if(s.attOff>0){s.res.actif.att=Math.max(0,s.res.actif.att-1);s.attOff--;}
+  // 5. dérives naturelles
+  s.blocs.forEach(b=>{
+    b.percu=Math.round(b.percu+(b.reel-b.percu)*0.15);
+    b.reel=Math.min(100,b.reel+ (s.T-1.0)*b.dmg*1.6);
+    b.fr=Math.max(0,b.fr-4);
+    if(b.bloque>0)b.bloque--;
+    if(s.tech>=40&&b.contr>0)b.contr=Math.min(b.cap,b.contr+2);
+    b.reel=Math.round(b.reel); b.fr=Math.round(b.fr);
+  });
+  // 6. physique
+  let em=0;
+  s.blocs.forEach(b=>{
+    const g=b.g*Math.pow(0.90,s.turn-1);
+    const red=Math.pow(Math.min(b.contr,b.cap)/100,0.8)*0.45;
+    b.eNext=Math.max(0.05,b.e*(1+g)*(1-red));
+    em+=(b.e+b.eNext)/2;
+  });
+  em*=YPT; s.cum+=em; s.blocs.forEach(b=>b.e=+b.eNext.toFixed(3));
+  s.T=+(T0+TCRE*s.cum).toFixed(3);
+  // 7. dommages
+  const exc=Math.max(0,s.T-1.1), f=exc*exc*60;
+  let bs=0,au=0,wb=0,wa=0;
+  s.blocs.forEach(b=>{const riche=(b.k==="na"||b.k==="eu");const d=f*b.dmg;
+    if(riche){bs+=d*0.32*b.e;wb+=b.e;}else{au+=d*b.e;wa+=b.e;}});
+  s.dmgBase=Math.min(100,Math.round(bs/Math.max(wb,.01)));
+  s.dmgAutres=Math.min(100,Math.round(au/Math.max(wa,.01)));
+  s.morts+=Math.pow(Math.max(0,s.T-1.0),1.5)*6;  // millions cumulés ; repère réel : ~546 000 décès liés à la chaleur par an
+  s.actifs=Math.round(1000+ s.evitees*95 - s.blocs.reduce((a,b)=>a+b.contr,0)*1.6);
+  s.report=s.evitees*0.7;
+  jlog(s,"t","Émissions du tour : "+(em/YPT).toFixed(1)+" GtCO₂/an · cumul "+Math.round(s.cum)+" GtCO₂ · réchauffement "+s.T.toFixed(2)+" °C");
+  // 8. tour suivant
+  s.turn++; s.year+=YPT;
+  s.hist.push({p:projeter(s),g:GHOST[Math.min(s.turn-1,GHOST.length-1)]});
+  if(s.turn>NTURNS){s.over=true;return;}
+  const bo=(s.camp==="att"&&s.level>=3)?(s.level-2):0;   // l'IA active monte en puissance avec la difficulté
+  s.res.actif.cp+=4+(s.level===1?1:0)+bo; s.res.actif.cap+=4+(s.level===1?1:0)+bo; s.res.actif.att=3;
+  s.res.att.cp+=1; s.res.att.cap+=6; s.res.att.att=4;
+  if(s.level>=4)s.res.att.cap+=1;
+  if(s.pubOff>0)s.res.att.att=Math.max(0,s.res.att.att-1);
+  if(s.attOff>0)s.res.actif.att=Math.max(0,s.res.actif.att-1);
+  s.actions=3; s.satur=false; s.attribue=0; s.docChg=0;
+  tirerEvenement(s); refill(s); refillAI(s);
+  jlog(s,"th","Tour "+s.turn+" — "+s.year+" à "+(s.year+YPT));
+}
+
+function tirerEvenement(s){
+  const d=EVDEF[Math.floor(rnd()*EVDEF.length)];
+  const b=s.blocs[Math.floor(rnd()*s.blocs.length)];
+  s.ev={...d, bloc:b.k, blocNom:d.attr?b.nom:"Mondial"};
+}
+
+/* ---------- projection 2100 ----------
+   On rejoue le modèle jusqu'en 2055 avec les contraintes actuelles figées,
+   puis on prolonge 2055 → 2100 au rythme implicite de la contrainte atteinte. */
+function projeter(s){
+  const bl=s.blocs.map(b=>({e:b.e,g:b.g,contr:Math.min(b.contr,b.cap)}));
+  let cum=s.cum;
+  for(let t=s.turn;t<=NTURNS;t++){
+    let em=0;
+    bl.forEach(b=>{
+      const g=b.g*Math.pow(0.90,t-1);
+      const red=Math.pow(b.contr/100,0.8)*0.45;
+      const nx=Math.max(0.05,b.e*(1+g)*(1-red));
+      em+=(b.e+nx)/2; b.e=nx;
+    });
+    cum+=em*YPT;
+  }
+  const eFin=bl.reduce((a,b)=>a+b.e,0);
+  const contrMoy=bl.reduce((a,b)=>a+b.contr*b.e,0)/Math.max(eFin,0.01);
+  const taux=0.006-contrMoy/100*0.062;
+  let e=eFin;
+  for(let y=0;y<45;y++){cum+=e;e=Math.max(0.4,e*(1-taux));}
+  return +(T0+TCRE*cum).toFixed(2);
+}
+
+/* ==================== adversaire ==================== */
+function iaJoue(s){
+  const camp = s.camp==="actif" ? "att" : "actif";
+  const n = [1,2,3,4,6][s.level];
+  // action gratuite : désattribution
+  if(camp==="att") attribuer(s,"att");
+  else if(s.ev&&s.ev.attr&&s.attribue===0&&!s.satur) attribuer(s,"actif");
+  for(let i=0;i<n;i++){
+    const coup = camp==="att" ? choixAtt(s) : choixActif(s);
+    if(!coup) break;
+    jouer(s,coup.id,coup.b,camp);
+  }
+}
+function dispo(s,camp,ids){
+  const h = camp===s.camp? s.hand : s.handAI;
+  return ids.filter(id=>h.includes(id));
+}
+function essaie(s,camp,ids,filtreBloc){
+  for(const id of dispo(s,camp,ids)){
+    const c=card(id);
+    if(c.cible==="global"){ if(!jouable(s,c,null,camp)) return {id,b:null}; continue; }
+    const cands=s.blocs.filter(filtreBloc).sort((a,b)=>b.e-a.e);
+    for(const b of cands){ if(!jouable(s,c,b,camp)) return {id,b:b.k}; }
+  }
+  return null;
+}
+function choixAtt(s){
+  const gros=s.blocs.slice().sort((a,b)=>b.e-a.e);
+  // 1. démonter les blocs les plus contraints
+  let c=essaie(s,"att",["T17","T20","T22","T05","T52","T25","T13"],b=>b.contr>=22&&!b.verrou);
+  if(c)return c;
+  // 2. verrouiller l'infrastructure d'un gros bloc encore ouvert
+  c=essaie(s,"att",["T43","T40"],b=>b.cap>=70&&b.e>=3);
+  if(c)return c;
+  c=essaie(s,"att",["T44","T24"],()=>true);
+  if(c)return c;
+  // 3. faire tomber le perçu là où il approche d'un seuil
+  c=essaie(s,"att",["T11","T31","T01","T02","T04","T51"],b=>b.percu>=38&&b.percu<=62);
+  if(c)return c;
+  c=essaie(s,"att",["T38","T33"],b=>b.reg==="demo"&&b.percu>=55&&!b.guerre);
+  if(c)return c;
+  // 4. préempter un bloc démocratique bien orienté
+  c=essaie(s,"att",["T19"],b=>b.reg==="demo"&&b.percu>=48&&b.bloque===0);
+  if(c)return c;
+  // 5. friction là où il y a le plus de mesures
+  c=essaie(s,"att",["T39","T41","T08","T09","T45","T13"],b=>b.mesures.length>0&&!b.compens);
+  if(c)return c;
+  c=essaie(s,"att",["T21","T23","T50"],b=>b.mesures.length>0);
+  if(c)return c;
+  // 6. saturation
+  c=essaie(s,"att",["T36"],()=>true);
+  if(c&&s.ev&&s.ev.attr)return c;
+  // 7. n'importe quoi de jouable sur le plus gros bloc
+  for(const id of (s.camp==="actif"?s.handAI:s.hand)){
+    const cc=card(id); if(cc.c!=="att")continue;
+    if(cc.cible==="global"){if(!jouable(s,cc,null,"att"))return{id,b:null};}
+    else for(const b of gros){if(!jouable(s,cc,b,"att"))return{id,b:b.k};}
+  }
+  return null;
+}
+function choixActif(s){
+  // 1. compenser un bloc au bord du retour de flamme
+  let c=essaie(s,"actif",["A31","A57"],b=>b.fr>=42);
+  if(c)return c;
+  // 2. contraindre le plus gros bloc possible
+  c=essaie(s,"actif",["A05","A02","A01","A40","A11","A04","A10","A19","A20","A61"],b=>b.contr<b.cap-8&&b.bloque===0);
+  if(c)return c;
+  // 3. ouvrir le perçu
+  c=essaie(s,"actif",["A50"],b=>b.reel-b.percu>=18);
+  if(c)return c;
+  c=essaie(s,"actif",["A53","A57"],b=>b.percu<50);
+  if(c)return c;
+  // 4. investissements de fond
+  c=essaie(s,"actif",["A62","A12"],b=>b.contr>=30&&!b.verrou);
+  if(c)return c;
+  c=essaie(s,"actif",["A18","A67","A29","A21","A65","A07","A27","A33"],b=>b.contr>0);
+  if(c)return c;
+  for(const id of (s.camp==="att"?s.handAI:s.hand)){
+    const cc=card(id); if(cc.c!=="actif"||cc.trap)continue;
+    if(cc.cible==="global"){if(!jouable(s,cc,null,"actif"))return{id,b:null};}
+    else for(const b of s.blocs.slice().sort((a,b)=>b.e-a.e)){if(!jouable(s,cc,b,"actif"))return{id,b:b.k};}
+  }
+  return null;
+}
+
+/* ==================== score de fin ==================== */
+function bilan(s){
+  const T=projeter(s);
+  const evite=+(T_BASELINE-T).toFixed(2);
+  const vsReel=+(2.60-T).toFixed(2);
+  let rang,verdict;
+  if(T<1.90){rang="Exceptionnel";verdict="Vous finissez sous 1,9 °C. C'est au-delà de ce que le monde réel a obtenu et à la limite haute du plausible — vérifiez que l'adversaire jouait bien au niveau Réaliste.";}
+  else if(T<2.20){rang="Victoire nette";verdict="Vous êtes dans la zone de victoire du camp actif. Le monde réel, lui, est à 2,6 °C.";}
+  else if(T<2.80){rang="Zone grise";verdict="C'est là que se joue réellement la partie. Vous avez évité le pire sans obtenir la bascule.";}
+  else if(T<3.50){rang="Victoire attentiste";verdict="Le camp du statu quo l'emporte. Les actifs sont préservés, dans un monde qui ne l'est pas.";}
+  else {rang="Défaite des deux camps";verdict="Au-delà de 3,5 °C, le camp attentiste perd aussi : ses propres actifs sont atteints.";}
+  return {T,evite,vsReel,rang,verdict,
+    morts:+s.morts.toFixed(1), dmgBase:s.dmgBase, dmgAutres:s.dmgAutres,
+    actifs:s.actifs, evitees:s.evitees, verrous:s.blocs.filter(b=>b.verrou).length,
+    contr:Math.round(s.blocs.reduce((a,b)=>a+b.contr*b.e,0)/Math.max(totE(s),.01))};
+}
+
+/* ==================== interface ==================== */
+const $=q=>document.querySelector(q);
+const tip=()=>$("#tip");
+function bindTips(root){
+  root.querySelectorAll('[data-tip]').forEach(el=>{
+    if(el._tb)return; el._tb=1;
+    el.addEventListener('mouseenter',()=>{tip().innerHTML=el.dataset.tip;tip().style.opacity=1;});
+    el.addEventListener('mousemove',e=>{
+      const t=tip(),w=t.offsetWidth,h=t.offsetHeight;
+      let x=e.clientX+14,y=e.clientY+14;
+      if(x+w>innerWidth-8)x=e.clientX-w-14;
+      if(y+h>innerHeight-8)y=e.clientY-h-14;
+      t.style.left=x+'px';t.style.top=y+'px';
+    });
+    el.addEventListener('mouseleave',()=>tip().style.opacity=0);
+  });
+}
+const RES_TIP={
+  cp:"<b>Capital politique</b><br>Se consomme à chaque mesure contraignante. Se régénère de 4 par tour, +1 par élection gagnée.<br>C'est votre ressource rare : 37 des 69 leviers du camp actif en consomment.",
+  cap:"<b>Capital</b><br>Argent public et philanthropique. Régénération 4 par tour.<br>La courbe d'apprentissage le rend plus efficace à partir de 30 d'indice technologique.",
+  att:"<b>Attention</b><br>Bande passante médiatique. Remise à 3 chaque tour, non cumulable.<br>Sert à attribuer les événements et à déplacer le perçu.",
+  cred:"<b>Crédibilité</b><br>Chute en cas de promesse non tenue ou de piège joué."
+};
+
+function render(){
+  const s=S;
+  if(s.over){renderFin();return;}
+  $("#home").style.display="none"; $("#game").style.display="";
+  const r=s.res[s.camp==="actif"?"actif":"att"];
+  $("#turn").innerHTML="Tour <b>"+s.turn+"</b> / "+NTURNS+" · <b>"+s.year+" – "+(s.year+YPT)+"</b> · "+
+    (s.camp==="actif"?"Climato-actif":"Climato-attentiste")+" · <b>"+s.T.toFixed(2)+" °C</b>";
+  $("#res").innerHTML=
+    `<div data-tip="${RES_TIP.cp}"><span class="pill" style="background:var(--s-reel)"></span>Capital politique <span class="v">${r.cp}</span></div>`+
+    `<div data-tip="${RES_TIP.cap}"><span class="pill" style="background:var(--s-traj)"></span>Capital <span class="v">${r.cap}</span></div>`+
+    `<div data-tip="${RES_TIP.att}"><span class="pill" style="background:var(--s-percu)"></span>Attention <span class="v">${r.att}</span></div>`+
+    `<div data-tip="${RES_TIP.cred}"><span class="pill" style="background:var(--s-base)"></span>Crédibilité <span class="v">${r.cred}</span></div>`;
+  $("#endturn").textContent = s.actions>0 ? "Fin de tour ("+s.actions+" action"+(s.actions>1?"s":"")+" restante"+(s.actions>1?"s":"")+")" : "Fin de tour";
+  renderEvent(); renderDash(); renderMap(); renderHand(); renderDocPanel(); renderTraj(); renderLog();
+  bindTips(document);
+}
+
+function renderEvent(){
+  const s=S,e=s.ev;
+  const peut = e.attr && !s.satur && s.attribue===0 && s.res[s.camp==="actif"?"actif":"att"].att>=1;
+  const etat = s.satur ? "attention saturée — attribution impossible"
+    : s.attribue===1 ? "attribué : l'opinion a bougé"
+    : s.attribue===-1 ? "désattribué : aucun effet"
+    : e.attr ? "non attribué · effet 0" : "effet automatique à la résolution";
+  $("#events").innerHTML=`
+    <div class="ev ${s.attribue!==0?'done':(e.attr?'':'cold')}">
+      <div class="eh"><h4>${e.t}</h4><span class="loc">${e.blocNom}</span></div>
+      <p>${e.txt}</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        ${e.attr?`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"Attribuer":"Désattribuer"} — 1 Attention</button>`:""}
+        <span class="st">${etat}</span>
+      </div>
+    </div>
+    <div class="ev cold" data-tip="<b>Indice technologique</b><br>Monte avec les subventions au déploiement et les percées.<br>À 30 : le capital coûte moins cher. À 40 : les blocs déjà contraints gagnent +2 par tour, gratuitement.">
+      <div class="eh"><h4>Indice technologique</h4><span class="loc">mondial</span></div>
+      <p>Courbe d'apprentissage : <b>${s.tech}</b> ${s.tech>=40?"— les blocs contraints progressent seuls":s.tech>=30?"— capital plus efficace":""}</p>
+      <div class="dtrack"><div class="dfill" style="width:${Math.min(100,s.tech)}%;background:var(--s-traj)"></div></div>
+    </div>
+    <div class="ev cold" data-tip="<b>Émissions mondiales</b><br>Somme des huit blocs. En 2015 : 35,5 GtCO₂/an.<br>Le cumul depuis 2015 détermine la température : T = 1,0 + 0,00058 × cumul.">
+      <div class="eh"><h4>Émissions mondiales</h4><span class="loc">GtCO₂ / an</span></div>
+      <p><b style="font-size:17px">${totE(s).toFixed(1)}</b> &nbsp;·&nbsp; cumul depuis 2015 : <b>${Math.round(s.cum)}</b> GtCO₂</p>
+    </div>`;
+  const ba=$("#battr"); if(ba) ba.onclick=()=>{ if(attribuer(s,s.camp)) render(); };
+}
+
+function renderDash(){
+  const s=S, act=s.camp==="actif";
+  const evite=(T_BASELINE-projeter(s)).toFixed(2);
+  const c1 = act
+   ? `<div class="ct">Votre position</div><div class="hv">${evite} °C</div><div class="hs">réchauffement évité par rapport à la trajectoire sans vous (3,48 °C)</div>`
+   : `<div class="ct">Votre position</div><div class="hv">${s.actifs} Md$</div><div class="hs">valeur d'actifs préservée · ${s.evitees} mesures évitées</div>`;
+  const t1 = act
+   ? "<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Sans aucune action : 3,48 °C. Le monde réel : 2,60 °C."
+   : "<b>Ce que vous préservez</b><br>Votre objectif n'est pas que rien ne change : c'est de préserver la valeur des actifs et d'éviter les coûts d'ajustement.";
+  const proj=projeter(s);
+  $("#dash").innerHTML=
+   `<div class="dcol" data-tip="${t1}">${c1}</div>`+
+   `<div class="dcol" data-tip="<b>Projection 2100</b><br>Extrapolation du rythme du dernier tour jusqu'en 2100.<br>Zone de victoire du camp actif : sous 2,2 °C. Zone grise : 2,2 à 2,8 °C.">
+      <div class="ct">Projection 2100</div><div class="hv">${proj.toFixed(2)} °C</div>
+      <div class="hs">monde réel : 2,60 °C · sans action : 3,48 °C</div></div>`+
+   `<div class="dcol" data-tip="<b>Compteurs partagés</b><br>Identiques pour les deux camps.<br>Repères réels 2024-2025 : environ 546 000 décès liés à la chaleur par an, 107 Md$ de pertes assurées.">
+      <div class="ct">Le monde</div>
+      <div class="kv"><span class="k">Réchauffement</span><span class="v">${s.T.toFixed(2)}<small>°C</small></span></div>
+      <div class="kv"><span class="k">Décès liés à la chaleur</span><span class="v">${s.morts.toFixed(1)}<small>M</small></span></div>
+      <div class="kv"><span class="k">Émissions</span><span class="v">${totE(s).toFixed(1)}<small>Gt/an</small></span></div>
+      <div class="kv"><span class="k">Indice technologique</span><span class="v">${s.tech}</span></div></div>`+
+   `<div class="dcol" data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent : climatisation, assurance, irrigation, relocalisation. Les autres non.<br>Repère réel : le 1 % le plus riche émet 75,1 tCO₂/an contre 2,1 t « équitables » (Oxfam, 2026).">
+      <div class="ct">Dommages subis</div>
+      <div class="rl"><span>Blocs riches</span><b>${s.dmgBase}</b></div>
+      <div class="dtrack"><div class="dfill base" style="width:${s.dmgBase}%"></div></div>
+      <div class="rl"><span>Tous les autres</span><b>${s.dmgAutres}</b></div>
+      <div class="dtrack"><div class="dfill autres" style="width:${s.dmgAutres}%"></div></div></div>`;
+}
+
+function renderMap(){
+  const s=S, box=$("#mapbox");
+  box.querySelectorAll(".gp").forEach(e=>e.remove());
+  const c=sel?card(sel):null;
+  s.blocs.forEach(b=>{
+    const land=document.getElementById("p_"+b.k);
+    land.className.baseVal="bl"+(b.bloque>0?" lock":"");
+    const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
+    const hot=b.fr>SEUIL_FR;
+    const d=document.createElement("div");
+    d.className="gp"+(hot?" hot":"")+(ciblable?" tgt":"")+(b.bloque>0?" lock":"");
+    d.style.left=b.x+"%"; d.style.top=b.y+"%";
+    const bar=(cls,v)=>`<div class="cb ${cls}"><span class="bg"></span><i style="height:${Math.max(0,Math.min(100,v))}%"></i></div>`;
+    const row=(cls,lab,v,max)=>`<div class="c2r"><span>${lab}</span><div class="c2t"><div class="c2f ${cls}" style="width:${Math.min(100,v)}%"></div></div><b>${Math.round(v)}</b></div>`;
+    d.innerHTML=
+      `<div class="chip">${bar("contr",b.contr)}${bar("reel",b.reel)}${bar("percu",b.percu)}${bar("fric",b.fr)}<b>${b.code}</b></div>
+       <div class="card2">
+         <div class="c2h"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %</span></div>
+         ${row("contr","Contrainte",b.contr)}${row("reel","Réel",b.reel)}${row("percu","Perçu",b.percu)}${row("fric","Friction",b.fr)}
+         ${b.bloque>0?'<div class="c2a">Préempté — '+b.bloque+' tour(s)</div>'
+           :hot?'<div class="c2a">⚠ Retour de flamme imminent</div>'
+           :ciblable?'<div class="c2c" style="color:#8fbdf2">Cliquez pour jouer la carte ici</div>'
+           :'<div class="c2c">Clic : fiche du bloc</div>'}
+       </div>`;
+    d.addEventListener("mouseenter",()=>land.classList.add("on"));
+    d.addEventListener("mouseleave",()=>land.classList.remove("on"));
+    d.addEventListener("click",()=>clicBloc(b.k));
+    land.onclick=()=>clicBloc(b.k);
+    if(ciblable) land.classList.add("tgt"); else land.classList.remove("tgt");
+    box.appendChild(d);
+  });
+  bindTips(box);
+}
+
+/* répartition sur les deux colonnes : par défaut les leviers qui agissent sur le
+   réel à gauche, ceux qui agissent sur l'opinion et le pouvoir à droite, puis
+   rééquilibrage pour que les deux colonnes restent de hauteur comparable */
+const FAM_G=new Set(["Réglementaire","Économique","Technologique","International"]);
+function repartir(ids){
+  const g=[],d=[];
+  ids.forEach(id=>(FAM_G.has(card(id).fam)?g:d).push(id));
+  while(g.length-d.length>1) d.unshift(g.pop());
+  while(d.length-g.length>1) g.push(d.shift());
+  return [g,d];
+}
+function renderHand(){
+  const s=S;
+  const c=sel?card(sel):null;
+  const [gauche,droite]=repartir(s.hand);
+  $("#handHint").textContent=gauche.length+" sur "+s.hand.length;
+  $("#handInfo").textContent=droite.length+" sur "+s.hand.length;
+  let hint="";
+  if(c) hint=`<div class="hint">${c.cible==="bloc"?"Choisissez un bloc sur la carte":"Carte mondiale"} — <span style="text-decoration:underline;cursor:pointer" id="annul">annuler</span>${c.cible!=="bloc"?' · <span style="text-decoration:underline;cursor:pointer" id="jouerg">jouer</span>':''}</div>`;
+  const bloc=ids=>{
+  let h=(sel&&ids.includes(sel))?hint:"";
+  h+=`<div class="hand">`;
+  ids.forEach(id=>{
+    const cc=card(id), raison = s.actions<=0 ? "plus d'action ce tour" : (cc.cible==="bloc"? (s.blocs.some(b=>!jouable(s,cc,b,s.camp))?null:"aucun bloc éligible") : jouable(s,cc,null,s.camp));
+    const ko=!!raison;
+    const cost=[cc.cp?cc.cp+" pol.":null,cc.cap?cc.cap+" cap.":null,cc.att?cc.att+" att.":null].filter(Boolean).join(" · ");
+    const af=Math.round(affin(cc,s.doc[s.camp==="actif"?"actif":"att"])*100);
+    h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
+      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div>
+      <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${cc.trap&&s.level===1?' <span class="tag trap">PIÈGE</span>':''}</div>
+      <h4>${cc.n}</h4>
+      <div class="eff">${cc.e}</div>
+      <div class="meta"><span class="tag cost">${cost||"gratuit"}</span>
+        ${cc.lat?'<span class="tag slow">effet dans '+cc.lat+' tour'+(cc.lat>1?'s':'')+'</span>':'<span class="tag now">immédiat</span>'}
+        ${cc.seuil?'<span class="tag">perçu ≥ '+cc.seuil+'</span>':''}
+        <span class="tag">${cc.cible==="bloc"?"un bloc":"mondial"}</span>
+        <span class="tag" data-tip="Alignement de ce levier avec votre doctrine actuelle. Plus il est haut, plus la carte a de chances d'être proposée, et plus son effet est renforcé.">doctrine ${af} %</span></div>
+    </div>`;
+  });
+  h+=`</div>`;
+  return h;
+  };
+  $("#handL").innerHTML=bloc(gauche);
+  $("#handR").innerHTML=bloc(droite);
+  [$("#handL"),$("#handR")].forEach(zone=>{
+    zone.querySelectorAll(".card").forEach(el=>{
+      el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
+        if(el.classList.contains("no"))return; sel = sel===el.dataset.id?null:el.dataset.id; render(); };
+    });
+    bindTips(zone);
+  });
+  const a=$("#annul"); if(a)a.onclick=()=>{sel=null;render();};
+  const jg=$("#jouerg"); if(jg)jg.onclick=()=>{ if(!jouable(s,c,null,s.camp)){jouer(s,sel,null,s.camp);s.actions--;sel=null;render();} };
+}
+
+function clicBloc(k){
+  const s=S, c=sel?card(sel):null;
+  if(c&&c.cible==="bloc"){
+    if(!jouable(s,c,B(s,k),s.camp)){ jouer(s,sel,k,s.camp); s.actions--; sel=null; render(); }
+    return;
+  }
+  ficheBloc(k);
+}
+
+/* ---------- fiche de bloc ---------- */
+function ficheBloc(k){
+  const s=S,b=B(s,k),hot=b.fr>SEUIL_FR;
+  const g=(cls,lab,v,txt)=>`<div class="gauge"><div class="gh2"><span>${lab}</span><b>${Math.round(v)} / 100</b></div>
+    <div class="gt"><div class="gf ${cls}" style="width:${Math.min(100,v)}%"></div></div><div class="gx">${txt}</div></div>`;
+  $("#modal").innerHTML=`
+   <div class="mh"><h2>${b.nom}</h2><span class="sub">${(100*b.e/totE(s)).toFixed(0)} % des émissions · ${b.e.toFixed(1)} GtCO₂/an</span>
+     <button class="x" id="mx">×</button></div>
+   <div class="mb">
+     <div>
+       <div class="ms">Jauges</div>
+       ${g("contr","Contrainte",b.contr,"Plafond actuel : "+b.cap+". Réduit les émissions du bloc de "+Math.round(Math.pow(Math.min(b.contr,b.cap)/100,0.8)*60)+" % par tour.")}
+       ${g("reel","Soutien réel",b.reel,"Lent, insensible aux campagnes adverses. Monte tout seul avec les dommages subis.")}
+       ${g("percu","Soutien perçu",b.percu,"Écart au réel : <b style='color:#fff'>−"+Math.max(0,Math.round(b.reel-b.percu))+"</b>. C'est cet écart que le camp attentiste entretient.")}
+       ${g("fric","Friction",b.fr,hot?"<b style='color:var(--s-fric)'>Seuil de "+SEUIL_FR+" dépassé.</b> À la résolution, une mesure sera annulée.":"Seuil de retour de flamme : "+SEUIL_FR+".")}
+     </div>
+     <div>
+       <div class="ms">Profil</div>
+       <dl class="prof">
+         <dt>Régime</dt><dd>${REGN[b.reg]}</dd>
+         <dt>PIB par habitant</dt><dd>${b.pib}</dd>
+         <dt>Rente fossile</dt><dd>${b.rente}</dd>
+         <dt>Croissance tendancielle</dt><dd>${b.g>0?"+":""}${Math.round(b.g*100)} % par tour, amortie</dd>
+         <dt>État</dt><dd>${b.verrou?"<b style='color:#5bd15b'>Verrouillé par une loi-cadre</b>":b.bloque>0?"<b style='color:#e88'>Préempté ("+b.bloque+" tour)</b>":"ouvert"}${b.compens?" · compensation installée":""}</dd>
+       </dl>
+       <div class="ms" style="margin-top:15px">Mesures en vigueur (${b.mesures.length})</div>
+       ${b.mesures.length?`<ul class="mlist">${b.mesures.map(m=>`<li class="k">${card(m.src)?card(m.src).n:m.src} — contrainte +${m.v} (tour ${m.tour})</li>`).join("")}</ul>`
+         :`<p class="gx">Aucune. Le bloc suit sa trajectoire tendancielle.</p>`}
+       ${b.reg==="auto"?`<p class="gx" style="margin-top:10px">Régime autoritaire : aucun seuil d'opinion, mais chaque mesure contraignante coûte 1 capital de plus. Les leviers d'opinion y sont peu efficaces.</p>`:""}
+     </div>
+     <div class="full"><div class="mnote${hot?" hot":""}">${b.note}</div></div>
+   </div>`;
+  $("#ovl").classList.add("open"); $("#mx").onclick=fermer;
+}
+
+/* ---------- fiche levier ---------- */
+function ficheLevier(id){
+  const s=S,c=card(id);
+  const camp=c.c==="actif"?"actif":"att";
+  const monCamp=(camp===(S.camp==="actif"?"actif":"att"));
+  const D=s.doc[camp], ax=DOCAX[camp];
+  const af=Math.round(affin(c,D)*100);
+  const cost=[c.cp?c.cp+" politique":null,c.cap?c.cap+" capital":null,c.att?c.att+" attention":null].filter(Boolean).join(" · ")||"gratuit";
+  const k=cout(s,c,camp);
+  const reel=[k.cp?k.cp+" pol.":null,k.cap?k.cap+" cap.":null,k.att?k.att+" att.":null].filter(Boolean).join(" · ")||"gratuit";
+  const ctr=c.contre&&c.contre!=="—"?card(c.contre):null;
+  const kv=(a,b)=>`<div class="fl-kv"><span>${a}</span><b>${b}</b></div>`;
+  // rendement attendu par bloc, doctrine comprise
+  let blocs="";
+  if(c.cible==="bloc"){
+    blocs=`<div class="fl-blocs">`+[...s.blocs].map(b=>{
+      const m=Math.round((alg(D,c,"d1",0.22)*alg(D,c,"d4",0.18)*(1+(50-Math.abs(D.d3-Math.round((1-b.rich)*100)))/50*0.30))*100);
+      return {b,m};
+    }).sort((x,y)=>y.m-x.m).map(o=>`<span class="fl-b">${o.b.nom} <b>${o.m} %</b></span>`).join("")+`</div>`;
+  }
+  const axes=Object.keys(c.dw||{}).map(kk=>{
+    const a=ax.find(z=>z.k===kk);
+    const cible=c.dw[kk], ecart=Math.abs(D[kk]-cible);
+    return `${a.t} : ce levier appelle « ${cible<50?a.a:a.z} », vous êtes à ${D[kk]} ⁄ 100 (écart ${ecart})`;
+  });
+  $("#modal").innerHTML=`
+   <div class="mh"><div class="fl-h"><h2>${c.n}</h2><span class="fl-fam">${c.id} · ${c.fam}</span></div>
+     <span class="sub">${c.c==="actif"?(c.trap?"Piège proposé au camp actif":"Camp climato-actif"):"Camp climato-attentiste"}${monCamp?"":" — levier adverse"}</span>
+     <button class="x" id="mx">×</button></div>
+   <div class="mb">
+     <div>
+       <div class="fl-sec"><h5>Effet de jeu</h5><p>${c.e}</p></div>
+       <div class="fl-sec"><h5>Mécanisme</h5><p>${c.mec}</p></div>
+       <div class="fl-sec"><h5>Ancrage réel</h5><p>${c.anc}</p></div>
+       <div class="fl-sec"><h5>Limite</h5><p>${c.lim}</p></div>
+     </div>
+     <div>
+       <div class="fl-grid">
+         ${kv("Coût affiché",cost)}
+         ${kv("Coût réel",reel)}
+         ${kv("Latence",c.lat?("effet dans "+c.lat+" tour"+(c.lat>1?"s":"")):"immédiat")}
+         ${kv("Portée",c.cible==="bloc"?"un bloc":"mondial")}
+         ${kv("Réversibilité",c.rev)}
+         ${kv("Robustesse",c.rob)}
+         ${c.seuil?kv("Seuil d'opinion","perçu ≥ "+c.seuil):""}
+         ${kv("Usages restants",c.cible==="global"?(s.joues.includes(c.id)?"0":"1"):Math.max(0,3-s.joues.filter(x=>x===c.id).length)+" blocs")}
+       </div>
+       <div class="fl-doc">
+         <b>Alignement doctrinal : ${af} %</b><br>
+         ${axes.length?axes.map(t=>"<em>"+t+"</em>").join("<br>"):"<em>Ce levier est indifférent à la doctrine.</em>"}
+         ${docEffet(s,c,camp).length?"<br><br>Effet net sur ce levier : "+docEffet(s,c,camp).join(" · ")+".":""}
+       </div>
+       ${c.cible==="bloc"?`<div class="fl-sec"><h5>Rendement attendu par bloc</h5>${blocs}</div>`:""}
+       ${ctr?`<div class="fl-sec"><h5>Contre-levier</h5><p><b>${ctr.id} — ${ctr.n}</b><br>${ctr.e}</p></div>`
+            :`<div class="fl-sec"><h5>Contre-levier</h5><p>Aucun contre-levier direct dans le catalogue.</p></div>`}
+     </div>
+   </div>`;
+  $("#ovl").classList.add("open"); $("#mx").onclick=fermer;
+}
+
+/* ---------- doctrine : accueil et panneau de partie ---------- */
+let DOCH={actif:{...DOC0.actif}, att:{...DOC0.att}};
+function docHTML(D,ax,dis){
+  return ax.map(a=>`<div class="drow" data-tip="${a.tip.replace(/"/g,'&quot;')}">
+     <div class="dlab"><b>${a.t}</b><span class="dv" id="v_${a.k}">${D[a.k]<38?a.a:D[a.k]>62?a.z:"équilibre"}</span></div>
+     <input class="dsl" type="range" min="0" max="100" step="5" value="${D[a.k]}" data-k="${a.k}" ${dis?"disabled":""}>
+     <div class="dends"><span>${a.a}</span><span>${a.z}</span></div></div>`).join("");
+}
+function renderDocHome(){
+  const camp=choixCamp==="actif"?"actif":"att", ax=DOCAX[camp], D=DOCH[camp];
+  $("#docHome").innerHTML=docHTML(D,ax,false)+
+    `<div class="dfoot">La doctrine ne joue aucune carte. Elle décide <b>lesquelles vous sont proposées</b> chaque tour,
+     et modifie ce qu'elles rendent une fois jouées. Vous pourrez l'ajuster en cours de partie, pour 1 attention et 25 points de déplacement par tour.</div>`;
+  $("#docHome").querySelectorAll(".dsl").forEach(el=>{
+    el.oninput=()=>{ D[el.dataset.k]=+el.value; renderDocHome(); };
+  });
+  bindTips($("#docHome"));
+}
+let docOpen=false;
+function renderDocPanel(){
+  const s=S, camp=s.camp==="actif"?"actif":"att", ax=DOCAX[camp], D=s.doc[camp];
+  const reste=25-s.docChg, dis=(s.res[camp].att<1&&s.docChg===0);
+  $("#docEtat").innerHTML = `<span id="docTog" style="text-decoration:underline;cursor:pointer">${docOpen?"replier":"régler"}</span>`;
+  if(!docOpen){
+    $("#docPanel").innerHTML=`<div class="dsum">`+ax.map(a=>
+      `<span data-tip="${a.tip.replace(/"/g,'&quot;')}"><i>${a.t}</i>${D[a.k]<38?a.a:D[a.k]>62?a.z:"équilibre"}</span>`).join("")+`</div>`;
+    $("#docTog").onclick=()=>{docOpen=true;renderDocPanel();};
+    bindTips($("#docPanel"));
+    return;
+  }
+  $("#docPanel").innerHTML=docHTML(D,ax,dis||reste<=0)+
+    `<div class="dfoot">Elle oriente le tirage de vos leviers et module leurs effets.
+     ${s.docChg?`Déplacé ce tour : <b>${s.docChg} / 25</b>.`:`Le premier ajustement du tour coûte <b>1 attention</b>.`}
+     ${dis?" Plus d'attention disponible ce tour.":""}</div>`;
+  $("#docTog").onclick=()=>{docOpen=false;renderDocPanel();};
+  $("#docPanel").querySelectorAll(".dsl").forEach(el=>{
+    el.onchange=()=>{
+      const k=el.dataset.k, av=D[k], nv=+el.value, d=Math.abs(nv-av);
+      if(d===0)return;
+      if(s.docChg===0){ if(s.res[camp].att<1){render();return;} s.res[camp].att-=1;
+        jlog(s,camp==="actif"?"g":"r","Doctrine ajustée — 1 attention dépensée."); }
+      if(s.docChg+d>25){ el.value=av; render(); return; }
+      s.docChg+=d; D[k]=nv;
+      const a=ax.find(z=>z.k===k);
+      jlog(s,"t","Doctrine — "+a.t+" : "+(nv<38?a.a:nv>62?a.z:"équilibre")+" ("+nv+"/100).");
+      // le tirage suivant tient compte du nouveau réglage
+      render();
+    };
+  });
+  bindTips($("#docPanel"));
+}
+
+function fermer(){$("#ovl").classList.remove("open");}
+
+/* ---------- trajectoire ---------- */
+function renderTraj(){
+  const s=S,W=880,H=132,L=40,R=90,T=10,Bm=22;
+  const n=NTURNS+1;
+  const x=i=>L+(W-L-R)*(i/n), y=v=>T+(H-T-Bm)*(1-(v-1.6)/(3.8-1.6));
+  const li=(arr,st,dash)=>`<path d="${arr.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('')}" fill="none" stroke="${st}" stroke-width="2" ${dash} stroke-linecap="round" stroke-linejoin="round"/>`;
+  let g="";
+  [2.0,2.6,3.2].forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`
+    +`<text x="${L-6}" y="${y(v)+3.5}" fill="var(--muted)" font-size="10" text-anchor="end">${v.toFixed(1)}°C</text>`});
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(3.48)}" y2="${y(3.48)}" stroke="#4a3a3a" stroke-dasharray="2 4"/>`;
+  g+=`<text x="${W-R+6}" y="${y(3.48)+3.5}" fill="#7a5a5a" font-size="10">3,48 sans action</text>`;
+  g+=li(s.hist.map(h=>h.g),"var(--muted)",'stroke-dasharray="6 5"');
+  g+=li(s.hist.map(h=>h.p),"var(--surface-2)",'stroke-width="6"');
+  g+=li(s.hist.map(h=>h.p),"var(--s-traj)","");
+  const last=s.hist.length-1, proj=projeter(s);
+  g+=`<circle cx="${x(last)}" cy="${y(s.hist[last].p)}" r="4" fill="var(--s-traj)" stroke="var(--surface-2)" stroke-width="2"/>`;
+  
+  
+  g+=`<text x="${x(last)+8}" y="${y(s.hist[last].p)+3.5}" fill="#8fbdf2" font-size="10.5">${proj.toFixed(2)} °C</text>`;
+  g+=`<circle cx="${x(last)}" cy="${y(s.hist[last].g)}" r="3.5" fill="var(--muted)"/>`;
+  g+=`<text x="${W-R+6}" y="${y(s.hist[last].g)+3.5}" fill="var(--muted)" font-size="10">${s.hist[last].g.toFixed(2)} monde réel</text>`;
+  for(let i=0;i<s.hist.length;i++) g+=`<text x="${x(i)}" y="${H-5}" fill="var(--muted)" font-size="9">${2015+i*5}</text>`;
+  $("#traj").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+
+function renderLog(){
+  const s=S;
+  $("#jour").innerHTML=s.log.slice(-70).map(l=>
+    l.cls==="th"?`<div class="th">${l.txt}</div>`:`<div class="l ${l.cls}">${l.txt}</div>`).join("");
+  $("#jour").scrollTop=$("#jour").scrollHeight;
+}
+
+/* ---------- fin de partie ---------- */
+function renderFin(){
+  const s=S,b=bilan(s);
+  const act=s.camp==="actif";
+  const W=760,H=150,L=44,R=14,T=12,Bm=24,n=s.hist.length-1;
+  const x=i=>L+(W-L-R)*(i/n), y=v=>T+(H-T-Bm)*(1-(v-1.6)/(3.8-1.6));
+  const li=(a,st,d)=>`<path d="${a.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('')}" fill="none" stroke="${st}" stroke-width="2.5" ${d} stroke-linecap="round"/>`;
+  let g="";
+  [2.0,2.6,3.2].forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-6}" y="${y(v)+3.5}" fill="var(--muted)" font-size="10" text-anchor="end">${v.toFixed(1)}°C</text>`});
+  g+=li(s.hist.map(h=>h.g),"var(--muted)",'stroke-dasharray="6 5"');
+  g+=li(s.hist.map(h=>h.p),"var(--s-traj)","");
+  for(let i=0;i<s.hist.length;i++) g+=`<text x="${x(i)}" y="${H-5}" fill="var(--muted)" font-size="9.5" text-anchor="middle">${2015+i*5}</text>`;
+  $("#game").style.display="none"; $("#home").style.display="none";
+  $("#fin").style.display="";
+  $("#fin").innerHTML=`
+   <div class="wrap" style="max-width:1000px">
+    <div class="app fin" style="padding:0">
+      <div class="mh"><h2>Fin de partie — 2055</h2><span class="sub">${b.rang}</span></div>
+      <div style="padding:18px 22px 22px">
+        <div class="finrow" style="margin-bottom:14px">
+          <div class="fbox"><div class="lab">Projection 2100</div><div class="num">${b.T.toFixed(2)} °C</div>
+            <div class="sub">monde réel 2,60 °C · sans action 3,48 °C</div></div>
+          <div class="fbox"><div class="lab">${act?"Réchauffement évité":"Actifs préservés"}</div>
+            <div class="num">${act?b.evite.toFixed(2)+" °C":b.actifs+" Md$"}</div>
+            <div class="sub">${act?"par rapport à la trajectoire sans vous":b.evitees+" mesures contraignantes évitées"}</div></div>
+        </div>
+        <div class="fbox" style="margin-bottom:14px">
+          <div class="lab">Projection 2100 vue de chaque tour — votre partie contre le monde réel</div>
+          <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px">${g}</svg>
+          <div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:4px">
+            <span><b style="color:var(--s-traj)">━</b> votre partie</span><span><b style="color:var(--muted)">╌</b> monde réel</span></div>
+        </div>
+        <div class="finrow" style="margin-bottom:14px">
+          <div class="fbox"><div class="lab">Dommages — blocs riches</div><div class="num" style="color:var(--s-base)">${b.dmgBase}</div>
+            <div class="dtrack"><div class="dfill base" style="width:${b.dmgBase}%"></div></div></div>
+          <div class="fbox"><div class="lab">Dommages — tous les autres</div><div class="num" style="color:var(--s-autres)">${b.dmgAutres}</div>
+            <div class="dtrack"><div class="dfill autres" style="width:${b.dmgAutres}%"></div></div></div>
+        </div>
+        <div class="fbox" style="margin-bottom:16px">
+          <div class="lab">Ce que la partie a coûté</div>
+          <div class="kv" style="font-size:13px"><span class="k">Décès liés à la chaleur, cumulés depuis 2015</span><span class="v">${b.morts.toFixed(1)} M</span></div>
+          <div class="kv" style="font-size:13px"><span class="k">Contrainte moyenne, pondérée par les émissions</span><span class="v">${b.contr} / 100</span></div>
+          <div class="kv" style="font-size:13px"><span class="k">Blocs verrouillés par une loi-cadre</span><span class="v">${b.verrous} / 8</span></div>
+          <div class="kv" style="font-size:13px"><span class="k">Mesures évitées par le camp attentiste</span><span class="v">${b.evitees}</span></div>
+        </div>
+        <div class="verdict">${b.verdict}</div>
+        <div style="margin-top:18px;display:flex;gap:10px">
+          <button class="again" id="rejouer">Rejouer</button>
+          <button class="mini" id="revoirjour" style="padding:12px 18px">Revoir le journal</button>
+        </div>
+      </div>
+    </div>
+   </div>`;
+  $("#rejouer").onclick=()=>{location.reload();};
+  $("#revoirjour").onclick=()=>{
+    $("#modal").innerHTML=`<div class="mh"><h2>Journal de la partie</h2><button class="x" id="mx">×</button></div>
+      <div class="mb"><div class="full jour" style="max-height:60vh">${S.log.map(l=>l.cls==="th"?`<div class="th">${l.txt}</div>`:`<div class="l ${l.cls}">${l.txt}</div>`).join("")}</div></div>`;
+    $("#ovl").classList.add("open"); $("#mx").onclick=fermer;
+  };
+}
+
+/* ---------- boucle ---------- */
+function finDeTour(){
+  sel=null;
+  iaJoue(S);
+  finTour(S);
+  render();
+}
+
+/* ---------- accueil ---------- */
+let choixCamp="actif", choixLvl=2;
+function initHome(){
+  document.querySelectorAll("#optCamp .opt").forEach(o=>o.onclick=()=>{
+    choixCamp=o.dataset.v; document.querySelectorAll("#optCamp .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o))); renderDocHome();});
+  document.querySelectorAll("#optLvl .opt").forEach(o=>o.onclick=()=>{
+    choixLvl=+o.dataset.v; document.querySelectorAll("#optLvl .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o)));});
+  $("#start").onclick=()=>{ rng=Date.now()&0x7fffffff; S=newGame(choixCamp,choixLvl);
+    S.doc.actif={...DOCH.actif}; S.doc.att={...DOCH.att};
+    S.hand=[]; S.handAI=[]; refill(S); refillAI(S); sel=null; render(); };
+  renderDocHome();
+  $("#endturn").onclick=finDeTour;
+  $("#ovl").onclick=e=>{if(e.target.id==="ovl")fermer();};
+  addEventListener("keydown",e=>{if(e.key==="Escape"){if($("#ovl").classList.contains("open"))fermer();else if(sel){sel=null;render();}}});
+}
+
+initHome();
+</script>
+</body>
+</html>

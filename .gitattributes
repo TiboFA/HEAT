@@ -1,0 +1,11 @@
+# Aucune normalisation de fin de ligne, sur aucun fichier.
+#
+# Le projet vérifie ses livraisons au md5 : le HTML construit sur une machine
+# doit être bit à bit identique à celui qui arrive sur une autre. Le réglage
+# par défaut de Git sur Windows (« text=auto ») réécrit les fins de ligne à
+# l'extraction et casse cette garantie sans rien signaler. On stocke et on
+# restitue les octets tels quels.
+* -text
+
+# Les classeurs sont binaires, et le disent.
+*.xlsx binary
