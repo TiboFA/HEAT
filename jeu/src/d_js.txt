@@ -2201,16 +2201,59 @@ function iaJoue(s){
   else if(s.ev&&s.ev.attr&&s.attribue===0&&!s.satur){ attribuer(s,"actif"); }
   else jlog(s,"a","L'adversaire ne peut pas attribuer l'événement ce tour.");
   let joues=0, reste=n;
+  const coupsIA=[];
+  const joue=(id,bk)=>{ const av=s.adv.length; jouer(s,id,bk,camp); joues++; reste-=pds(id);
+    if(s.adv.length>av && s.adv[s.adv.length-1].ok) coupsIA.push(id); };
+  // Expert : l'adversaire cherche ses combinaisons, et les joue d'abord
+  if(combosAdversaire(s)) for(const k of COMBOS){
+    if(card(k.a).c!==camp || reste<=0) continue;
+    const a=essaie(s,camp,[k.a],()=>true,reste);
+    if(!a || !dispo(s,camp,[k.b]).length || pds(k.a)+pds(k.b)>reste) continue;
+    const b0=card(k.b), rb=b0.cible==="global"?!jouable(s,b0,null,camp):s.blocs.some(z=>!jouable(s,b0,z,camp));
+    if(!rb) continue;
+    joue(a.id,a.b);
+    const b=essaie(s,camp,[k.b],()=>true,reste); if(b) joue(b.id,b.b);
+  }
   // l'adversaire paie la puissance des leviers exactement comme le joueur : un
   // grand coup peut lui coûter le tiers de son budget ou plus. Il peut donc devoir
   // y renoncer faute de place, et son choix suivant tient compte de ce qu'il lui reste.
   for(let garde=0; reste>0 && garde<12; garde++){
-    const coup = camp==="att" ? choixAtt(s,reste) : choixActif(s,reste);
-    if(!coup){ jlog(s,"a","L'adversaire s'arrête après "+joues+" coup"+(joues>1?"s":"")+" : plus rien de jouable dans sa main, ou plus assez d'actions pour ce qu'il lui reste."); break; }
-    jouer(s,coup.id,coup.b,camp); joues++; reste-=pds(coup.id);
+    const coup = coupCredibilite(s,camp,reste) || (camp==="att" ? choixAtt(s,reste) : choixActif(s,reste));
+    if(!coup){ jlog(s,"a","L'adversaire s'arrête après "+joues+" coup"+(joues>1?"s":"")+" : plus rien de jouable dans sa main, ou plus assez de puissance pour ce qu'il lui reste."); break; }
+    joue(coup.id,coup.b);
   }
-  // l'adversaire ne déclenche pas de combinaisons : c'est un avantage réservé au joueur, et le journal le dit
-  jlog(s,"a","L'adversaire ne déclenche pas de combinaisons : les combos sont un avantage réservé au joueur.");
+  if(combosAdversaire(s)){
+    jlog(s,"sh","Combinaisons de l'adversaire");
+    const cbs=verifierCombos(s,coupsIA,camp);
+    if(!cbs.length) jlog(s,"a","L'adversaire n'a déclenché aucune combinaison ce tour.");
+    cbs.forEach(k=>{ jlog(s,"r","⚡ <b>"+k.n+"</b> — "+k.d); s.fx.push({t:"combo",nom:k.n,d:k.d,adv:true}); });
+  } else jlog(s,"a","Au niveau "+NIV(s).nom+", l'adversaire ne déclenche pas de combinaisons : c'est un avantage réservé au joueur jusqu'au niveau Expert.");
+}
+/* Expert est un palier de règles, pas seulement un budget plus gros :
+   l'adversaire y cherche ses combinaisons et les déclenche comme vous. */
+function combosAdversaire(s){ return s.level>=4; }
+/* L'adversaire joue la crédibilité. Tant qu'il est à moins de 10 points de
+   retard, ses listes de priorités suffisent. Au-delà, il essaie chacun de ses
+   leviers sur une copie de l'état, et joue celui qui redresse le plus l'écart
+   par point de puissance, pondéré par ses chances de passer — s'il en existe
+   un qui rapporte au moins 3 points d'écart par point de puissance. Avant la
+   v0.13, il jouait A54 ou T48 parce qu'ils étaient dans sa main, jamais parce
+   qu'il perdait la bataille de la crédibilité. */
+function coupCredibilite(s,camp,bud){
+  const e0=ecartCred(s,camp);
+  if(e0>-10) return null;
+  let best=null;
+  for(const id of (camp===s.camp?s.hand:s.handAI)){
+    const c=card(id); if(c.c!==camp||c.trap||pds(c)>bud) continue;
+    const cibles = c.cible==="global" ? [null] : s.blocs.slice().sort((a,z)=>z.e-a.e).slice(0,3);
+    for(const b of cibles){
+      if(jouable(s,c,b,camp)) continue;
+      const cl=clonerEtat(s); jouer(cl,id,b?b.k:null,camp,true);
+      const g=(ecartCred(cl,camp)-e0)*proba(s,c,b,camp)/100/pds(c);
+      if(g>=3 && (!best||g>best.g)) best={id,b:b?b.k:null,g};
+    }
+  }
+  return best;
 }
 function dispo(s,camp,ids){
   const h = camp===s.camp? s.hand : s.handAI;
@@ -2453,7 +2496,7 @@ function resoudre(apres){
     }
     if(fx.t==="combo"){
       if(muet) return 0;
-      rsHead("⚡ "+fx.nom,"g","combinaison");
+      rsHead("⚡ "+fx.nom,fx.adv?"r":"g",fx.adv?"combinaison adverse":"combinaison");
       return 1250;
     }
     if(fx.t==="lot"){
