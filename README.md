@@ -64,14 +64,29 @@ fichiers dans `jeu/`.
 Il n'y a pas d'autre chaîne de construction : c'est délibéré — la contrainte du
 fichier unique est ce qui garde le jeu distribuable par simple copie.
 
-Les harnais de `outils/` ouvrent tous `jeu.html`. Ils n'ont jamais à être
-modifiés lors d'un changement de version.
+Les harnais de `outils/` ouvrent tous `jeu.html`. Ils ne lisent pas les
+constantes de règle directement mais l'état de la partie, pour ne pas avoir à
+être modifiés à chaque changement de version.
+
+**Ne jamais modifier `jeu/jeu.html` à la main** : la modification serait
+effacée au prochain `build.py`. C'est arrivé à la v0.12.
 
 ## Vérifier
 
+```
+python3 outils/verifier.py          # avant toute livraison
+python3 outils/verifier.py --vite   # étalonnage réduit, pour itérer
+```
+
+`verifier.py` commence par reconstruire `jeu/src/` et comparer le résultat à
+`jeu/jeu.html` : un fichier livré modifié à la main, sans passer par les sources,
+fait échouer la vérification. Il enchaîne ensuite les quatre harnais ci-dessous
+et vérifie leurs résultats. Le même contrôle tourne sur GitHub à chaque push
+(`.github/workflows/verifier.yml`).
+
 Les harnais de `outils/` pilotent le jeu dans un Chromium headless
 (`pip install playwright && playwright install chromium`). Les quatre qui
-comptent, à passer avant toute livraison :
+comptent :
 
 | Harnais | Ce qu'il vérifie |
 |---|---|
@@ -111,8 +126,9 @@ GitHub Desktop.
 
 ## État
 
-Version courante : **v0.11**. `notes/HEAT_note_jeu_v0.11.md` détaille les
-mécaniques ajoutées, les mesures qui les justifient, et ce qui reste ouvert.
+Version courante : voir le numéro sur l'écran d'accueil, et la note la plus
+récente dans `notes/`. Chaque note détaille les mécaniques ajoutées, les mesures
+qui les justifient, et ce qui reste ouvert.
 
 Les sources de `jeu/src/` n'ont jamais existé ailleurs que dans les sessions de
 travail qui ont produit le jeu ; ce dépôt est le premier endroit où elles sont

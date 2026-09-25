@@ -267,6 +267,7 @@ svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius
  border-radius:8px;padding:0 4px;font-style:normal;line-height:15px;box-shadow:0 0 0 2px rgba(13,13,13,.92)}
 .tag.rendu{border-color:rgba(25,158,112,.55);color:var(--s-reel)}
 .tag.lourd{border-color:rgba(214,158,46,.6);color:#d69e2e;font-weight:700}
+.tag.extreme{border-color:rgba(229,121,121,.65);color:var(--s-fric-tx);font-weight:700}
 .c2adv{margin-top:5px;font-size:9px;color:var(--s-fric-tx);border-top:1px solid var(--grid);padding-top:4px}
 .badv{border-left:2px solid var(--s-fric);padding:4px 0 5px 8px;margin:5px 0;font-size:11px}
 .badv span{color:var(--muted);font-size:10px;margin-left:6px}
@@ -381,8 +382,18 @@ svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius
 .verdict{font-size:15px;line-height:1.55;color:var(--ink-2);border-left:3px solid var(--s-traj);padding-left:12px}
 .verdict b{color:var(--ink)}
 .again{border:0;border-radius:9px;padding:12px 20px;font-weight:700;background:var(--ink);color:#0b0b0b;cursor:pointer}
-@media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}}
+@media (max-width:1400px){.board{grid-template-columns:1fr 272px}.sideL{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;max-height:none}.sideL>*{flex:1 1 240px}
+  /* sideL passe au-dessus de la carte et devient large : les leviers s'y répartissent
+     en grille plutôt que de s'empiler un par ligne sur toute la largeur. #handL est mis
+     seul sur sa ligne (flex-basis 100 %) pour ne pas se faire écraser par la doctrine :
+     sans ça, les deux se partagent la même ligne et la grille n'a plus la place de faire
+     plus d'une colonne sur les écrans étroits. */
+  .sideL #handL{flex-basis:100%}
+  .sideL .hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}}
 @media (max-width:1180px){.board{grid-template-columns:1fr}.sideL,.sideR{max-height:none}.mb{grid-template-columns:1fr}.opts{grid-template-columns:1fr}
+  /* en dessous de 1180px le plateau devient une seule colonne : sideR passe lui
+     aussi sur toute la largeur, sous la carte — même traitement en grille. */
+  .sideR .hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
   /* l'accueil ne fait que 820 px : ses deux cartes de camp tiennent côte à côte bien plus longtemps */
   .camps .opts{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.camps .opts{grid-template-columns:1fr}}
