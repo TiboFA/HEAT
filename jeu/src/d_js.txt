@@ -1480,18 +1480,28 @@ const MAIN=12;
      cap supplément de capital par tour
 
    Les suppléments ne vont qu'au camp que vous ne jouez pas. Votre propre
-   budget ne dépend plus du niveau : il suit votre crédibilité — voir
-   budgetJoueur(). Celui de l'adversaire reste fixe par niveau, dans la même
-   monnaie continue que le vôtre : n est mesuré pour reproduire, sur le
-   nouveau barème, le volume de jeu que produisait l'ancien budget entier. */
+   budget ne dépend pas du niveau : il suit votre crédibilité — voir
+   budgetJoueur(). Celui de l'adversaire suit la sienne de la même façon,
+   n étant sa valeur à crédibilité neutre — voir nAdv().
+
+   Valeurs mesurées en v0.13 (20 parties par point, joueur tirant au hasard) :
+   à 3 en Découverte, le camp attentiste dépassait 550 de score contre 386 à
+   3,5 — le seuil des 20 Gt n'était presque jamais atteint et le jalon
+   rapportait tout. À 6,5 en Réaliste, l'écart avec Expert se resserrait côté
+   actif jusqu'à s'inverser sur certaines graines. */
 const NIVEAUX=[null,
- {nom:"Découverte", n:3,   cp:0, cap:0},
- {nom:"Standard",   n:5,   cp:2, cap:3},
- {nom:"Réaliste",   n:6.5, cp:4, cap:7},
+ {nom:"Découverte", n:3.5, cp:0, cap:0},
+ {nom:"Standard",   n:4.5, cp:2, cap:3},
+ {nom:"Réaliste",   n:6,   cp:4, cap:7},
  {nom:"Expert",     n:8,   cp:6, cap:11}
 ];
 function NIV(s){ return NIVEAUX[s.level]||NIVEAUX[2]; }
-function nAdv(s){ return NIV(s).n; }
+/* Le budget de l'adversaire suit sa crédibilité, comme le vôtre suit la vôtre :
+   n est son budget à crédibilité neutre (50), multiplié par le même facteur que
+   le vôtre — entre 2/3 à crédibilité nulle et 4/3 à crédibilité pleine. Sans ça,
+   la crédibilité n'était un rapport qu'à moitié : discréditer l'adversaire vous
+   enrichissait sans jamais l'appauvrir. */
+function nAdv(s){ return +(NIV(s).n * budgetPuissance(s.res[campAdv(s)].cred) / BUD_BASE).toFixed(1); }
 function campAdv(s){ return s.camp==="actif" ? "att" : "actif"; }
 /* ==================== progression du catalogue ====================
    Un levier ne doit pas tomber au hasard : il doit devenir possible. Deux
@@ -1655,12 +1665,12 @@ function poidsPlan(s){ return s.plan.reduce((a,e)=>a+((e.k==="attr"||e.ko)?0:pds
    reste de la partie : la crédibilité ouvre déjà des portes ailleurs
    (vitesse d'opinion, probabilité des paris), elle en ouvre une ici aussi.
    BUD_MIN/BUD_MAX ne servent que de garde-fou : la crédibilité étant bornée à
-   [0,100], la formule ne les atteint jamais en pratique.
+   [0,100], la formule ne les dépasse jamais — elle les atteint aux deux bouts.
 
    BUD_BASE et BUD_K sont mesurés, pas décrétés : à crédibilité neutre, ils
    reproduisent le volume de jeu que produisait l'ancien budget fixe de
    quatre actions sur le nouveau barème continu. L'adversaire paie le même
-   prix, mais à budget fixe par niveau — voir NIVEAUX. */
+   prix ; son budget de base dépend du niveau, et suit sa crédibilité — voir nAdv(). */
 const BUD_BASE=4.5, BUD_K=1.5, BUD_MIN=3, BUD_MAX=6;
 function budgetPuissance(cred){ return Math.max(BUD_MIN, Math.min(BUD_MAX, BUD_BASE + BUD_K*(cred-50)/50)); }
 function budgetJoueur(s,camp){ return budgetPuissance(s.res[camp].cred); }
@@ -3066,7 +3076,7 @@ function renderAdv(){
      ${lignes}
      ${inst.length?`<div class="advt">Ce qu'il a laissé en place</div>`
         +inst.map(x=>`<div class="advi" data-tip="${x[2].replace(/"/g,"&quot;")}"><b>${x[0]}</b><span>${x[1]}</span></div>`).join(""):""}
-     <div class="advs">Ce tour-ci il dispose de <b>${fmtP(n)} point${n>1?"s":""} de puissance</b> — dans la même monnaie que vous — plus son action gratuite, après vous. Vous ne saurez ce qu'il joue qu'à la résolution.</div>`;
+     <div class="advs">Ce tour-ci il dispose de <b>${fmtP(n)} point${n>1?"s":""} de puissance</b> — dans la même monnaie que vous, et fixé comme le vôtre par sa crédibilité — plus son action gratuite, après vous. Vous ne saurez ce qu'il joue qu'à la résolution.</div>`;
   bindTips($("#advPanel")); bindTips($("#advEtat"));
 }
 
@@ -3462,7 +3472,7 @@ function ficheLevier(id){
        ${ctr?`<div class="fl-sec"><h5>Le levier adverse qui l'annule</h5><p><b>${ctr.id} — ${ctr.n}</b><br>${gloss(ctr.e)}</p></div>`
             :`<div class="fl-sec"><h5>Le levier adverse qui l'annule</h5><p>Aucun. L'adversaire n'a pas de réponse directe à ce levier dans le catalogue.</p></div>`}
        <div class="fl-grid">
-         ${kv("Puissance",fmtP(pds(c))+" pt"+(pds(c)>1?"s":""),"Votre budget de puissance dépend de votre crédibilité — voir la ligne « Crédibilité » en haut de l'écran. Ce levier en consomme "+fmtP(pds(c))+".<br><br>La puissance est mesurée, pas décrétée : elle suit le plus grand de quatre rapports — la trajectoire déplacée (0,06 °C), l'opinion mondiale retournée (30 points cumulés), le plafond de contrainte descendu (20 points), l'indice technologique déplacé (12 points) — arrondi au demi-point. Le sens ne compte pas — ce qui pèse est l'ampleur de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue.<br><br>L'adversaire paie le même prix, à budget fixé par le niveau de difficulté.")}
+         ${kv("Puissance",fmtP(pds(c))+" pt"+(pds(c)>1?"s":""),"Votre budget de puissance dépend de votre crédibilité — voir la ligne « Crédibilité » en haut de l'écran. Ce levier en consomme "+fmtP(pds(c))+".<br><br>La puissance est mesurée, pas décrétée : elle suit le plus grand de quatre rapports — la trajectoire déplacée (0,06 °C), l'opinion mondiale retournée (30 points cumulés), le plafond de contrainte descendu (20 points), l'indice technologique déplacé (12 points) — arrondi au demi-point. Le sens ne compte pas — ce qui pèse est l'ampleur de ce que le levier déplace, pas le fait qu'il serve ou desserve celui qui le joue.<br><br>L'adversaire paie le même prix ; son budget dépend du niveau de difficulté et de sa propre crédibilité.")}
          ${kv("Coût",paye,"Ce que le levier vous prendra si vous le jouez ce tour."+(ecartCout?"<br><br>Coût de base : "+base+".<br>"+raisons.join("<br>"):""))+(ecartCout?"":"")}
          ${kv("Quand",c.lat?("dans "+c.lat+" tour"+(c.lat>1?"s":"")):"tout de suite","Un levier à effet différé ne produit rien au tour où vous le jouez : l'effet tombe à la résolution du tour indiqué.")}
          ${kv("Portée",c.cible==="bloc"?"un bloc":"le monde entier","Un levier de bloc se joue en cliquant un bloc sur la carte. Un levier mondial se joue depuis la main.")}
