@@ -26,6 +26,8 @@ button{font:inherit;color:inherit}   /* sans color:inherit, le titre des boutons
 .opt b{display:block;font-size:14px;margin-bottom:3px}
 .opt span{color:var(--muted);font-size:11.5px;line-height:1.4;display:block}
 .opts.four{grid-template-columns:repeat(4,1fr)}
+.opts.three{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.opts.three{grid-template-columns:1fr}}
 /* ---------- reprise de partie ---------- */
 .rpz{border:1px solid rgba(25,158,112,.45);border-left:3px solid var(--s-reel);border-radius:12px;
  background:linear-gradient(180deg,rgba(25,158,112,.08),transparent 70%);padding:13px 16px;margin-bottom:12px}

@@ -1144,7 +1144,42 @@ const EVDEF=[
  {t:"Lanceur d'alerte",attr:false,eff:"alerte",txt:"Un ancien cadre publie ce que son employeur savait et depuis quand : crédibilité du camp attentiste −14."},
  {t:"Fraude aux crédits carbone",attr:false,eff:"fraude",txt:"Une enquête établit que la plupart des crédits d'un grand standard ne correspondent à aucune réduction : crédibilité du camp actif −14."},
  {t:"Résolution d'actionnaires",attr:false,eff:"resol",txt:"Une coalition minoritaire obtient un siège au conseil : soutien perçu +7 sur le bloc le plus engagé, crédibilité du camp actif +5."},
+ /* Événements de palier : ils n'entrent dans le tirage qu'une fois le monde
+    assez chaud (tmin, température courante et non projetée). Aucun n'ajoute
+    de contrainte — un événement qui contraint déplacerait la trajectoire
+    passive. Ils déplacent le réel, la friction et l'opinion : ce que la chaleur
+    fait aux sociétés, pas aux politiques climatiques. « fort » : une fois
+    attribué, l'événement déplace l'opinion plus qu'une catastrophe ordinaire. */
+ {t:"Récoltes perdues sur plusieurs continents",attr:true,fort:true,tmin:1.6,txt:"Plusieurs greniers mondiaux en déficit la même année : les prix alimentaires doublent. Attribué, il pèse plus qu'une catastrophe ordinaire : perçu +20 sur place, +6 ailleurs."},
+ {t:"Exode climatique",attr:false,eff:"exode",tmin:1.8,txt:"Des millions de déplacés en quelques années. Les blocs riches se ferment — friction +6 en Europe et en Amérique du Nord — et le soutien réel monte de 4 dans les blocs qui les voient partir."},
+ {t:"Point de bascule franchi",attr:true,fort:true,eff:"bascule",tmin:2.0,txt:"Une calotte polaire est déclarée instable, de façon irréversible à l'échelle humaine. Le soutien réel monte de 5 partout ; attribué, le perçu suit : +20 sur place, +6 ailleurs."},
 ];
+/* Le tirage de l'événement. Les catastrophes physiques deviennent plus
+   fréquentes à mesure que le monde se réchauffe : leur poids est de 1 à 1,0 °C,
+   2 à 1,5 °C, 3 à 2,0 °C. Les autres gardent un poids de 1. Le même événement
+   ne tombe pas deux tours de suite. Avant la v0.13, les dix événements étaient
+   équiprobables quelle que soit la température : un dôme de chaleur n'était pas
+   plus probable en 2080 à 2,6 °C qu'en 2015. */
+function poidsEvenement(s,d){
+  if(d.tmin && s.T<d.tmin) return 0;
+  if(s.ev && s.ev.t===d.t) return 0;
+  return d.attr ? 1+2*Math.max(0,s.T-T0) : 1;
+}
+/* Mode histoire : les deux premiers tours sont déjà écrits. */
+const HISTOIRE={
+ 1:{t:"Méga-incendies",bloc:"as",note:"Australie, été 2019-2020 : dix-huit millions d'hectares brûlés."},
+ 2:{t:"Flambée du prix de l'énergie",note:"2022 : l'invasion de l'Ukraine fait décupler le prix du gaz en Europe."}
+};
+/* Émissions fossiles mondiales réelles (GtCO₂/an, Global Carbon Project,
+   arrondies ; 2025 est une estimation). Affichées en mode histoire à la
+   fin des tours qui les couvrent. */
+const EMI_REELLES={2020:35.0, 2025:38.1};
+/* Les scénarios de départ. */
+const SCENARIOS={
+ hasard:{nom:"2015, au hasard"},
+ histoire:{nom:"2015, l'histoire réelle"},
+ tardif:{nom:"2030, quinze ans perdus"}
+};
 
 /* ==================== incertitude, combos, défis, presse ====================
    Trois ajouts qui transforment une suite de calculs en partie jouée :
@@ -1419,6 +1454,18 @@ function score(s){
   const verrou=s.blocs.reduce((a,b)=>a+(100-b.cap),0)/8;                    // infrastructure verrouillée, 0-100
   return Math.round(J.picT + J.seuilT + Math.max(0,projeter(s)-1.8)*140 + s.evitees*2 + verrou*3 + Math.max(0,55-cm)*2);
 }
+/* Les scores des deux camps ne se comparent pas directement : leurs formules
+   diffèrent, et un attentiste en Découverte marque plus qu'un actif au même
+   niveau. L'indice les ramène sur une même échelle : 100, c'est ce que marque
+   le joueur automatique qui tire ses leviers au hasard, dans le même camp et
+   au même niveau (étalonnage v0.13, 30 parties). 150, c'est une fois et demie
+   mieux. Il n'est pas calculé pour le départ en 2030, qui n'est pas étalonné. */
+const SCORE_REF={actif:[null,308,289,237,176], att:[null,412,293,205,140]};
+function indicePerf(s){
+  if(s.scen==="tardif") return null;
+  const r=SCORE_REF[s.camp==="actif"?"actif":"att"][s.level];
+  return r ? Math.round(100*score(s)/r) : null;
+}
 function palier(v){let r=PALIERS[0];PALIERS.forEach(p=>{if(v>=p[0])r=p;});return r;}
 function palierSuivant(v){for(const p of PALIERS){if(v<p[0])return p;}return null;}
 
@@ -1440,9 +1487,9 @@ function redAn(contr,cap){return Math.pow(Math.min(contr,cap===undefined?100:cap
 /* facteur multiplicatif d'un tour entier sur les émissions d'un bloc */
 function pasE(b,t,contr,cap){return Math.pow((1+gAn(b,t))*(1-redAn(contr,cap)),YPT);}
 
-function newGame(camp,level){
+function newGame(camp,level,scen){
   const s={
-    turn:1, year:2015, camp, level,
+    turn:1, year:2015, camp, level, scen:SCENARIOS[scen]?scen:"hasard",
     blocs:BDEF.map(b=>({...b, cap:100, contr:0, pend:[], mesures:[], verrou:false, bloque:0, compens:0,
       cbam:0,subv:0,coal:0,guerre:0,transp:0,suivi:0,media:0,revoyure:0,pendPc:0,faits:[],
       refer:0,achat:0,censure:0,repress:0})),
@@ -1468,7 +1515,21 @@ function newGame(camp,level){
   tirerEvenement(s); tirerDefi(s); refill(s); refillAI(s);
   jlog(s,"th","Tour 1 — 2015 à 2020");
   jlog(s,"t","Accord de Paris signé. La partie commence ici.");
+  if(s.scen==="tardif") departTardif(s);
   return s;
+}
+/* Départ en 2030 : les trois premiers tours se jouent sans personne. Le monde
+   suit sa trajectoire passive, puis la partie vous est rendue en 2030 avec les
+   ressources du départ et quinze ans de CO₂ en plus. C'est la réponse la plus
+   directe à « ça ne sert à rien » : le coût d'une décennie perdue se lit
+   sur la même échelle que tout le reste. */
+function departTardif(s){
+  const res0=JSON.parse(JSON.stringify(s.res));
+  for(let i=0;i<3;i++){ s.plan=[]; finTour(s); }
+  s.res=res0; s.actions=budgetJoueur(s,s.camp);
+  s.log=[]; s.fx=[]; s.adv=[]; s.mien=[]; s.presse=[];
+  jlog(s,"th","Tour "+s.turn+" — "+s.year+" à "+(s.year+YPT));
+  jlog(s,"t","Quinze ans ont passé depuis l'Accord de Paris sans que personne n'agisse. Émissions : "+fr(totE(s),1)+" GtCO₂/an, réchauffement : "+fr(s.T,2)+" °C. La partie commence ici.");
 }
 const MAIN=12;
 /* ==================== les quatre niveaux ====================
@@ -1887,10 +1948,10 @@ function attribuer(s,camp){
   if(r.att<1||!s.ev||!s.ev.attr||s.satur||s.attribue!==0) return false;
   r.att-=1;
   if(camp==="actif"){
-    s.attribue=1; const b=B(s,s.ev.bloc);
-    b.percu=Math.min(100,b.percu+14);
-    s.blocs.forEach(z=>{if(z!==b)z.percu=Math.min(100,z.percu+4);});
-    jlog(s,"g","▸ <b>Attribution</b> — "+b.nom+" : perçu +14 sur place, +4 ailleurs");
+    s.attribue=1; const b=B(s,s.ev.bloc), ici=s.ev.fort?20:14, ail=s.ev.fort?6:4;
+    b.percu=Math.min(100,b.percu+ici);
+    s.blocs.forEach(z=>{if(z!==b)z.percu=Math.min(100,z.percu+ail);});
+    jlog(s,"g","▸ <b>Attribution</b> — "+b.nom+" : perçu +"+ici+" sur place, +"+ail+" ailleurs");
   }else{
     s.attribue=-1;
     jlog(s,"r","◂ <b>Désattribution</b> — l'événement ne déplace aucune jauge");
@@ -1914,6 +1975,14 @@ function finTour(s){
     if(b){const a=b.percu;b.percu=Math.min(100,b.percu+7);FX(s,"percu",b.k,b.percu-a);
       CRED(s,"actif",5);
       jlog(s,"g","Résolution d'actionnaires — "+b.nom+" : perçu +7, crédibilité du camp actif +5.");}}
+  if(s.ev&&s.ev.eff==="exode"){
+    s.blocs.forEach(b=>{ if(b.k==="na"||b.k==="eu"){ FR(s,b,6); } else if(b.rich<0.5){ RE(s,b,4); } });
+    jlog(s,"t","Exode climatique : friction +6 en Europe et en Amérique du Nord, soutien réel +4 dans les blocs du Sud.");
+  }
+  if(s.ev&&s.ev.eff==="bascule"){
+    s.blocs.forEach(b=>RE(s,b,5));
+    jlog(s,"t","Point de bascule franchi : soutien réel +5 partout.");
+  }
   if(s.ev&&s.ev.eff==="sommet"){
     if(s.sommetOff>0) jlog(s,"r","Sommet international : bloqué par le veto de procédure, la déclaration finale ne contient rien. Aucun effet.");
     else {s.blocs.forEach(b=>b.percu=Math.min(100,b.percu+4));jlog(s,"t","Sommet international : perçu +4 partout.");}
@@ -2150,6 +2219,8 @@ function finTour(s){
     // est ce qui l'abîme le plus, et c'est exactement l'argument du camp d'en face.
     CRED(s,"actif",-5,"Échéance net zéro "+nzAv+" manquée");
   }
+  if(s.scen==="histoire" && EMI_REELLES[s.year])
+    jlog(s,"t","Monde réel en "+s.year+" : environ "+fr(EMI_REELLES[s.year],1)+" GtCO₂/an (Global Carbon Project). Votre partie : "+fr(totE(s),1)+".");
   tirerEvenement(s); tirerDefi(s); refill(s); refillAI(s);
   jlog(s,"th","Tour "+s.turn+" — "+s.year+" à "+(s.year+YPT));
   jlog(s,"sh","Mise en place du tour");
@@ -2166,7 +2237,15 @@ function finTour(s){
 }
 
 function tirerEvenement(s){
-  const d=EVDEF[Math.floor(rnd()*EVDEF.length)];
+  const h=(s.scen==="histoire"||s.scen==="tardif") && HISTOIRE[s.turn];
+  if(h){
+    const d=EVDEF.find(e=>e.t===h.t), b=h.bloc?B(s,h.bloc):s.blocs[0];
+    s.ev={...d, bloc:b.k, blocNom:d.attr?b.nom:"Mondial", txt:h.note+" "+d.txt, hist:true};
+    return;
+  }
+  const w=EVDEF.map(d=>poidsEvenement(s,d)), tot=w.reduce((a,x)=>a+x,0);
+  let r=rnd()*tot, i=0; while(i<w.length-1 && r>=w[i]){ r-=w[i]; i++; }
+  const d=EVDEF[i];
   const b=s.blocs[Math.floor(rnd()*s.blocs.length)];
   s.ev={...d, bloc:b.k, blocNom:d.attr?b.nom:"Mondial"};
 }
@@ -2368,6 +2447,19 @@ function bilan(s){
   const evite=+(T_BASELINE-T).toFixed(2);
   const vsReel=+(2.60-T).toFixed(2);
   let rang,verdict;
+  /* Le verdict dépend du camp joué : à 2,1 °C, le joueur attentiste a perdu.
+     Jusqu'en v0.12, il lisait « Victoire nette » quel que soit son camp. */
+  if(s.camp!=="actif"){
+    if(T<1.90){rang="Déroute";verdict="Le monde finit sous 1,9 °C : le camp actif a obtenu plus que le monde réel ne l'a jamais fait. Vos leviers n'ont presque rien retardé.";}
+    else if(T<2.20){rang="Défaite nette";verdict="Le camp actif est dans sa zone de victoire. Vous avez gagné du temps, pas assez pour que la trajectoire en garde la trace.";}
+    else if(T<2.80){rang="Zone grise";verdict="C'est là que se joue réellement la partie. La transition a eu lieu, mais tard, et une partie des actifs a survécu.";}
+    else if(T<3.50){rang="Victoire attentiste";verdict="Le camp du statu quo l'emporte. Les actifs sont préservés, dans un monde qui ne l'est pas.";}
+    else {rang="Défaite des deux camps";verdict="Au-delà de 3,5 °C, vous perdez aussi : vos propres actifs sont atteints.";}
+    return {T,evite,vsReel,rang,verdict,
+      morts:+s.morts.toFixed(1), dmgBase:s.dmgBase, dmgAutres:s.dmgAutres,
+      actifs:s.actifs, evitees:s.evitees, verrous:s.blocs.filter(b=>b.verrou).length,
+      contr:Math.round(s.blocs.reduce((a,b)=>a+b.contr*b.e,0)/Math.max(totE(s),.01))};
+  }
   if(T<1.90){rang="Exceptionnel";verdict="Vous finissez sous 1,9 °C. C'est au-delà de ce que le monde réel a obtenu et à la limite haute du plausible — vérifiez le niveau auquel jouait l'adversaire.";}
   else if(T<2.20){rang="Victoire nette";verdict="Vous êtes dans la zone de victoire du camp actif. Le monde réel, lui, est à 2,6 °C.";}
   else if(T<2.80){rang="Zone grise";verdict="C'est là que se joue réellement la partie. Vous avez évité le pire sans obtenir la bascule.";}
@@ -2786,12 +2878,14 @@ function agenda(s){
       tip:"Un ancien cadre publie ce que son employeur savait. L'effet tombe à la résolution, sans que personne ait à le jouer."});
     else if(s.ev.eff==="resol") out.push({cls:P(true),t:"Résolution d'actionnaires",r:"perçu +7 sur le bloc le plus engagé",
       tip:"Une coalition minoritaire obtient un siège au conseil et fait voter une trajectoire. Spectaculaire et rarement reproductible : c'est un événement, pas un levier."});
+    else if(s.ev.eff==="exode") out.push({cls:"h",t:"Exode climatique",r:"friction +6 EU/AN · réel +4 au Sud",
+      tip:"Événement de palier, possible au-delà de 1,8 °C. Il ne sert personne franchement : il durcit l'opinion des blocs riches et renforce le soutien réel là où la chaleur frappe."});
     else if(s.ev.eff==="sommet") out.push({cls:P(true),t:"Sommet international",r:"perçu +4 partout",
       tip:"L'événement de ce tour remonte le soutien perçu de 4 points sur les huit blocs."});
     else if(s.ev.attr) out.push({cls:s.attribue===0?"h":s.attribue===1?P(true):P(false),
       t:"« "+s.ev.t+" »",
-      r:s.attribue===0?"sans effet tant qu'il n'est pas attribué":s.attribue===1?"attribué : l'opinion bougera":"désattribué : aucun effet",
-      tip:"Un événement ne déplace l'opinion que si un camp l'attribue au climat. Attribuer coûte 1 attention et ne consomme pas d'action."});
+      r:(s.ev.eff==="bascule"?"réel +5 partout · ":"")+(s.attribue===0?"perçu inchangé tant qu'il n'est pas attribué":s.attribue===1?"attribué : l'opinion bougera":"désattribué : aucun effet sur l'opinion"),
+      tip:"Un événement ne déplace l'opinion que si un camp l'attribue au climat. Attribuer coûte 1 attention et ne consomme pas de puissance."+(s.ev.fort?"<br><br><b>Événement de palier</b> : il n'apparaît qu'au-delà d'un certain réchauffement, et une fois attribué il déplace l'opinion davantage — +20 sur place, +6 ailleurs.":"")});
   }
   if(s.turn%2===0){
     const d=s.blocs.filter(b=>b.reg==="demo");
@@ -3764,6 +3858,14 @@ function renderFin(){
             <div class="num">${act?fr(b.evite,2)+" °C":b.actifs+" Md$"}</div>
             <div class="sub">${act?"par rapport à la trajectoire sans vous":b.evitees+" mesures contraignantes évitées"}</div></div>
         </div>
+        <div class="finrow" style="margin-bottom:14px">
+          <div class="fbox"><div class="lab">Score</div><div class="num">${score(s)} pt${score(s)>1?"s":""}</div>
+            <div class="sub">palier <b>${palier(score(s))[1]}</b> · niveau ${NIV(s).nom} · ${(SCENARIOS[s.scen]||SCENARIOS.hasard).nom}</div></div>
+          <div class="fbox" data-tip="Le score des deux camps ne se compare pas directement. L'indice le ramène sur une même échelle : 100 correspond au joueur automatique qui tire ses leviers au hasard, dans le même camp et au même niveau. Au-dessus de 100, vous avez fait mieux que le hasard.">
+            <div class="lab">Indice — comparable entre camps et niveaux</div>
+            <div class="num">${indicePerf(s)===null?"—":indicePerf(s)}</div>
+            <div class="sub">${indicePerf(s)===null?"non calculé pour un départ en 2030, qui n'est pas étalonné":"100 = jouer au hasard dans le même camp et au même niveau"}</div></div>
+        </div>
         <div class="fbox" style="margin-bottom:14px">
           <div class="lab">Température de 2100 vue de chaque tour — votre partie contre le monde réel</div>
           <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px">${g}</svg>
@@ -3819,6 +3921,8 @@ function renderFin(){
    de s.actions — un compte d'actions entier devient un budget continu — donc une
    sauvegarde d'avant ne peut plus être relue telle quelle : mieux vaut le dire que
    la laisser se recharger avec un budget faux. */
+/* La v0.13 ajoute s.scen ; une partie v0.12 n'en a pas et se relit comme un
+   scénario « au hasard ». Le format reste donc « 0.12 ». */
 const SAVE_V="0.12", SAVE_K="heat.partie.v1";
 function serialiser(){
   const s=S;
@@ -4048,7 +4152,7 @@ function finDeTour(){
 }
 
 /* ---------- accueil ---------- */
-let choixCamp="actif", choixLvl=2;
+let choixCamp="actif", choixLvl=2, choixScen="hasard";
 function initHome(){
   // vue compacte des cartes : le choix du joueur s'il en a fait un, sinon active sur téléphone
   let vc=null; try{ vc=localStorage.getItem("heat.compact"); }catch(e){}
@@ -4058,7 +4162,9 @@ function initHome(){
     choixCamp=o.dataset.v; document.querySelectorAll("#optCamp .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o))); renderDocHome();});
   document.querySelectorAll("#optLvl .opt").forEach(o=>o.onclick=()=>{
     choixLvl=+o.dataset.v; document.querySelectorAll("#optLvl .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o)));});
-  $("#start").onclick=()=>{ rng=Date.now()&0x7fffffff; S=newGame(choixCamp,choixLvl);
+  document.querySelectorAll("#optScen .opt").forEach(o=>o.onclick=()=>{
+    choixScen=o.dataset.v; document.querySelectorAll("#optScen .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o)));});
+  $("#start").onclick=()=>{ rng=Date.now()&0x7fffffff; S=newGame(choixCamp,choixLvl,choixScen);
     S.doc.actif={...DOCH.actif}; S.doc.att={...DOCH.att};
     S.hand=[]; S.handAI=[]; refill(S); refillAI(S); sel=null; PV=null; BILAN=null; render(); sauverAuto();
     if(!GUIDE_VU) setTimeout(()=>guideOuvrir(0),420); };

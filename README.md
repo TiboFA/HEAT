@@ -37,6 +37,13 @@ Un guide en huit étapes s'ouvre à la première partie.
   2100 à contraintes figées.
 - **Le climat tient en une ligne** : `T = 1,0 + 0,00058 × CO₂ cumulé depuis 2015`.
   Ne rien faire donne **3,48 °C**.
+- **Treize événements**, dont trois de palier qui n'apparaissent qu'au-delà de
+  1,6, 1,8 et 2,0 °C. Les catastrophes deviennent plus fréquentes à mesure que
+  le monde se réchauffe.
+- **Trois scénarios de départ** : 2015 au hasard, 2015 selon l'histoire réelle,
+  ou 2030 après quinze ans d'inaction.
+- **Un budget de puissance** par tour, qui suit la crédibilité, pour les deux
+  camps.
 
 ## Structure du dépôt
 
