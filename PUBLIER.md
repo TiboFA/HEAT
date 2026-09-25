@@ -66,8 +66,13 @@ Deux fichiers sont produits : `jeu.html` (le nom stable, celui qu'on ouvre) et
 `jeu/`. Le numéro de version vient du `<title>` de `a_head.html` — c'est le seul
 endroit à modifier pour changer de version, avec `SAVE_V` dans `d_js.txt`.
 
-Avant de publier, faire tourner au minimum `outils/play3.py` et
-`outils/calib3.py` — voir le README.
+Avant de publier : `python3 outils/verifier.py` depuis la racine. Il vérifie
+d'abord que `jeu/jeu.html` est bien ce que produisent les sources, puis lance les
+harnais de référence — voir le README. Le même contrôle tourne sur GitHub à
+chaque push.
+
+**Ne jamais modifier `jeu/jeu.html` directement** : `build.py` l'écrase. Toute
+modification passe par `jeu/src/`.
 
 ## Ce qui ne doit pas entrer dans le dépôt
 
