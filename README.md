@@ -37,6 +37,13 @@ Un guide en huit étapes s'ouvre à la première partie.
   2100 à contraintes figées.
 - **Le climat tient en une ligne** : `T = 1,0 + 0,00058 × CO₂ cumulé depuis 2015`.
   Ne rien faire donne **3,48 °C**.
+- **Treize événements**, dont trois de palier qui n'apparaissent qu'au-delà de
+  1,6, 1,8 et 2,0 °C. Les catastrophes deviennent plus fréquentes à mesure que
+  le monde se réchauffe.
+- **Trois scénarios de départ** : 2015 au hasard, 2015 selon l'histoire réelle,
+  ou 2030 après quinze ans d'inaction.
+- **Un budget de puissance** par tour, qui suit la crédibilité, pour les deux
+  camps.
 
 ## Structure du dépôt
 
@@ -64,14 +71,29 @@ fichiers dans `jeu/`.
 Il n'y a pas d'autre chaîne de construction : c'est délibéré — la contrainte du
 fichier unique est ce qui garde le jeu distribuable par simple copie.
 
-Les harnais de `outils/` ouvrent tous `jeu.html`. Ils n'ont jamais à être
-modifiés lors d'un changement de version.
+Les harnais de `outils/` ouvrent tous `jeu.html`. Ils ne lisent pas les
+constantes de règle directement mais l'état de la partie, pour ne pas avoir à
+être modifiés à chaque changement de version.
+
+**Ne jamais modifier `jeu/jeu.html` à la main** : la modification serait
+effacée au prochain `build.py`. C'est arrivé à la v0.12.
 
 ## Vérifier
 
+```
+python3 outils/verifier.py          # avant toute livraison
+python3 outils/verifier.py --vite   # étalonnage réduit, pour itérer
+```
+
+`verifier.py` commence par reconstruire `jeu/src/` et comparer le résultat à
+`jeu/jeu.html` : un fichier livré modifié à la main, sans passer par les sources,
+fait échouer la vérification. Il enchaîne ensuite les quatre harnais ci-dessous
+et vérifie leurs résultats. Le même contrôle tourne sur GitHub à chaque push
+(`.github/workflows/verifier.yml`).
+
 Les harnais de `outils/` pilotent le jeu dans un Chromium headless
 (`pip install playwright && playwright install chromium`). Les quatre qui
-comptent, à passer avant toute livraison :
+comptent :
 
 | Harnais | Ce qu'il vérifie |
 |---|---|
@@ -109,10 +131,22 @@ arbitrages :
 `PUBLIER.md` décrit la boucle : commit, push, et la mise en place initiale avec
 GitHub Desktop.
 
+Chaque push sur `main` publie aussi le jeu en ligne par GitHub Pages
+(`.github/workflows/pages.yml`) : la page d'accueil du site est `jeu.html`, et
+chaque version archivée reste accessible sous son nom. Le lien se partage plus
+facilement qu'un fichier. Activation, une seule fois : **Settings → Pages →
+Source : GitHub Actions**.
+
+## Licence
+
+Code sous licence MIT (`LICENSE`), contenu — textes des leviers, règles, notes,
+catalogues — sous CC BY-SA 4.0. Le détail est dans `LICENCE-CONTENU.md`.
+
 ## État
 
-Version courante : **v0.11**. `notes/HEAT_note_jeu_v0.11.md` détaille les
-mécaniques ajoutées, les mesures qui les justifient, et ce qui reste ouvert.
+Version courante : voir le numéro sur l'écran d'accueil, et la note la plus
+récente dans `notes/`. Chaque note détaille les mécaniques ajoutées, les mesures
+qui les justifient, et ce qui reste ouvert.
 
 Les sources de `jeu/src/` n'ont jamais existé ailleurs que dans les sessions de
 travail qui ont produit le jeu ; ce dépôt est le premier endroit où elles sont

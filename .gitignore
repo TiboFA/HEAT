@@ -7,3 +7,6 @@ __pycache__/
 # fragments de transfert propres aux sessions de travail
 rel*/
 relay*/
+# verrous Git laissés par un client interrompu — jamais à commiter
+*.lock
+*.lock.*

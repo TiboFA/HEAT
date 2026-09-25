@@ -51,10 +51,16 @@
     <summary>Réglages — difficulté et doctrine</summary>
     <div class="ct" style="margin-top:6px">Difficulté <span>elle ne règle que l'adversaire — vous avez le catalogue entier dès le premier niveau</span></div>
     <div class="opts four" id="optLvl">
-      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3 actions par tour contre vos 4. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
-      <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 4 actions par tour, comme vous, avec les revenus pour les payer.</span></button>
-      <button class="opt" data-v="3"><b>Réaliste</b><span>6 actions par tour contre vos 4. C'est le niveau sur lequel le jeu est calibré.</span></button>
-      <button class="opt" data-v="4"><b>Expert</b><span>7 actions par tour contre vos 4, et de quoi les financer toutes.</span></button>
+      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3,5 points de puissance par tour à crédibilité neutre ; vous, de 4,5 — et chacun entre deux tiers et quatre tiers de ce montant selon sa crédibilité. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
+      <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 4,5 points de puissance par tour à crédibilité neutre, comme vous, avec les revenus pour les payer.</span></button>
+      <button class="opt" data-v="3"><b>Réaliste</b><span>6 points de puissance par tour pour l'adversaire à crédibilité neutre. C'est le niveau sur lequel le jeu est calibré.</span></button>
+      <button class="opt" data-v="4"><b>Expert</b><span>8 points de puissance par tour pour l'adversaire à crédibilité neutre, et de quoi les financer tous.</span></button>
+    </div>
+    <div class="ct" style="margin-top:16px">Scénario <span>où et quand la partie commence</span></div>
+    <div class="opts three" id="optScen">
+      <button class="opt" data-v="hasard" aria-pressed="true"><b>2015, au hasard</b><span>Les événements sont tirés au sort à chaque tour, les catastrophes plus souvent à mesure que le monde se réchauffe.</span></button>
+      <button class="opt" data-v="histoire"><b>2015, l'histoire réelle</b><span>Les deux premiers tours reprennent ce qui s'est vraiment passé — les incendies australiens, la crise du gaz de 2022 — et le journal compare vos émissions de 2020 et 2025 aux émissions mondiales réelles.</span></button>
+      <button class="opt" data-v="tardif"><b>2030, quinze ans perdus</b><span>Personne n'a rien fait depuis l'Accord de Paris. Vous commencez au tour 4, avec quinze ans de CO₂ en plus et quatorze tours pour rattraper.</span></button>
     </div>
     <div class="ct" style="margin-top:16px">Votre doctrine <span>elle décide quels leviers vous seront proposés</span></div>
     <div class="doc home" id="docHome"></div>
@@ -63,12 +69,15 @@
   <details class="hdet">
     <summary>Les règles, en détail</summary>
     <div class="rules">
-      <b>Quatre actions par tour</b>, et tous les leviers ne coûtent pas pareil. Un levier léger prend une action, un
-      <b>levier lourd</b> en prend deux &mdash; ceux qui, à eux seuls, déplacent la trajectoire, retournent l'opinion
-      mondiale ou descendent les plafonds. La carte le dit : <b>⚖ 2 actions</b>. Trente-sept leviers sur 112 sont lourds,
-      et le poids n'est pas décrété : il est mesuré en rejouant chaque levier seul sur un état de partie standard.
-      Vous arbitrez donc chaque tour entre deux grands coups, un grand et deux petits, ou quatre petits.
-      L'adversaire paie exactement le même prix. Cliquez une carte de votre main, puis un bloc sur la carte du monde.
+      <b>Un budget de puissance par tour</b>, et tous les leviers ne coûtent pas pareil. Chaque carte affiche son coût,
+      de 1 à 3,5 points par pas de 0,5 &mdash; la carte le dit : <b>⚖ 1,5 pt</b>. Trente-huit leviers sur 112 sont au
+      minimum (1 point), quarante et un sont <b>lourds</b> (2 points ou plus) et six sont <b>extrêmes</b> (3 points ou
+      plus) : ceux-là, à eux seuls, déplacent la trajectoire, retournent l'opinion mondiale ou descendent les plafonds.
+      Le coût n'est pas décrété, il est mesuré en rejouant chaque levier seul sur un état de partie standard.
+      Votre budget, lui, n'est pas fixe : il suit votre <b>crédibilité</b>, entre 3 points au plus bas et 6 au plus
+      haut (4,5 à crédibilité neutre). Être cru élargit ce que vous pouvez vous permettre de jouer dans le tour ; être
+      discrédité le resserre. Vous arbitrez donc chaque tour entre un ou deux grands coups, ou plusieurs petits.
+      L'adversaire paie la même monnaie ; son budget est fixé par le niveau de difficulté et suit, comme le vôtre, sa crédibilité. Cliquez une carte de votre main, puis un bloc sur la carte du monde.
       Une carte mondiale n'a pas de cible à désigner : un seul clic l'engage. Le <b>i</b> en haut de chaque carte ouvre sa fiche complète :
       mécanisme, ancrage réel daté, limite, contre-levier, et rendement attendu bloc par bloc.<br><br>
       <b>Rien n'est joué avant que vous validiez le tour.</b> Les leviers que vous engagez s'empilent dans le bandeau
@@ -90,7 +99,8 @@
       lui prenez, vous discréditer le crédite d'autant. Vous n'avez pas de levier de réparation — vous remontez quand
       l'autre se fait prendre. La somme n'est pas conservée : l'un perd 14, l'autre gagne 7, et un échange d'accusations
       abîme les deux camps.<br>
-      Elle pèse sur vos paris, jusqu'à 10 points de probabilité. Et surtout elle règle <b>la vitesse à laquelle le soutien
+      Elle pèse sur vos paris, jusqu'à 10 points de probabilité, et sur votre <b>budget de puissance</b> du tour, entre
+      3 et 6 points. Et surtout elle règle <b>la vitesse à laquelle le soutien
       perçu rattrape le soutien réel</b> : de 5 % par tour si l'adversaire a la parole, à 25 % si vous l'avez. C'est la
       vitesse à laquelle ce qui est vrai finit par se savoir.<br>
       Elle bouge aussi sans que personne ne la joue. Tous les quatre tours, la trajectoire tranche : elle a baissé, on
@@ -98,11 +108,19 @@
       émissions au camp actif, une échéance net zéro manquée coûte cher, et <b>un levier qui promet plus qu'il ne rend
       se paie en crédibilité</b>. Enfin la controverse s'oublie : chaque tour, les deux crédibilités reviennent un peu
       vers 50. Une avance ne se met pas en banque, elle s'entretient.<br><br>
-      <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas d'action.<br><br>
+      <b>Les événements ne comptent que s'ils sont attribués.</b> Attribuer coûte 1 attention et ne consomme pas de puissance.
+      Les catastrophes deviennent plus fréquentes à mesure que le monde se réchauffe — deux fois plus à 1,5 °C, trois fois plus à 2 °C —
+      et trois <b>événements de palier</b> n'apparaissent qu'au-delà d'un seuil : récoltes perdues sur plusieurs continents (1,6 °C),
+      exode climatique (1,8 °C), point de bascule (2,0 °C). Aucun événement n'ajoute de contrainte : il déplace l'opinion,
+      le soutien réel ou la friction, jamais les politiques elles-mêmes.<br><br>
       <b>Le climat tient en une ligne :</b> température = 1,0 + 0,00058 × CO₂ cumulé depuis 2015.
+      Le coefficient, 0,58 °C par millier de gigatonnes, est au-dessus de l'estimation centrale du GIEC pour le CO₂ seul
+      (0,45 °C, fourchette probable 0,27 à 0,63). On peut le lire comme incluant grossièrement le réchauffement dû aux autres gaz —
+      méthane, protoxyde d'azote — que le jeu ne modélise pas à part. C'est une simplification assumée, pas une exagération cachée.
       La partie va jusqu'en <b>2100</b> : la température affichée n'est pas une extrapolation, c'est celle que votre partie atteint.
       Sans aucune action, elle finit à <b>3,48 °C</b>, avec des émissions qui montent de 35,5 à environ 57 GtCO₂/an.
-      Le monde réel, lui, est sur 2,60 °C — c'est la ligne grise du graphe.
+      Le monde réel, lui, est sur 2,60 °C — c'est la ligne grise du graphe. C'est la projection des politiques en vigueur
+      du Climate Action Tracker (novembre 2025) ; le Programme des Nations unies pour l'environnement donne jusqu'à 2,8 °C.
       Une partie bien jouée atterrit entre 2,0 et 2,5 °C : l'action paie très largement, et 1,5 °C reste hors d'atteinte depuis 2015.<br><br>
       <b>Croissance et réduction sont des taux annuels.</b> Un bloc laissé libre suit sa tendance, amortie au fil du siècle ;
       un bloc porté à 100 de contrainte voit ses émissions baisser de 5,5 % par an. Un tour applique cinq années de ce régime :
@@ -113,7 +131,7 @@
     </div>
   </details>
 
-  <div class="vers">HEAT v0.11.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.13 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 

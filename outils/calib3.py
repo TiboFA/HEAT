@@ -1,4 +1,4 @@
-# Campagne de calibrage v0.10 — politique neutre : à chaque action, un levier
+# Campagne de calibrage (v0.10, budget lu dans l'état depuis la v0.12) — politique neutre : à chaque action, un levier
 # jouable tiré au hasard. « Premier de la main » n'était pas neutre : l'ordre de
 # la main est l'ordre de tirage pondéré par la doctrine, il corrèle avec rien.
 from playwright.sync_api import sync_playwright
@@ -12,10 +12,12 @@ JS=r"""([camp,lvl,n,passif])=>{
     S=newGame(camp,lvl); S.hand=[];S.handAI=[];refill(S);refillAI(S);
     while(!S.over && S.turn<=NTURNS){
       if(!passif){
-        let k=0;
-        while(k<ACTIONS){
+        // le budget du tour est celui que le jeu donne au joueur (S.actions) :
+        // fixe jusqu'en v0.11, indexé sur la crédibilité depuis la v0.12
+        let k=0; const BUD=S.actions;
+        while(k<BUD){
           // le joueur automatique paie le poids des leviers, comme le joueur humain
-          const j=S.hand.map(card).filter(c=>pds(c)<=ACTIONS-k)
+          const j=S.hand.map(card).filter(c=>pds(c)<=BUD-k)
                         .filter(c=>c.cible!=="bloc"?!jouable(S,c,null,camp):S.blocs.some(b=>!jouable(S,c,b,camp)));
           if(!j.length) break;
           const c=j[Math.floor(rnd()*j.length)];
