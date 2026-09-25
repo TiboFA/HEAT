@@ -46,8 +46,10 @@ Aucun n'ajoute de contrainte (principe n°2). Partie passive vérifiée : **3,48
 | Scénario | Ce qui change |
 |---|---|
 | 2015, au hasard | la partie habituelle |
-| 2015, l'histoire réelle | tour 1 : les méga-incendies australiens de 2019-2020 ; tour 2 : la flambée du gaz de 2022. En fin de tour, le journal compare vos émissions aux émissions réelles de 2020 (≈ 35,0 Gt) et 2025 (≈ 38,1 Gt, estimation), d'après le Global Carbon Project |
+| 2015, l'histoire réelle | tour 1 : les méga-incendies australiens de 2019-2020 (environ 24 millions d'hectares) ; tour 2 : la flambée du gaz de 2022 (quinze fois le prix d'avant-crise au pic d'août). En fin de tour, le journal compare vos émissions aux émissions réelles de 2020 (35,2 Gt) et 2025 (≈ 39,0 Gt, estimation) |
 | 2030, quinze ans perdus | les trois premiers tours se jouent sans personne ; vous commencez au tour 4 avec les ressources de départ, 43 GtCO₂/an et 1,34 °C |
+
+**Sources, vérifiées en septembre 2026.** Émissions : Global Carbon Budget 2025, série brute reprise par Our World in Data. C'est la convention du jeu, qui part de 35,5 Gt en 2015 (35,4 dans la série). Les chiffres mis en avant par le Global Carbon Project déduisent en plus le CO₂ réabsorbé par le ciment, ce qui les abaisse d'environ 0,8 Gt : c'est pourquoi ils annoncent 38,1 Gt pour 2025. La valeur de 2025 est une estimation : 38,6 Gt en 2024, plus les 1,1 % de hausse projetés. La première version de cette note donnait 35,0 et 38,1, mélangeant les deux conventions. Le « monde réel à 2,60 °C » correspond à la projection des politiques en vigueur du Climate Action Tracker (novembre 2025, 2,6 °C) ; le PNUE donne « jusqu'à 2,8 °C », et les règles le disent désormais.
 
 Le départ en 2030 n'est pas étalonné : l'indice de performance (ci-dessous) n'y est pas calculé.
 

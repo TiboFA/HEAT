@@ -1167,13 +1167,17 @@ function poidsEvenement(s,d){
 }
 /* Mode histoire : les deux premiers tours sont déjà écrits. */
 const HISTOIRE={
- 1:{t:"Méga-incendies",bloc:"as",note:"Australie, été 2019-2020 : dix-huit millions d'hectares brûlés."},
- 2:{t:"Flambée du prix de l'énergie",note:"2022 : l'invasion de l'Ukraine fait décupler le prix du gaz en Europe."}
+ 1:{t:"Méga-incendies",bloc:"as",note:"Australie, été 2019-2020 : environ vingt-quatre millions d'hectares brûlés."},
+ 2:{t:"Flambée du prix de l'énergie",note:"2022 : avec l'invasion de l'Ukraine, le gaz européen atteint en août quinze fois son prix d'avant-crise."}
 };
-/* Émissions fossiles mondiales réelles (GtCO₂/an, Global Carbon Project,
-   arrondies ; 2025 est une estimation). Affichées en mode histoire à la
-   fin des tours qui les couvrent. */
-const EMI_REELLES={2020:35.0, 2025:38.1};
+/* Émissions fossiles mondiales réelles, en GtCO₂/an, affichées en mode histoire
+   à la fin des tours qui les couvrent. Source : Global Carbon Budget 2025, série
+   brute reprise par Our World in Data (owid/co2-data) — la même convention que
+   le jeu, qui part de 35,5 en 2015 (série brute : 35,4). Les chiffres mis en
+   avant par le Global Carbon Project déduisent en plus la recarbonatation du
+   ciment et sont plus bas d'environ 0,8 : 38,1 annoncés pour 2025.
+   2020 : 35,16. 2025 : estimation, 38,60 en 2024 + 1,1 % projetés. */
+const EMI_REELLES={2020:{v:35.2}, 2025:{v:39.0,est:true}};
 /* Les scénarios de départ. */
 const SCENARIOS={
  hasard:{nom:"2015, au hasard"},
@@ -2220,7 +2224,7 @@ function finTour(s){
     CRED(s,"actif",-5,"Échéance net zéro "+nzAv+" manquée");
   }
   if(s.scen==="histoire" && EMI_REELLES[s.year])
-    jlog(s,"t","Monde réel en "+s.year+" : environ "+fr(EMI_REELLES[s.year],1)+" GtCO₂/an (Global Carbon Project). Votre partie : "+fr(totE(s),1)+".");
+    jlog(s,"t","Monde réel en "+s.year+" : "+(EMI_REELLES[s.year].est?"environ ":"")+fr(EMI_REELLES[s.year].v,1)+" GtCO₂/an"+(EMI_REELLES[s.year].est?" (estimation)":"")+", d'après le Global Carbon Budget 2025. Votre partie : "+fr(totE(s),1)+".");
   tirerEvenement(s); tirerDefi(s); refill(s); refillAI(s);
   jlog(s,"th","Tour "+s.turn+" — "+s.year+" à "+(s.year+YPT));
   jlog(s,"sh","Mise en place du tour");
