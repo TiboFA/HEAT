@@ -12,7 +12,7 @@ body{margin:0;background:var(--plane);color:var(--ink);
  font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{margin:0;font-weight:600}
 .wrap{max-width:1680px;margin:0 auto;padding:14px}
-button{font:inherit}
+button{font:inherit;color:inherit}   /* sans color:inherit, le titre des boutons d'accueil sortait en noir sur fond sombre */
 
 /* ---------- accueil ---------- */
 #home{max-width:820px;margin:6vh auto;padding:0 18px}
@@ -70,12 +70,22 @@ button{font:inherit}
 #home .rules b{color:var(--ink)}
 
 /* ---------- appli ---------- */
-.app{border:1px solid var(--ring);border-radius:14px;background:var(--surface);overflow:hidden}
-.topbar{display:flex;align-items:center;gap:14px;padding:10px 14px;border-bottom:1px solid var(--ring);
- background:var(--surface-2);flex-wrap:wrap}
+.app{border:1px solid var(--ring);border-radius:14px;background:var(--surface);overflow:clip}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--ring);
+ background:var(--surface-2);flex-wrap:nowrap;position:sticky;top:0;z-index:30}
+.topbar .turn{flex:1 1 auto;min-width:0}.topbar .res{flex:0 0 auto;flex-wrap:nowrap}.topbar .endturn{flex:0 0 auto}
+/* la barre du haut reste visible en faisant défiler : tour, température projetée,
+   ressources et bouton de validation ne sortent plus de l'écran */
+.topbar .proj{color:var(--s-traj-tx);white-space:nowrap}
+/* sur téléphone la barre entière prendrait un quart de l'écran : elle défile avec
+   la page, et seul le bouton de validation reste à portée de pouce, en bas */
+@media (max-width:1320px){.topbar{flex-wrap:wrap}.topbar .res{flex-wrap:wrap}}
+@media (max-width:700px){.topbar{position:static;gap:6px 10px;padding:8px 10px}.topbar .res{font-size:11px}
+ .endturn{position:fixed;left:10px;right:10px;bottom:10px;z-index:40;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+ #game .wrap{padding-bottom:70px}}
 .brand{font-weight:700;letter-spacing:.16em;font-size:12.5px}
 .turn{color:var(--ink-2);font-size:12.5px}.turn b{color:var(--ink);font-variant-numeric:tabular-nums}
-.res{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
+.res{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
 .res div{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:help}
 .res .v{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
 .res .ecr{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:6px;
@@ -662,4 +672,17 @@ u.gl:hover{text-decoration-color:var(--ink)}
 .avn{font-size:12.5px;color:var(--ink)}
 .avn i{display:block;font-style:normal;font-size:10px;color:var(--muted);margin-top:1px}
 .avr{font-size:11px;color:var(--s-percu);line-height:1.35}
+/* ---- v0.13 : ordre du plan, vue compacte, appui long ---- */
+.pmove{display:flex;gap:3px;margin-top:4px}
+.pmove button{border:1px solid var(--ring);background:transparent;border-radius:5px;width:22px;height:18px;
+ line-height:1;font-size:12px;padding:0;cursor:pointer;color:var(--ink-2)}
+.pmove button:hover:not(:disabled){border-color:var(--ink-2);color:var(--ink)}
+.pmove button:disabled{opacity:.3;cursor:default}
+.pchip .pord{font-size:9.5px;color:var(--muted);font-weight:700;margin-right:4px}
+body.compact .card .jauge{display:none}
+body.compact .card .eff{-webkit-line-clamp:1}
+body.compact .card:hover .eff{-webkit-line-clamp:1}
+body.compact .card .meta>.tag:nth-child(n+3):not(.pari):not(.combo){display:none}
+body.compact .card .id>.tag:not(.defi){display:none}
+@media (hover:none){[data-tip]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
 </style>

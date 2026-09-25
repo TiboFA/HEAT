@@ -1866,6 +1866,13 @@ function planKo(){return S.plan.some(e=>e.ko);}
 function V(){return PV||S;}
 function planAjouter(e){ S.plan.push(e); simuler(); }
 function planRetirer(i){ S.plan.splice(i,1); simuler(); }
+/* L'ordre du plan est l'ordre d'application : une redistribution jouée avant une
+   taxe ne donne pas le même résultat qu'après, un levier qui abaisse un seuil de
+   perçu doit précéder celui qui l'exige. Le joueur peut donc le choisir. */
+function planDeplacer(i,d){
+  const j=i+d; if(j<0||j>=S.plan.length) return;
+  [S.plan[i],S.plan[j]]=[S.plan[j],S.plan[i]]; simuler();
+}
 function planVider(){ S.plan=[]; PV=null; }
 function planAttr(){ return S.plan.findIndex(e=>e.k==="attr"); }
 /* combinaisons armées par le plan : test pur, sans rien appliquer */
@@ -2483,9 +2490,28 @@ function resoudre(apres){
 
 const $=q=>document.querySelector(q);
 const tip=()=>$("#tip");
+/* Sur écran tactile il n'y a pas de survol : un appui long (0,45 s) affiche
+   l'explication sous l'élément, et le clic qui suit est absorbé pour ne pas
+   jouer la carte en même temps. Un toucher ailleurs la referme. */
+let TIP_APPUI=false;
+function tipSous(el){
+  const t=tip(); t.innerHTML=el.dataset.tip; t.style.opacity=1;
+  const r=el.getBoundingClientRect(), w=t.offsetWidth, h=t.offsetHeight;
+  let x=Math.min(Math.max(8,r.left),innerWidth-w-8), y=r.bottom+8;
+  if(y+h>innerHeight-8) y=Math.max(8,r.top-h-8);
+  t.style.left=x+'px'; t.style.top=y+'px';
+}
+document.addEventListener('pointerdown',e=>{ if(e.pointerType!=='mouse'){ tip().style.opacity=0; TIP_APPUI=false; } },true);
+document.addEventListener('click',e=>{ if(TIP_APPUI){ TIP_APPUI=false; e.preventDefault(); e.stopPropagation(); } },true);
 function bindTips(root){
   root.querySelectorAll('[data-tip]').forEach(el=>{
     if(el._tb)return; el._tb=1;
+    el.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse'||e._tip) return; e._tip=1;   // l'élément le plus intérieur l'emporte
+      clearTimeout(el._lp); el._lp=setTimeout(()=>{ TIP_APPUI=true; tipSous(el); },450);
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(k=>el.addEventListener(k,()=>clearTimeout(el._lp)));
+    el.addEventListener('contextmenu',e=>{ if(TIP_APPUI) e.preventDefault(); });
     el.addEventListener('mouseenter',()=>{tip().innerHTML=el.dataset.tip;tip().style.opacity=1;});
     el.addEventListener('mousemove',e=>{
       const t=tip(),w=t.offsetWidth,h=t.offsetHeight;
@@ -2515,7 +2541,8 @@ function render(garde){
   const r=s.res[s.camp==="actif"?"actif":"att"];
   const tn=DASHV?Math.max(1,s.turn-1):s.turn, ty=DASHV?s.year-YPT:s.year;
   $("#turn").innerHTML="Tour <b>"+tn+"</b> / "+NTURNS+" · <b>"+ty+" – "+(ty+YPT)+"</b> · "+
-    (s.camp==="actif"?"Climato-actif":"Climato-attentiste")+" · <b>"+fr(DASHV?DASHV.T:s.T,2)+" °C</b>"+
+    (s.camp==="actif"?"Actif":"Attentiste")+" · <b>"+fr(DASHV?DASHV.T:s.T,2)+" °C</b>"+
+    (DASHV?"":` <span class="proj" data-tip="Température atteinte en ${AN_FIN} si plus personne ne joue après ce tour, votre plan compris. Sans action : ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b> en ${AN_FIN}</span>`)+
     (!RESO?` · <span class="lnk" id="ouvrirPartie" data-tip="Sauvegarde automatique, fichier de partie à exporter ou à charger, retour à l'accueil.">partie</span>`:"")+
     (!RESO?` · <span class="lnk" id="ouvrirGuide" data-tip="Rouvre le guide : les huit zones de l'écran, dans l'ordre où on s'en sert.">guide</span>`:"")+
     (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Rouvre le bilan du tour ${BILAN.turn} : ce qui a changé, bloc par bloc, et le journal complet de ce tour.">bilan du tour ${BILAN.turn}</span>`:"");
@@ -2528,7 +2555,7 @@ function render(garde){
     `<div data-tip="${RES_TIP.att}"><span class="pill" style="background:var(--s-percu)"></span>Attention <span class="v">${r.att}</span></div>`+
     (()=>{const e=ecartCred(s,s.camp==="actif"?"actif":"att");
       return `<div data-tip="${RES_TIP.cred}"><span class="pill" style="background:var(--s-base)"></span>Crédibilité <span class="v">${r.cred}</span>`
-        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e:e<0?"−"+Math.abs(e):"à égalité"}${e?" sur l'adversaire":""}</span></div>`;})();
+        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e+" d'avance":e<0?Math.abs(e)+" de retard":"à égalité"}</span></div>`;})();
   const np=S.plan.length;
   $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
     : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+" pt"+(s.actions>1?"s":"")+" restant"+(s.actions>1?"s":"")+")" : "Terminer le tour");
@@ -2677,7 +2704,7 @@ function renderDash(){
    `<div class="cksc" data-tip="<b>Votre score</b><br>Il additionne l'avance prise sur les deux jalons datés, les événements attribués, la contrainte moyenne installée et les verrous juridiques obtenus.<br>Le palier est le repère : il dit ce que vaut la partie, pas seulement le total.">
       <div class="scb">
         <div class="sct"><div class="scf" style="width:${suiv?Math.min(100,Math.round((sc-pal[0])/(suiv[0]-pal[0])*100)):100}%"></div></div>
-        <div class="scl"><span>${sc} pts · <b>${pal[1]}</b></span><span>${suiv?suiv[1]+" à "+suiv[0]:"palier maximal"}</span></div>
+        <div class="scl"><span>${sc} pt${Math.abs(sc)>1?"s":""} · <b>${pal[1]}</b></span><span>${suiv?suiv[1]+" à "+suiv[0]:"palier maximal"}</span></div>
       </div>
     </div>`+
    `<div class="ckk">
@@ -2948,14 +2975,16 @@ function renderPlan(){
   const chips=s.plan.map((e,i)=>{
     if(e.k==="attr") return `<div class="pchip attr${e.ko?" ko":""}">
       <div class="pn">${s.camp==="actif"?"Attribuer l'événement":"Désattribuer l'événement"}</div>
-      <div class="pd">1 attention · ne consomme pas d'action${e.ko?" · <b>"+e.ko+"</b>":""}</div>
+      <div class="pd">1 attention · ne consomme pas de puissance${e.ko?" · <b>"+e.ko+"</b>":""}</div>
+      ${s.plan.length>1?`<div class="pmove"><button data-mv="${i}" data-d="-1" title="Jouer plus tôt"${i===0?" disabled":""}>‹</button><button data-mv="${i}" data-d="1" title="Jouer plus tard"${i===s.plan.length-1?" disabled":""}>›</button></div>`:""}
       <button class="px" data-i="${i}" title="Retirer">×</button></div>`;
     const c=card(e.id), b=e.bk?B(s,e.bk):null;
     const pr=(!e.ko&&PROBA[e.id])?proba(s,c,b,s.camp):null;
     const k=cout_(s,c,e.bk);
     return `<div class="pchip${e.ko?" ko":""}" data-tip="<b>${c.id} — ${c.n}</b><br>${c.mec}">
-      <div class="pn"><i>${c.id}</i>${c.n}</div>
+      <div class="pn">${s.plan.length>1?`<span class="pord">${i+1}.</span>`:""}<i>${c.id}</i>${c.n}</div>
       <div class="pd">${b?b.nom:"mondial"} · ${k}${pr!==null?` · <b class="pr">${pr} % de réussite</b>`:""}${e.ko?" · <b>"+e.ko+"</b>":""}</div>
+      ${s.plan.length>1?`<div class="pmove"><button data-mv="${i}" data-d="-1" title="Jouer plus tôt"${i===0?" disabled":""}>‹</button><button data-mv="${i}" data-d="1" title="Jouer plus tard"${i===s.plan.length-1?" disabled":""}>›</button></div>`:""}
       <button class="px" data-i="${i}" title="Retirer ce levier">×</button></div>`;
   }).join("");
   const act=s.camp==="actif";
@@ -2963,7 +2992,7 @@ function renderPlan(){
   box.className="plan"+(planKo()?" alerte":"");
   box.innerHTML=`
     <div class="phead">
-      <div class="pt">Votre tour <span>${lev.length} levier${lev.length>1?"s":""} engagé${lev.length>1?"s":""} · ${pv.actions} action${pv.actions>1?"s":""} restante${pv.actions>1?"s":""}</span></div>
+      <div class="pt">Votre tour <span>${lev.length} levier${lev.length>1?"s":""} engagé${lev.length>1?"s":""} · ${fmtP(pv.actions)} pt${pv.actions>1?"s":""} de puissance restant${pv.actions>1?"s":""}</span></div>
       <div class="pacts"><span class="lnk" id="pclear">tout retirer</span></div>
     </div>
     <div class="pchips">${chips}</div>
@@ -2987,6 +3016,7 @@ function renderPlan(){
        L'aperçu ci-dessus <b>suppose la réussite</b> : le dé n'est jeté qu'à la validation, et un échec rend la moitié de la mise.</div>`:""}
     ${planKo()?`<div class="pnote ko">Un levier de votre plan n'est plus jouable. Retirez-le pour pouvoir valider le tour.</div>`:""}`;
   box.querySelectorAll(".px").forEach(b=>b.onclick=()=>{ planRetirer(+b.dataset.i); render(); });
+  box.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{ planDeplacer(+b.dataset.mv,+b.dataset.d); render(); });
   $("#pclear").onclick=()=>{ planVider(); render(); };
   bindTips(box);
 }
@@ -3197,7 +3227,10 @@ function renderHand(){
   // renouveler ce qu'on a, et regarder ce qui n'est pas encore ouvert.
   const av=aVenir(s,s.camp==="actif"?"actif":"att");
   const nPool=pool(s,s.camp==="actif"?"actif":"att").length;
-  $("#handHint").innerHTML=s.hand.length+" en main";
+  $("#handHint").innerHTML=s.hand.length+" en main · <span class=\"lnk\" id=\"vueCompacte\" data-tip=\"Réduit chaque carte à son titre, sa puissance, son coût et une ligne d'effet. Tout le reste reste dans la fiche (le <b>i</b>).\">"+(document.body.classList.contains("compact")?"détails":"compact")+"</span>";
+  $("#vueCompacte").onclick=()=>{ const on=document.body.classList.toggle("compact");
+    try{ localStorage.setItem("heat.compact", on?"1":"0"); }catch(e){}
+    render(); };
   $("#handInfo").innerHTML="suite de votre main";
   $("#handCtl").innerHTML=
     `<span class="hcs" data-tip="Votre main est tirée dans les ${nPool} leviers que la progression a ouverts pour votre camp, pondérés par votre doctrine.">${nPool} ouverts</span>`
@@ -3974,6 +4007,9 @@ function finDeTour(){
 /* ---------- accueil ---------- */
 let choixCamp="actif", choixLvl=2;
 function initHome(){
+  // vue compacte des cartes : le choix du joueur s'il en a fait un, sinon active sur téléphone
+  let vc=null; try{ vc=localStorage.getItem("heat.compact"); }catch(e){}
+  if(vc==="1" || (vc===null && matchMedia("(max-width:700px)").matches)) document.body.classList.add("compact");
   const bf=$("#rpfile2"); if(bf) bf.onclick=()=>importerPartie();
   document.querySelectorAll("#optCamp .opt").forEach(o=>o.onclick=()=>{
     choixCamp=o.dataset.v; document.querySelectorAll("#optCamp .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o))); renderDocHome();});
