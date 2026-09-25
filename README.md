@@ -131,6 +131,17 @@ arbitrages :
 `PUBLIER.md` décrit la boucle : commit, push, et la mise en place initiale avec
 GitHub Desktop.
 
+Chaque push sur `main` publie aussi le jeu en ligne par GitHub Pages
+(`.github/workflows/pages.yml`) : la page d'accueil du site est `jeu.html`, et
+chaque version archivée reste accessible sous son nom. Le lien se partage plus
+facilement qu'un fichier. Activation, une seule fois : **Settings → Pages →
+Source : GitHub Actions**.
+
+## Licence
+
+Code sous licence MIT (`LICENSE`), contenu — textes des leviers, règles, notes,
+catalogues — sous CC BY-SA 4.0. Le détail est dans `LICENCE-CONTENU.md`.
+
 ## État
 
 Version courante : voir le numéro sur l'écran d'accueil, et la note la plus
