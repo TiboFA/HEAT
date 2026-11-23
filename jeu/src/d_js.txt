@@ -17,8 +17,12 @@ const T_BASELINE=3.48;              // température de 2100 si personne n'agit (
    annule l'effort — et c'est exactement le raisonnement que ce jeu conteste. */
 const SEUIL_E=20;                   // GtCO₂/an : la ligne d'arrivée
 const E0=35.5;                      // émissions de départ, pour la jauge de progression
-/* le monde réel vu de chaque tour : sa propre projection 2100, qui converge vers 2,60 */
-const GHOST=[3.48,3.20,2.95,2.80,2.74,2.70,2.67,2.65,2.64,2.63,2.62,2.62,2.61,2.61,2.60,2.60,2.60,2.60];
+/* le monde réel vu de chaque tour : sa propre projection 2100, qui converge vers
+   REEL_2100. Valeur du Climate Action Tracker, politiques en vigueur : 2,6 °C en
+   novembre 2025, 2,7 °C en novembre 2026 (mise à jour publiée pendant la COP31).
+   La courbe garde sa forme d'avant la v0.14, remise à l'échelle entre 3,48 et 2,70. */
+const REEL_2100=2.70;
+const GHOST=[3.48,3.23,3.01,2.88,2.82,2.79,2.76,2.74,2.74,2.73,2.72,2.72,2.71,2.71,2.70,2.70,2.70,2.70];
 
 const BDEF=[
  {k:"cn",nom:"Chine",           code:"CN",reg:"auto",e:10.8,g:0.10,reel:55,percu:40,fr:10,dmg:0.9,x:80.5,y:30.5,rich:0.45,rentN:1,
@@ -311,7 +315,7 @@ const CARDS=[
  dw:{d1:80,d2:85,d3:90},rev:"Facile à annuler",rob:"Moyenne",contre:"T02",
  e:"Contrainte +10 et perçu +6 sur l'Inde, l'Afrique, l'Amérique latine et le reste de l'Asie.",
  mec:"Le capital est le facteur limitant des blocs émergents, pas la volonté. Le financement lève directement la contrainte.",
- anc:"100 Md$/an promis en 2009, atteints en 2022 ; nouvel objectif de 300 Md$/an acté à Bakou en 2024.",
+ anc:"100 Md$/an promis en 2009, atteints en 2022 ; objectif de 300 Md$/an d'ici 2035 acté à Bakou en 2024 ; appel à « au moins tripler » la finance d'adaptation d'ici 2035 à Belém en 2025, sans année de référence ; à Antalya en 2026, le chiffrage à 120 Md$/an reste dans un projet jamais adopté.",
  lim:"Sans lui, aucun accord mondial ne tient. Avec lui, la facture est visible chez vous et invisible ailleurs.",
  f:(s)=>{["in","af","la","as"].forEach(k=>{const b=B(s,k);C(s,b,10,"A29");PC(s,b,6);});}},
 
@@ -479,7 +483,7 @@ const CARDS=[
  dw:{d3:60,d4:90},rev:"Difficile à annuler",rob:"Élevée",contre:"T64",
  e:"Contrainte +4 partout dans deux tours, puis +2 par tour ensuite. Aucun effet immédiat.",
  mec:"Ne réduit rien directement : installe un mécanisme de révision périodique qui rend le recul coûteux en réputation.",
- anc:"Accord de Paris, décembre 2015 — le point de départ de cette partie. Trajectoire mondiale passée de 3,6 °C à 2,6 °C entre 2015 et 2025.",
+ anc:"Accord de Paris, décembre 2015 — le point de départ de cette partie. Trajectoire mondiale passée de 3,6 °C à 2,6 °C entre 2015 et 2025, puis remontée à 2,7 °C en 2026.",
  lim:"Aucune sanction. Tout repose sur la transparence et la pression des pairs.",
  f:(s)=>{s.cliquet=1;s.blocs.forEach(b=>b.pend.push({t:2,v:4,src:"A65"}));}},
 
@@ -598,7 +602,7 @@ const CARDS=[
  e:"Perçu −10, et −16 dès que le réchauffement dépasse 1,6 °C.",
  mec:"Regarder les chiffres en face : le budget 1,5 °C est presque épuisé, les émissions mondiales n'ont pas encore baissé. Promettre l'inverse entretient une illusion qui se paiera en désillusion.",
  anc:"Montée documentée de l'éco-anxiété résignée chez les moins de 25 ans depuis 2020.",
- lim:"Le constat est exact, la conclusion ne l'est pas : chaque dixième de degré évité compte, et la trajectoire mondiale est passée de 3,6 °C à 2,6 °C entre 2015 et 2025. Le levier se renforce mécaniquement quand la partie se dégrade — c'est pourquoi montrer ce qui a marché est le seul contre efficace.",
+ lim:"Le constat est exact, la conclusion ne l'est pas : chaque dixième de degré évité compte, et la trajectoire mondiale est passée de 3,6 °C à 2,6 °C entre 2015 et 2025 — avant de remonter à 2,7 °C en 2026, faute de politiques nouvelles. Le levier se renforce mécaniquement quand la partie se dégrade — c'est pourquoi montrer ce qui a marché est le seul contre efficace.",
  f:(s,b)=>{PC(s,b,-(s.T>1.6?16:10));}},
 /* ---------- ATTENTISTE · institutionnel, judiciaire ---------- */
 {id:"T13",c:"att",n:"Représentation d'intérêts",alias:"lobbying d'obstruction",fam:"Institutionnel",cible:"bloc",cap:3,
@@ -842,7 +846,7 @@ const CARDS=[
  dw:{d1:80,d2:70,d4:60},rev:"Difficile à annuler",rob:"Élevée",contre:"A65",
  e:"Les sommets internationaux restent sans effet pendant trois tours, et tous les effets différés en cours sont retardés d'un tour.",
  mec:"Aucun vote : il suffit qu'un État s'oppose pour que le texte tombe au niveau du plus petit dénominateur. La procédure fait le travail de l'argument.",
- anc:"Règle du consensus de la CCNUCC, jamais formellement adoptée mais appliquée depuis 1995. Sortie des fossiles écartée du texte final à répétition, COP28 puis COP29.",
+ anc:"Règle du consensus de la CCNUCC, jamais formellement adoptée mais appliquée depuis 1995. Sortie des fossiles : la COP28 (Dubaï, 2023) écrit « transition hors des fossiles » plutôt que sortie ; la COP30 (Belém, 2025) retire du texte final la feuille de route que soutenaient plus de 80 pays ; la COP31 (Antalya, 2026) s'achève sans accord — le texte de compromis, muet sur les fossiles, est rejeté par l'Union européenne et les petits États insulaires, et le pacte d'Antalya n'est pas adopté.",
  lim:"Rien n'est annulé, tout est reporté. Contre un mécanisme à cliquet déjà installé, l'effet est nul.",
  f:(s)=>{s.sommetOff=3;s.blocs.forEach(b=>{b.pend.forEach(x=>x.t++);});s.techPend.forEach(x=>x.t++);}},
 
@@ -986,7 +990,7 @@ const CARDS=[
  dw:{d1:80,d2:70,d4:55},rev:"Facile à annuler",rob:"Élevée",contre:"A66",
  e:"Chaque effet différé en attente perd 3 de contrainte, et le prochain sommet international reste sans effet.",
  mec:"Il n'est pas nécessaire de bloquer : il suffit d'être assez nombreux dans la salle pour que chaque formulation soit négociée jusqu'à ne plus rien exiger.",
- anc:"Plus de 2 400 personnes affiliées aux énergies fossiles accréditées à la COP28, 2023 — davantage que la quasi-totalité des délégations nationales.",
+ anc:"Plus de 2 400 personnes affiliées aux énergies fossiles accréditées à la COP28, 2023 — davantage que la quasi-totalité des délégations nationales. À la COP31 (Antalya, 2026), une soixantaine de groupes de l'industrie fossile ont leur délégation, Exxon en tête avec treize personnes ; selon la coalition Kick Big Polluters Out, les délégations des grands pollueurs y sont cent fois plus nombreuses que celle de Saint-Vincent-et-les-Grenadines.",
  lim:"On dilue un texte en préparation, pas un texte déjà entré en vigueur.",
  f:(s)=>{s.blocs.forEach(b=>{b.pend.forEach(x=>{x.v=Math.max(0,x.v-3);});});s.sommetOff=Math.max(s.sommetOff,1);}},
 
@@ -2449,7 +2453,7 @@ function choixActif(s,bud){
 function bilan(s){
   const T=projeter(s);
   const evite=+(T_BASELINE-T).toFixed(2);
-  const vsReel=+(2.60-T).toFixed(2);
+  const vsReel=+(REEL_2100-T).toFixed(2);
   let rang,verdict;
   /* Le verdict dépend du camp joué : à 2,1 °C, le joueur attentiste a perdu.
      Jusqu'en v0.12, il lisait « Victoire nette » quel que soit son camp. */
@@ -2465,7 +2469,7 @@ function bilan(s){
       contr:Math.round(s.blocs.reduce((a,b)=>a+b.contr*b.e,0)/Math.max(totE(s),.01))};
   }
   if(T<1.90){rang="Exceptionnel";verdict="Vous finissez sous 1,9 °C. C'est au-delà de ce que le monde réel a obtenu et à la limite haute du plausible — vérifiez le niveau auquel jouait l'adversaire.";}
-  else if(T<2.20){rang="Victoire nette";verdict="Vous êtes dans la zone de victoire du camp actif. Le monde réel, lui, est à 2,6 °C.";}
+  else if(T<2.20){rang="Victoire nette";verdict="Vous êtes dans la zone de victoire du camp actif. Le monde réel, lui, est à 2,7 °C.";}
   else if(T<2.80){rang="Zone grise";verdict="C'est là que se joue réellement la partie. Vous avez évité le pire sans obtenir la bascule.";}
   else if(T<3.50){rang="Victoire attentiste";verdict="Le camp du statu quo l'emporte. Les actifs sont préservés, dans un monde qui ne l'est pas.";}
   else {rang="Défaite des deux camps";verdict="Au-delà de 3,5 °C, le camp attentiste perd aussi : ses propres actifs sont atteints.";}
@@ -2826,7 +2830,7 @@ function renderDash(){
   const sc=D?D.sc:score(s), pal=palier(sc), suiv=palierSuivant(sc);
   const proj=D?D.proj:projeter(s);
   const t1 = act
-   ? "<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Sans aucune action : 3,48 °C. Le monde réel : 2,60 °C."
+   ? "<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Sans aucune action : 3,48 °C. Le monde réel : 2,70 °C."
    : "<b>Ce que vous préservez</b><br>Votre objectif n'est pas que rien ne change : c'est de préserver la valeur des actifs et d'éviter les coûts d'ajustement.";
   const kc=(lab,val,unit,tip)=>`<div class="ckc" data-tip="${tip}"><span>${lab}</span><b>${val}${unit?"<small>"+unit+"</small>":""}</b></div>`;
   $("#dash").innerHTML=
@@ -2838,7 +2842,7 @@ function renderDash(){
    `<div class="ckm" data-tip="<b>Où finit votre partie</b><br>Le modèle est rejoué du tour courant jusqu'en ${AN_FIN}, contraintes figées à leur niveau actuel. Ce n'est pas une extrapolation : c'est la température que votre partie atteindra si plus rien ne bouge.<br>Zone de victoire du camp actif : sous 2,2 °C. Zone grise : 2,2 à 2,8 °C.">
       <span class="ct">${S.turn>NTURNS?"Résultat "+AN_FIN:"Trajectoire "+AN_FIN}${pf}</span>
       <div class="hv">${fr(proj,2)} °C</div>
-      <div class="hs">réel 2,60 · sans action 3,48</div>
+      <div class="hs">réel 2,70 · sans action 3,48</div>
     </div>`+
    `<div class="cksc" data-tip="<b>Votre score</b><br>Il additionne l'avance prise sur les deux jalons datés, les événements attribués, la contrainte moyenne installée et les verrous juridiques obtenus.<br>Le palier est le repère : il dit ce que vaut la partie, pas seulement le total.">
       <div class="scb">
@@ -3857,7 +3861,7 @@ function renderFin(){
         </div>
         <div class="finrow" style="margin-bottom:14px">
           <div class="fbox"><div class="lab">Température atteinte en ${AN_FIN}</div><div class="num">${fr(b.T,2)} °C</div>
-            <div class="sub">monde réel 2,60 °C · sans action 3,48 °C</div></div>
+            <div class="sub">monde réel 2,70 °C · sans action 3,48 °C</div></div>
           <div class="fbox"><div class="lab">${act?"Réchauffement évité":"Actifs préservés"}</div>
             <div class="num">${act?fr(b.evite,2)+" °C":b.actifs+" Md$"}</div>
             <div class="sub">${act?"par rapport à la trajectoire sans vous":b.evitees+" mesures contraignantes évitées"}</div></div>
@@ -4082,7 +4086,7 @@ const GUIDE=[
  {s:"#advPanel", t:"Quelqu'un joue contre vous",
   d:"L'adversaire joue après vous, à chaque tour. Vous ne voyez jamais sa main — vous voyez <b>ce qu'il a joué</b>, où, et quand c'est le contre-levier d'un des vôtres. Les chiffres rouges sur la carte comptent ses coups par bloc. Ce qu'il a installé continue d'agir sans qu'il ait à y revenir."},
  {s:".cockpit", t:"Où finit la partie",
-  d:"La <b>trajectoire 2100</b> n'est pas une extrapolation : c'est le modèle rejoué jusqu'au bout, contraintes figées. Si plus rien ne bougeait, la partie finirait là. La courbe garde la même lecture tour après tour ; la ligne grise est le monde réel, à 2,60 °C."},
+  d:"La <b>trajectoire 2100</b> n'est pas une extrapolation : c'est le modèle rejoué jusqu'au bout, contraintes figées. Si plus rien ne bougeait, la partie finirait là. La courbe garde la même lecture tour après tour ; la ligne grise est le monde réel, à 2,70 °C."},
  {s:"#endturn", t:"Fin de tour",
   d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et le journal complet. <b>Dix-sept tours, de 2015 à 2100.</b>"}
 ];
