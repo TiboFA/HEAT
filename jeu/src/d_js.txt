@@ -4171,6 +4171,8 @@ let choixCamp="actif", choixLvl=2, choixScen="hasard";
    PASSIF_T est la température atteinte à chaque tour sans aucun coup joué
    (moteur du jeu, v0.15), interpolée année par année. */
 const BANDES_OBS=[-0.07,0.09,0.13,0.1,0.06,0.07,0.03,-0.11,-0.04,0.07,-0.05,-0.11,-0.2,-0.03,-0.14,-0.03,-0.04,-0.04,-0.01,0.04,0.03,-0.02,0.05,0.04,-0.01,-0.01,-0.05,0.27,0.37,0.07,0.05,0.14,0.09,0.03,-0.12,-0.1,-0.05,-0.13,-0.02,0.11,-0.14,-0.04,-0.15,-0.14,-0.12,-0.08,0.08,0.1,-0.12,0.01,0.13,0.07,-0.08,-0.18,-0.24,-0.05,0.04,-0.14,-0.15,-0.18,-0.16,-0.18,-0.12,-0.11,0.1,0.17,-0.06,-0.19,-0.07,0.02,0.05,0.12,0.02,0.04,0.05,0.08,0.24,0.13,0.15,-0.03,0.19,0.25,0.21,0.03,0.18,0.14,0.19,0.34,0.34,0.32,0.43,0.39,0.36,0.36,0.5,0.4,0.23,0.26,0.23,0.2,0.12,0.29,0.37,0.43,0.24,0.16,0.09,0.32,0.34,0.31,0.24,0.34,0.3,0.33,0.06,0.16,0.21,0.24,0.19,0.33,0.27,0.15,0.27,0.41,0.19,0.25,0.15,0.46,0.36,0.45,0.55,0.6,0.39,0.58,0.4,0.4,0.45,0.6,0.63,0.53,0.71,0.69,0.48,0.52,0.58,0.73,0.63,0.77,0.93,0.68,0.68,0.84,0.89,0.9,0.82,0.96,0.92,0.94,0.82,0.95,1.03,0.89,0.93,0.98,1.03];
+/* Le dernier réchauffement annuel observé, même série et même base que BANDES_OBS. */
+const OBS_RECENT={an:2025, t:1.41};
 const PASSIF_T=[1,1.107,1.222,1.344,1.473,1.607,1.747,1.892,2.04,2.192,2.346,2.503,2.662,2.822,2.984,3.147,3.311,3.475];
 const BANDES_PAL=[[8,48,107],[33,102,172],[67,147,195],[146,197,222],[209,229,240],[253,219,199],[244,165,130],[214,96,77],[178,24,43],[103,0,13],[60,0,8]];
 function couleurBande(v){
@@ -4188,6 +4190,13 @@ function renderBandes(){
   }
   box.innerHTML=h;
   $("#an2015").style.left=((AN0-1850)/(AN_FIN-1850+1)*100)+"%";
+  // où en est le monde réel aujourd'hui : l'année en cours d'après l'horloge, le dernier réchauffement observé
+  const ici=Math.max(AN0,Math.min(AN_FIN,new Date().getFullYear()));
+  const hi=$("#heroIci");
+  hi.style.left=((ici-1850+0.5)/(AN_FIN-1850+1)*100)+"%";
+  hi.innerHTML=`<b>Aujourd'hui · ${ici}</b><span>+${fr(OBS_RECENT.t,2)} °C observés en ${OBS_RECENT.an}</span>`;
+  hi.dataset.tip=`Le monde réel en est là : ${fr(OBS_RECENT.t,2)} °C au-dessus de 1850-1900 en ${OBS_RECENT.an} (NOAA). La partie commence en ${AN0} : les ${ici-AN0} années qui séparent ${AN0} d'aujourd'hui se rejouent, autrement.`;
+  bindTips($("#home"));
   $("#heroT").innerHTML=`<b>${fr(T_BASELINE,2)} °C</b><small>en ${AN_FIN} si personne n'agit · monde réel : ${fr(REEL_2100,2)} °C</small>`;
 }
 function initHome(){
