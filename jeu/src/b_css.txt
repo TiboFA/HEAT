@@ -1005,4 +1005,8 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .dsec>span:not(.lnk){font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;letter-spacing:.04em}
 .dsec b{color:var(--wire-hi)}
 .dsec .lnk{color:var(--wire)}
+/* ---- écran tactile (v0.16.6) ---- pas de menu de sélection sur l'appui long */
+.tactile{display:none}
+@media (hover:none){.tactile{display:inline}
+ [data-tip]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
 </style>

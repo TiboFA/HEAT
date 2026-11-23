@@ -2644,7 +2644,11 @@ const $=q=>document.querySelector(q);
 const tip=()=>$("#tip");
 /* Sur écran tactile il n'y a pas de survol : un appui long (0,45 s) affiche
    l'explication sous l'élément, et le clic qui suit est absorbé pour ne pas
-   jouer la carte en même temps. Un toucher ailleurs la referme. */
+   jouer la carte en même temps. Un toucher ailleurs la referme.
+   v0.16.6 : un tap court sur un élément qui ne fait rien d'autre (tuile, jauge,
+   intitulé) affiche aussi son explication ; sur un élément cliquable, il ne fait
+   que l'action. Le survol simulé que le navigateur envoie après un toucher est
+   ignoré : seule une vraie souris ouvre l'infobulle au survol. */
 let TIP_APPUI=false;
 function tipSous(el){
   const t=tip(); t.innerHTML=el.dataset.tip; t.style.opacity=1;
@@ -2655,24 +2659,40 @@ function tipSous(el){
 }
 document.addEventListener('pointerdown',e=>{ if(e.pointerType!=='mouse'){ tip().style.opacity=0; TIP_APPUI=false; } },true);
 document.addEventListener('click',e=>{ if(TIP_APPUI){ TIP_APPUI=false; e.preventDefault(); e.stopPropagation(); } },true);
+// un élément « agit » s'il a son propre clic : le tap court lui revient
+function agit(el){
+  for(let n=el;n&&n!==document.body;n=n.parentElement){
+    if(n.onclick||n.matches('button,a,input,select,label,summary,.card,.lnk,.opt,.mini,[data-fiche],[data-masq]')) return true;
+  }
+  return false;
+}
 function bindTips(root){
   root.querySelectorAll('[data-tip]').forEach(el=>{
     if(el._tb)return; el._tb=1;
     el.addEventListener('pointerdown',e=>{
       if(e.pointerType==='mouse'||e._tip) return; e._tip=1;   // l'élément le plus intérieur l'emporte
+      el._t0=Date.now(); el._x0=e.clientX; el._y0=e.clientY;
       clearTimeout(el._lp); el._lp=setTimeout(()=>{ TIP_APPUI=true; tipSous(el); },450);
     });
-    ['pointerup','pointercancel','pointerleave'].forEach(k=>el.addEventListener(k,()=>clearTimeout(el._lp)));
+    el.addEventListener('pointerup',e=>{
+      if(e.pointerType==='mouse'||e._tipu) return; e._tipu=1;
+      clearTimeout(el._lp);
+      const court=el._t0&&Date.now()-el._t0<450&&Math.hypot(e.clientX-el._x0,e.clientY-el._y0)<10;
+      el._t0=0;
+      if(court&&!agit(el)) tipSous(el);
+    });
+    ['pointercancel','pointerleave'].forEach(k=>el.addEventListener(k,()=>clearTimeout(el._lp)));
     el.addEventListener('contextmenu',e=>{ if(TIP_APPUI) e.preventDefault(); });
-    el.addEventListener('mouseenter',()=>{tip().innerHTML=el.dataset.tip;tip().style.opacity=1;});
-    el.addEventListener('mousemove',e=>{
+    el.addEventListener('pointerenter',e=>{ if(e.pointerType!=='mouse') return; tip().innerHTML=el.dataset.tip;tip().style.opacity=1;});
+    el.addEventListener('pointermove',e=>{
+      if(e.pointerType!=='mouse') return;
       const t=tip(),w=t.offsetWidth,h=t.offsetHeight;
       let x=e.clientX+14,y=e.clientY+14;
       if(x+w>innerWidth-8)x=e.clientX-w-14;
       if(y+h>innerHeight-8)y=e.clientY-h-14;
       t.style.left=x+'px';t.style.top=y+'px';
     });
-    el.addEventListener('mouseleave',()=>tip().style.opacity=0);
+    el.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse') tip().style.opacity=0; });
   });
 }
 const RES_TIP={
