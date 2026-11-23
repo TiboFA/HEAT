@@ -801,4 +801,102 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mqrow{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ring);padding:8px 0}
 .mqrow b{display:block;font-size:13px}.mqrow span{font-size:11.5px;color:var(--muted)}
 .sideR.advReduit #advPanel{display:none}
+/* ==================== v0.16 : nouvelle disposition du plateau ==================== */
+/* 8 · barre du haut : la puissance en jauge */
+.pui .jg{display:inline-flex;gap:2px;margin-left:5px}
+.pui .jg i{width:10px;height:9px;border:1px solid var(--wire);border-radius:2px}
+.pui .jg i.u{background:var(--wire)}.pui .jg i.h{background:linear-gradient(90deg,var(--wire) 50%,transparent 50%)}
+/* 2 · la ligne « Ce tour » */
+.cetour{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--ring);background:var(--surface-2)}
+.cetour .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700;margin-right:4px;cursor:help}
+.pl{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ring);border-left-width:3px;border-radius:7px;padding:3px 9px;
+ font-size:11.5px;color:var(--ink-2);background:var(--surface);cursor:help;max-width:100%}
+.pl b{color:var(--ink);font-weight:600;white-space:nowrap}
+.pl i{font-style:normal;color:var(--muted);font-size:10.5px}
+.pl .mini{padding:2px 8px;font-size:10.5px}
+.pl.pev{border-left-color:var(--s-percu)}.pl.pev.cold{border-left-color:var(--muted)}.pl.pev.done{border-left-color:var(--s-reel)}
+.pl.obj{border-left-color:var(--wire)}.pl.obj.ok{border-left-color:var(--s-reel)}
+.objb{display:inline-block;width:60px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.objb span{display:block;height:100%;background:var(--wire)}
+.pl.defi{border-left-color:var(--s-percu)}.pl.defi.ok{border-left-color:var(--s-reel)}.pl.defi.warn{border-left-color:var(--s-fric)}
+.pl.ag.g{border-left-color:var(--s-reel)}.pl.ag.r{border-left-color:var(--s-fric)}.pl.ag.h{border-left-color:var(--muted);opacity:.75}
+.pl.ag.adv{border-left-color:var(--wire-hot)}
+@media(max-width:900px){.pl i{display:none}.pl.pev i{display:inline}}
+/* disposition : carte + colonne de droite, puis le plan et la main sur toute la largeur */
+.board{grid-template-columns:minmax(0,1fr) 300px}
+.sideR{max-height:none;overflow:visible}
+.jourw{position:relative;flex:1 1 auto;min-height:140px}
+.jourw .jour{position:absolute;inset:0;max-height:none;overflow:auto}
+.sideR #docPanel .dsum{display:block;font-size:11px;line-height:1.5;color:var(--ink-2)}
+.sideR #docPanel .dsum span{display:inline;color:var(--s-traj-tx);cursor:help}
+.sideR #docPanel .dsum span+span::before{content:" · ";color:var(--muted)}
+.sideR #docPanel .dsum i{display:none}
+@media (max-width:1560px){.pui .jg{display:none}}
+/* 5 · le geste guidé */
+.mapcol{position:relative}
+.consigne{display:none;position:absolute;left:50%;top:18px;transform:translateX(-50%);z-index:6;background:#0c2a36;border:1px solid #8fd3ff;
+ color:#dff3ff;border-radius:999px;padding:6px 15px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.consigne.on{display:block}
+.consigne kbd{font:10.5px ui-monospace,Menlo,Consolas,monospace;border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:0 5px}
+.consigne .lnk{color:#dff3ff}
+.bl.hors{fill-opacity:.18;stroke:rgba(63,183,166,.3)}
+.gp.hors{opacity:.8}
+.gp .why{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:3px;white-space:nowrap;font:600 10px ui-monospace,Menlo,Consolas,monospace;
+ color:var(--wire-hot);background:rgba(6,9,11,.85);border-radius:4px;padding:1px 5px;pointer-events:none}
+/* 7 · le tableau de bord */
+.cockpit{padding:8px}
+.dash{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tl{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
+.tl .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
+.tl b small{font-size:11px;color:var(--muted);font-weight:500}
+.tl.proj b{color:var(--wire-hot)}
+.tl .s{display:block;font-size:10.5px;color:var(--muted)}
+.dd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}.dd.bon{color:#4fd18b}.dd.mal{color:var(--wire-hot)}
+.dsec{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:11px;color:var(--muted)}
+.dsec b{color:var(--ink-2);font-family:ui-monospace,Menlo,Consolas,monospace}
+.dsec .lnk{margin-left:auto}
+.trajb svg{display:block;width:100%;height:auto}
+/* 3 · le plan */
+.plan{border-top:1px solid var(--ring);border-bottom:0;background:#0f1415;padding:8px 14px}
+.plan .pmsg{font-size:11.5px;color:var(--muted)}
+.pk{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700;margin-right:8px}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prow .pchips{display:flex;gap:6px;flex-wrap:wrap}
+.psum{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2)}
+.psum b{color:var(--ink)}
+.psum .pdd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+.psum .pdd.bon{color:#4fd18b}.psum .pdd.mal{color:var(--wire-hot)}
+/* 1 + 4 · la main */
+.handbar{border-top:1px solid var(--ring);padding:9px 14px 12px}
+.hbh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.hbt{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700}
+#handHint{font-size:11px;color:var(--muted)}
+.tri{display:flex;gap:4px}
+.tri span{border:1px solid var(--ring);border-radius:999px;padding:1px 9px;font-size:11px;color:var(--ink-2);cursor:pointer}
+.tri span.on{border-color:var(--wire);color:var(--wire)}
+.handbar .hctl{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:11px;padding:0;border:0}
+#hand .hand{display:flex;flex-direction:row;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+#hand .card{flex:0 0 206px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px;padding:8px 10px}
+#hand .card h4{font-size:12.5px;line-height:1.25;padding-right:0}
+#hand .card .eff{font-size:11px;-webkit-line-clamp:2}
+#hand .card:hover .eff{-webkit-line-clamp:4}
+.lvh{display:flex;gap:6px;align-items:center;font-size:10px;padding-right:38px}
+.lvid{font:700 10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.lvh .scope{font-size:10px}
+.dw{border-radius:999px;padding:0 6px;font-weight:700;font-size:9.5px;cursor:help}
+.dw.aligné{background:rgba(43,183,132,.16);color:#4fd18b}.dw.neutre{background:rgba(255,255,255,.06);color:var(--muted)}.dw.opposé{background:rgba(255,122,61,.14);color:var(--wire-hot)}
+.lvc{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11.5px;margin-top:auto}
+.lvc .pts{font:700 11.5px ui-monospace,Menlo,Consolas,monospace;color:var(--wire);cursor:help}
+.lvc .pts.l{color:#e0b04a}.lvc .pts.x{color:var(--wire-hot)}
+.rc{display:inline-flex;align-items:center;gap:4px;color:var(--ink-2)}
+.rc::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c,transparent)}
+.lvi{display:flex;gap:4px;flex-wrap:wrap;min-height:17px}
+.ic{font-size:10px;color:var(--muted);border:1px solid var(--ring);border-radius:4px;padding:0 5px;cursor:help;white-space:nowrap}
+.ic.plan{color:var(--wire);border-color:rgba(63,183,166,.5)}.ic.defi{color:#e0b04a;border-color:rgba(224,176,74,.4)}
+.ic.pari{color:#e0b04a}.ic.combo{color:#b0a6f5}.ic.ko{color:var(--wire-hot);border-color:rgba(255,122,61,.4)}
+#hand .card.no{opacity:.5}
+@media (max-width:1180px){.board{grid-template-columns:1fr}.jourw{min-height:0}.jourw .jour{position:static;max-height:280px}}
+@media (max-width:700px){.gp .why{display:none}.topbar .res{flex:1 1 100%;flex-wrap:wrap}.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.psum{margin-left:0}.handbar .hctl{margin-left:0}
+ .consigne{position:static;transform:none;white-space:normal;margin:6px;border-radius:8px;text-align:center}}
 </style>
