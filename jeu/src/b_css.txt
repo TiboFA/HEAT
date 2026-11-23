@@ -899,4 +899,18 @@ body.compact .card .id>.tag:not(.defi){display:none}
 @media (max-width:1180px){.board{grid-template-columns:1fr}.jourw{min-height:0}.jourw .jour{position:static;max-height:280px}}
 @media (max-width:700px){.gp .why{display:none}.topbar .res{flex:1 1 100%;flex-wrap:wrap}.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.psum{margin-left:0}.handbar .hctl{margin-left:0}
  .consigne{position:static;transform:none;white-space:normal;margin:6px;border-radius:8px;text-align:center}}
+/* ---- fiche de levier filaire (v0.16.2) ---- */
+.finmap.fmap{margin:6px 0 10px}
+.finmap.fmap .fin-lb{font-size:66px;stroke-width:12px}.finmap.fmap .fin-lb .c{font-size:74px}
+.mb.fiche .fl-sec h5{color:var(--wire);letter-spacing:.1em}
+.mh .fl-fam{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire);border-color:rgba(63,183,166,.4)}
+.mb.fiche .fl-kv{border-color:rgba(63,183,166,.2);background:var(--surface-2)}
+.mb.fiche .fl-kv b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px}
+.mb.fiche .fl-doc{border-color:rgba(63,183,166,.2);border-left-color:var(--wire)}
+.mb.fiche .fl-net{border-top-color:rgba(63,183,166,.15)}
+.mb.fiche .fl-t th{color:var(--wire)}
+.mb.fiche .fl-t td{border-bottom-color:rgba(63,183,166,.08)}
+.mb.fiche .fl-t td:last-child b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.mb.fiche .fl-al{border-left:2px solid var(--wire-hot);padding-left:8px}
+@media (max-width:560px){.finmap.fmap .fin-lb{display:inline}.finmap.fmap .fin-lb tspan+tspan{display:none}.finmap.fmap .fin-lb .c{font-size:90px}}
 </style>

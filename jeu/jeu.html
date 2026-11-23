@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.16.1</title>
+<title>HEAT — version jouable v0.16.2</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -910,6 +910,20 @@ body.compact .card .id>.tag:not(.defi){display:none}
 @media (max-width:1180px){.board{grid-template-columns:1fr}.jourw{min-height:0}.jourw .jour{position:static;max-height:280px}}
 @media (max-width:700px){.gp .why{display:none}.topbar .res{flex:1 1 100%;flex-wrap:wrap}.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.psum{margin-left:0}.handbar .hctl{margin-left:0}
  .consigne{position:static;transform:none;white-space:normal;margin:6px;border-radius:8px;text-align:center}}
+/* ---- fiche de levier filaire (v0.16.2) ---- */
+.finmap.fmap{margin:6px 0 10px}
+.finmap.fmap .fin-lb{font-size:66px;stroke-width:12px}.finmap.fmap .fin-lb .c{font-size:74px}
+.mb.fiche .fl-sec h5{color:var(--wire);letter-spacing:.1em}
+.mh .fl-fam{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire);border-color:rgba(63,183,166,.4)}
+.mb.fiche .fl-kv{border-color:rgba(63,183,166,.2);background:var(--surface-2)}
+.mb.fiche .fl-kv b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px}
+.mb.fiche .fl-doc{border-color:rgba(63,183,166,.2);border-left-color:var(--wire)}
+.mb.fiche .fl-net{border-top-color:rgba(63,183,166,.15)}
+.mb.fiche .fl-t th{color:var(--wire)}
+.mb.fiche .fl-t td{border-bottom-color:rgba(63,183,166,.08)}
+.mb.fiche .fl-t td:last-child b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.mb.fiche .fl-al{border-left:2px solid var(--wire-hot);padding-left:8px}
+@media (max-width:560px){.finmap.fmap .fin-lb{display:inline}.finmap.fmap .fin-lb tspan+tspan{display:none}.finmap.fmap .fin-lb .c{font-size:90px}}
 </style>
 </head>
 <body>
@@ -1053,7 +1067,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.16.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.16.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -4827,7 +4841,7 @@ function ficheLevier(id){
    <div class="mh"><div class="fl-h"><h2>${c.n}</h2><span class="fl-fam">${c.id} · ${c.fam}</span></div>
      <span class="sub">${c.c==="actif"?"Camp climato-actif":"Camp climato-attentiste"}${monCamp?"":" — levier adverse"}${(()=>{const v=verrouLevier(s,c);return v&&monCamp?" · <b style='color:var(--s-percu)'>pas encore ouvert : "+v+"</b>":"";})()}</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb">
+   <div class="mb fiche">
      <div>
        <div class="fl-sec"><h5>Ce que fait ce levier</h5><p>${gloss(c.e)}</p></div>
        <div class="fl-sec"><h5>Pourquoi ça marche</h5><p>${c.mec}</p></div>
@@ -4849,7 +4863,9 @@ function ficheLevier(id){
        </div>
      </div>
      <div>
-       <div class="fl-sec"><h5>Si vous le jouez maintenant</h5>${effets}</div>
+       <div class="fl-sec"><h5>Si vous le jouez maintenant</h5>
+         ${c.cible==="bloc"&&monCamp?`<div class="finmap fmap" id="ficheMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i></div>`:""}
+         ${effets}</div>
        <div class="fl-doc">
          <b>Votre doctrine et ce levier — ${af} % d'accord</b>
          ${phrase}
@@ -4860,6 +4876,17 @@ function ficheLevier(id){
      </div>
    </div>`;
   ouvrirModal(false); $("#mx").onclick=fermer;
+  // v0.16.2 : pour un levier de bloc, la carte filaire dit où il se joue — en bleu là où
+  // il est jouable (avec sa probabilité de réussite si c'est un pari), estompé ailleurs
+  const fm=$("#ficheMap");
+  if(fm){
+    const svg=carteFilaire(s,"Où ce levier peut être joué",b=>{
+      const r=jouable(s,c,b,camp);
+      const court=r?String(r).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué").replace("ressources insuffisantes","trop cher"):"";
+      return [r?" calme":" tgt", r?" calme":"", r?court:(pr?proba(s,c,b,camp)+" %":"jouable")];
+    });
+    if(svg) fm.prepend(svg);
+  }
   bindTips($("#modal"));
 }
 
@@ -5129,7 +5156,7 @@ function carteFilaire(s,label,etiq){
     p.style.setProperty("--bf",teinteBloc(s,b));
     const X=150+b.x/100*2340, Y=15+b.y/100*1150, t=document.createElementNS(NS,"text");
     t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+cl);
-    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${l2}</tspan>`;
+    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="1.15em">${l2}</tspan>`;
     svg.appendChild(t);
   });
   return svg;
