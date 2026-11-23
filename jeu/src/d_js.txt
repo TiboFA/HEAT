@@ -3721,7 +3721,7 @@ function ficheLevier(id){
    <div class="mh"><div class="fl-h"><h2>${c.n}</h2><span class="fl-fam">${c.id} · ${c.fam}</span></div>
      <span class="sub">${c.c==="actif"?"Camp climato-actif":"Camp climato-attentiste"}${monCamp?"":" — levier adverse"}${(()=>{const v=verrouLevier(s,c);return v&&monCamp?" · <b style='color:var(--s-percu)'>pas encore ouvert : "+v+"</b>":"";})()}</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb">
+   <div class="mb fiche">
      <div>
        <div class="fl-sec"><h5>Ce que fait ce levier</h5><p>${gloss(c.e)}</p></div>
        <div class="fl-sec"><h5>Pourquoi ça marche</h5><p>${c.mec}</p></div>
@@ -3743,7 +3743,9 @@ function ficheLevier(id){
        </div>
      </div>
      <div>
-       <div class="fl-sec"><h5>Si vous le jouez maintenant</h5>${effets}</div>
+       <div class="fl-sec"><h5>Si vous le jouez maintenant</h5>
+         ${c.cible==="bloc"&&monCamp?`<div class="finmap fmap" id="ficheMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i></div>`:""}
+         ${effets}</div>
        <div class="fl-doc">
          <b>Votre doctrine et ce levier — ${af} % d'accord</b>
          ${phrase}
@@ -3754,6 +3756,17 @@ function ficheLevier(id){
      </div>
    </div>`;
   ouvrirModal(false); $("#mx").onclick=fermer;
+  // v0.16.2 : pour un levier de bloc, la carte filaire dit où il se joue — en bleu là où
+  // il est jouable (avec sa probabilité de réussite si c'est un pari), estompé ailleurs
+  const fm=$("#ficheMap");
+  if(fm){
+    const svg=carteFilaire(s,"Où ce levier peut être joué",b=>{
+      const r=jouable(s,c,b,camp);
+      const court=r?String(r).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué").replace("ressources insuffisantes","trop cher"):"";
+      return [r?" calme":" tgt", r?" calme":"", r?court:(pr?proba(s,c,b,camp)+" %":"jouable")];
+    });
+    if(svg) fm.prepend(svg);
+  }
   bindTips($("#modal"));
 }
 
@@ -4023,7 +4036,7 @@ function carteFilaire(s,label,etiq){
     p.style.setProperty("--bf",teinteBloc(s,b));
     const X=150+b.x/100*2340, Y=15+b.y/100*1150, t=document.createElementNS(NS,"text");
     t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+cl);
-    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${l2}</tspan>`;
+    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="1.15em">${l2}</tspan>`;
     svg.appendChild(t);
   });
   return svg;
