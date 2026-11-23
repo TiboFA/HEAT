@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.15.6</title>
+<title>HEAT — version jouable v0.15.7</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -795,6 +795,8 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .gb .mini.go{background:var(--wire);color:#04120f;border-color:var(--wire);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
  letter-spacing:.08em;text-transform:uppercase;font-size:11px}
 .gb .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
+.tag.plan{border-color:var(--wire);color:var(--wire);font-weight:700}
+.card.planif{box-shadow:inset 3px 0 0 var(--wire)}
 </style>
 </head>
 <body>
@@ -857,7 +859,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     <summary>Réglages — difficulté et doctrine</summary>
     <div class="ct" style="margin-top:6px">Difficulté <span>elle ne règle que l'adversaire — vous avez le catalogue entier dès le premier niveau</span></div>
     <div class="opts four" id="optLvl">
-      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3,5 points de puissance par tour à crédibilité neutre ; vous, de 4,5 — et chacun entre deux tiers et quatre tiers de ce montant selon sa crédibilité. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
+      <button class="opt" data-v="1"><b>Découverte</b><span>L'adversaire dispose de 3,5 points de puissance par tour à crédibilité neutre ; vous, de 4,5 — et chacun entre deux tiers et quatre tiers de ce montant selon sa crédibilité. Vous pouvez rejouer le tour qui vient d'être résolu. Vous démarrez plus riche, les seuils de soutien perçu sont abaissés de 10, et les leviers au rendement contesté sont signalés.</span></button>
       <button class="opt" data-v="2" aria-pressed="true"><b>Standard</b><span>L'adversaire dispose de 4,5 points de puissance par tour à crédibilité neutre, comme vous, avec les revenus pour les payer.</span></button>
       <button class="opt" data-v="3"><b>Réaliste</b><span>6 points de puissance par tour pour l'adversaire à crédibilité neutre. C'est le niveau sur lequel le jeu est calibré.</span></button>
       <button class="opt" data-v="4"><b>Expert</b><span>8 points de puissance par tour pour l'adversaire à crédibilité neutre, et de quoi les financer tous.</span></button>
@@ -938,7 +940,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.15.6 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.15.7 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -2468,9 +2470,9 @@ function score(s){
    diffèrent, et un attentiste en Découverte marque plus qu'un actif au même
    niveau. L'indice les ramène sur une même échelle : 100, c'est ce que marque
    le joueur automatique qui tire ses leviers au hasard, dans le même camp et
-   au même niveau (étalonnage v0.13, 30 parties). 150, c'est une fois et demie
+   au même niveau (étalonnage v0.15.7, 30 parties). 150, c'est une fois et demie
    mieux. Il n'est pas calculé pour le départ en 2030, qui n'est pas étalonné. */
-const SCORE_REF={actif:[null,308,289,237,176], att:[null,412,293,205,140]};
+const SCORE_REF={actif:[null,313,291,261,186], att:[null,367,293,221,152]};   // étalonnage v0.15.7 (budgets au demi-point)
 function indicePerf(s){
   if(s.scen==="tardif") return null;
   const r=SCORE_REF[s.camp==="actif"?"actif":"att"][s.level];
@@ -2572,7 +2574,7 @@ function NIV(s){ return NIVEAUX[s.level]||NIVEAUX[2]; }
    le vôtre — entre 2/3 à crédibilité nulle et 4/3 à crédibilité pleine. Sans ça,
    la crédibilité n'était un rapport qu'à moitié : discréditer l'adversaire vous
    enrichissait sans jamais l'appauvrir. */
-function nAdv(s){ return +(NIV(s).n * budgetPuissance(s.res[campAdv(s)].cred) / BUD_BASE).toFixed(1); }
+function nAdv(s){ return demiPoint(NIV(s).n * budgetPuissance(s.res[campAdv(s)].cred) / BUD_BASE); }
 function campAdv(s){ return s.camp==="actif" ? "att" : "actif"; }
 /* ==================== progression du catalogue ====================
    Un levier ne doit pas tomber au hasard : il doit devenir possible. Deux
@@ -2743,7 +2745,10 @@ function poidsPlan(s){ return s.plan.reduce((a,e)=>a+((e.k==="attr"||e.ko)?0:pds
    quatre actions sur le nouveau barème continu. L'adversaire paie le même
    prix ; son budget de base dépend du niveau, et suit sa crédibilité — voir nAdv(). */
 const BUD_BASE=4.5, BUD_K=1.5, BUD_MIN=3, BUD_MAX=6;
-function budgetPuissance(cred){ return Math.max(BUD_MIN, Math.min(BUD_MAX, BUD_BASE + BUD_K*(cred-50)/50)); }
+/* Arrondi au demi-point le plus proche, comme la puissance des leviers (v0.15.7) :
+   un budget de 5,1 laissait 0,1 point qu'aucun levier ne pouvait consommer. */
+function demiPoint(v){ return Math.round(v*2)/2; }
+function budgetPuissance(cred){ return demiPoint(Math.max(BUD_MIN, Math.min(BUD_MAX, BUD_BASE + BUD_K*(cred-50)/50))); }
 function budgetJoueur(s,camp){ return budgetPuissance(s.res[camp].cred); }
 /* affichage : 2 reste "2", 1.5 devient "1,5" */
 function fmtP(p){ return (Math.round(p*10)/10).toString().replace(".",","); }
@@ -2900,7 +2905,10 @@ function jouer(s,id,bk,camp,prev){
              else s.mien.push({turn:s.turn,id:c.id,bk:bk||null}); }
   s.cur=null;
   const h=camp===s.camp?s.hand:s.handAI;
-  const i=h.indexOf(id); if(i>=0)h.splice(i,1);
+  // en prévision, un levier de bloc reste en main : on peut l'ajouter au plan sur
+  // d'autres blocs dans le même tour, chaque bloc coûtant à nouveau sa puissance et
+  // ses ressources (v0.15.7). À la validation, il quitte la main comme avant.
+  if(!(prev && c.cible==="bloc")){ const i=h.indexOf(id); if(i>=0)h.splice(i,1); }
 }
 
 /* ==================== phase de planification ====================
@@ -3690,8 +3698,10 @@ function render(garde){
     (DASHV?"":` <span class="proj" data-tip="Température atteinte en ${AN_FIN} si plus personne ne joue après ce tour, votre plan compris. Sans action : ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b> en ${AN_FIN}</span>`)+
     (!RESO?` · <span class="lnk" id="ouvrirPartie" data-tip="Sauvegarde automatique, fichier de partie à exporter ou à charger, retour à l'accueil.">partie</span>`:"")+
     (!RESO?` · <span class="lnk" id="ouvrirGuide" data-tip="Rouvre le guide : les huit zones de l'écran, dans l'ordre où on s'en sert.">guide</span>`:"")+
+    (peutRejouer()&&!DASHV?` · <span class="lnk" id="rejouerTour" data-tip="Niveau Découverte : revenir avant la résolution du tour ${TOUR_AVANT.turn}, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">rejouer le tour ${TOUR_AVANT.turn}</span>`:"")+
     (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Rouvre le bilan du tour ${BILAN.turn} : ce qui a changé, bloc par bloc, et le journal complet de ce tour.">bilan du tour ${BILAN.turn}</span>`:"");
   const rb=$("#revoirBilan"); if(rb) rb.onclick=bilanTour;
+  const rj=$("#rejouerTour"); if(rj) rj.onclick=rejouerTour;
   const og=$("#ouvrirGuide"); if(og) og.onclick=()=>guideOuvrir(0);
   const op=$("#ouvrirPartie"); if(op) op.onclick=panneauPartie;
   $("#res").innerHTML=
@@ -4072,12 +4082,14 @@ function bilanTour(){
      </div>
      <div class="full bfoot">
        <label class="bchk"><input type="checkbox" id="bauto" ${AUTOBILAN?"checked":""}> ouvrir ce bilan automatiquement à chaque fin de tour</label>
+       ${peutRejouer()?`<button class="mini" id="brejouer" data-tip="Niveau Découverte : revenir avant la résolution de ce tour, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">Rejouer ce tour</button>`:""}
        <button class="mini" id="bok">Continuer</button>
      </div>
    </div>`;
   ouvrirModal(true);
   carteBilan(s,A);
   $("#mx").onclick=fermer; $("#bok").onclick=fermer;
+  const brj=$("#brejouer"); if(brj) brj.onclick=rejouerTour;
   $("#bauto").onchange=e=>{AUTOBILAN=e.target.checked;};
   $("#bjTog").onclick=()=>{BJOURTOUT=!BJOURTOUT;bilanTour();};
   bindTips($("#modal"));
@@ -4409,12 +4421,13 @@ function renderHand(){
     const cost=[kk.cp?kk.cp+" pol.":null,kk.cap?kk.cap+" cap.":null,kk.att?kk.att+" att.":null].filter(Boolean).join(" · ");
     const af=Math.round(affin(cc,s.doc[s.camp==="actif"?"actif":"att"])*100);
     const pr=PROBA[cc.id]?fourchette(s,cc,elig):null;
-    h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""} ${glob?"glob":"blk"}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
+    const nPlan=S.plan.filter(e=>e.id===id).length;
+    h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""} ${glob?"glob":"blk"}${nPlan?" planif":""}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
       <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div>
-      <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${clefDefi(s,id)?' <span class="tag defi" data-tip="Ce levier sert directement l\'objectif du tour : ★ '+s.defi.t+'.">★ objectif</span>':''}${(s.rendus||[]).some(x=>x.id===id)?' <span class="tag rendu" data-tip="Ce levier a déjà été engagé ici et défait — mesure annulée par l\'adversaire, ou tentative échouée. Il n\'a pas été consommé : vous pouvez le rejouer.">↻ rejouable</span>':''}${cc.trap&&s.level===1?' <span class="tag trap" data-tip="Niveau Découverte : le jeu signale les leviers dont le rendement réel est contesté. Ouvrez la fiche avant de le jouer — aux niveaux supérieurs, ce repère disparaît.">à vérifier</span>':''}
+      <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${nPlan?`<span class="tag plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${fmtP(pds(cc))} point${pds(cc)>1?"s":""} et ses ressources.">×${nPlan} dans le plan</span>`:""}${clefDefi(s,id)?' <span class="tag defi" data-tip="Ce levier sert directement l\'objectif du tour : ★ '+s.defi.t+'.">★ objectif</span>':''}${(s.rendus||[]).some(x=>x.id===id)?' <span class="tag rendu" data-tip="Ce levier a déjà été engagé ici et défait — mesure annulée par l\'adversaire, ou tentative échouée. Il n\'a pas été consommé : vous pouvez le rejouer.">↻ rejouable</span>':''}${cc.trap&&s.level===1?' <span class="tag trap" data-tip="Niveau Découverte : le jeu signale les leviers dont le rendement réel est contesté. Ouvrez la fiche avant de le jouer — aux niveaux supérieurs, ce repère disparaît.">à vérifier</span>':''}
         <span class="scope ${glob?"g":"b"}" data-tip="${glob
           ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un seul clic, sans désigner de cible. Un levier mondial ne peut être joué qu'une fois dans la partie."
-          :"<b>Levier de bloc</b><br>Il faut lui désigner une cible sur la carte du monde. Le même levier peut servir sur trois blocs au maximum dans la partie."+(elig?"<br><br>Actuellement jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span></div>
+          :"<b>Levier de bloc</b><br>Il faut lui désigner une cible sur la carte du monde. Le même levier peut servir sur trois blocs au maximum dans la partie, y compris plusieurs dans le même tour : chaque bloc coûte à nouveau sa puissance et ses ressources."+(elig?"<br><br>Actuellement jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span></div>
       <h4>${cc.n}</h4>
       <div class="eff">${gloss(cc.e)}</div>
       <div class="jauge" data-tip="<b>Influence de votre doctrine : ${af} %</b><br>Mesure l'accord entre ce levier et les quatre curseurs de votre doctrine.<br>Plus elle est haute, plus la carte a de chances de vous être proposée au tirage, et plus son effet est renforcé une fois jouée.<br>Une carte à faible influence reste jouable : elle rend simplement moins.">
@@ -4908,6 +4921,7 @@ function renderFin(){
         </div>
         <div class="verdict">${b.verdict}</div>
         <div style="margin-top:18px;display:flex;gap:10px">
+          ${peutRejouer()?`<button class="mini" id="finRejouer" style="padding:12px 18px">Rejouer le dernier tour</button>`:""}
           <button class="again" id="rejouer">Rejouer</button>
           <button class="mini" id="revoirjour" style="padding:12px 18px">Revoir le journal</button>
         </div>
@@ -4917,6 +4931,7 @@ function renderFin(){
   carteFin(s);
   bindTips($("#fin"));
   $("#rejouer").onclick=()=>{location.reload();};
+  const frj=$("#finRejouer"); if(frj) frj.onclick=rejouerTour;
   $("#revoirjour").onclick=()=>{
     $("#modal").innerHTML=`<div class="mh"><h2>Journal de la partie</h2><button class="x" id="mx">×</button></div>
       <div class="mb"><div class="full jour" style="max-height:60vh">${S.log.map(l=>l.cls==="th"?`<div class="th">${l.txt}</div>`:`<div class="l ${l.cls}">${l.txt}</div>`).join("")}</div></div>`;
@@ -5193,10 +5208,25 @@ addEventListener("keydown",e=>{ if(GI>=0){ if(e.key==="Escape")guideFermer();
   else if(e.key==="ArrowLeft"){GI=Math.max(0,GI-1);guidePas();} } });
 
 /* ---------- boucle ---------- *//* ---------- boucle ---------- */
+/* Rejouer le tour, au niveau Découverte. Juste avant la résolution, la partie
+   entière est mise de côté, plan compris — exactement ce qu'écrirait une
+   sauvegarde. Rejouer la restaure : on revient à la phase de planification du tour,
+   avec le même plan, modifiable. Le hasard est restauré lui aussi : changer de plan
+   change le résultat, rejouer le même plan redonne le même — on ne relance pas les
+   dés jusqu'à obtenir un succès. Seul le dernier tour résolu peut être rejoué. */
+let TOUR_AVANT=null;
+function peutRejouer(){ return !!(TOUR_AVANT && S && S.level===1 && !RESO); }
+function rejouerTour(){
+  if(!peutRejouer()) return;
+  const t=TOUR_AVANT.txt; TOUR_AVANT=null;
+  fermer(); $("#fin").style.display="none";
+  if(reprendre(t,true)){ jlog(S,"t","Tour rejoué : la partie revient avant la résolution du tour "+S.turn+"."); render(); sauverAuto(); }
+}
 function finDeTour(){
   if(RESO) return;
   const s=S;
   if(planKo()){ render(); return; }   // un levier du plan n'est plus jouable : on ne valide pas à sa place
+  TOUR_AVANT = s.level===1 ? {txt:serialiser(), turn:s.turn} : null;
   sel=null; PV=null;
   // instantané des jauges et du tableau de bord : la séquence rejouée repartira de là,
   // et le résultat ne s'affichera pas avant d'avoir été révélé

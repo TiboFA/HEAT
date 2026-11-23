@@ -789,4 +789,6 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .gb .mini.go{background:var(--wire);color:#04120f;border-color:var(--wire);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
  letter-spacing:.08em;text-transform:uppercase;font-size:11px}
 .gb .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
+.tag.plan{border-color:var(--wire);color:var(--wire);font-weight:700}
+.card.planif{box-shadow:inset 3px 0 0 var(--wire)}
 </style>
