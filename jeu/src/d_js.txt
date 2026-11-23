@@ -1510,7 +1510,7 @@ function newGame(camp,level,scen){
     reveles:2, satur:false, actions:0, plan:[],
     picE:0, picAn:null, seuilAn:null,
     adv:[], mien:[], rendus:[],          // ce que l'adversaire a joué, ce que vous avez joué : nommément, tour par tour
-    hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:T_BASELINE,g:GHOST[0]}],
+    hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:T_BASELINE,g:GHOST[0],t:T0}],
     over:false, elec:0
   };
   // les aides du niveau Découverte vont au joueur, quel que soit son camp
@@ -2190,7 +2190,7 @@ function finTour(s){
   s.fx.push({t:"bilan"});
   // 8. tour suivant
   s.turn++; s.year+=YPT;
-  s.hist.push({p:projeter(s),g:GHOST[Math.min(s.turn-1,GHOST.length-1)]});
+  s.hist.push({p:projeter(s),g:GHOST[Math.min(s.turn-1,GHOST.length-1)],t:+s.T.toFixed(3)});   // t : température atteinte, pour les bandes de l'écran de fin
   /* ---- le verdict des faits, tous les quatre tours ----
      Ni un levier ni un événement : la trajectoire elle-même tranche. Elle a baissé,
      le camp actif est cru sur parole pour la suite ; elle stagne, c'est le camp
@@ -3853,6 +3853,13 @@ function renderFin(){
     <div class="app fin" style="padding:0">
       <div class="mh"><h2>Fin de partie — ${AN_FIN}</h2><span class="sub">${b.rang}</span></div>
       <div style="padding:18px 22px 22px">
+        <div class="finmap" id="finMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i>
+          <div class="finmap-t"><span>Le monde en ${AN_FIN}</span><b>${fr(b.T,2)} °C</b></div></div>
+        <div class="finband" data-tip="Chaque bande est une année. Jusqu'en 2014, le monde observé (NOAA). À partir de ${AN0}, la température atteinte dans votre partie, tour par tour — et en dessous, la même chose si personne n'avait joué.">
+          <div class="fb-row"><span class="fb-l">Votre partie</span><div class="bandes">${bandesHTML(trajPartie(s))}</div><span class="fb-v">${fr(s.T,2)} °C</span></div>
+          <div class="fb-row ref"><span class="fb-l">Sans action</span><div class="bandes">${bandesHTML(PASSIF_T)}</div><span class="fb-v">${fr(T_BASELINE,2)} °C</span></div>
+          <div class="fb-ax"><span>1850</span><span style="left:${((AN0-1850)/(AN_FIN-1850+1)*100).toFixed(1)}%">${AN0}</span><span>${AN_FIN}</span></div>
+        </div>
         <div class="finrow" style="margin-bottom:14px">
           <div class="fbox"><div class="lab">Pic des émissions</div>
             <div class="num" style="color:${s.picAn?"var(--s-reel)":"var(--s-fric)"}">${s.picAn||"jamais"}</div>
@@ -3903,6 +3910,7 @@ function renderFin(){
       </div>
     </div>
    </div>`;
+  carteFin(s);
   bindTips($("#fin"));
   $("#rejouer").onclick=()=>{location.reload();};
   $("#revoirjour").onclick=()=>{
@@ -3910,6 +3918,31 @@ function renderFin(){
       <div class="mb"><div class="full jour" style="max-height:60vh">${S.log.map(l=>l.cls==="th"?`<div class="th">${l.txt}</div>`:`<div class="l ${l.cls}">${l.txt}</div>`).join("")}</div></div>`;
     ouvrirModal(true); $("#mx").onclick=fermer;
   };
+}
+
+/* La carte filaire de l'écran de fin : une copie de celle du plateau (sans les
+   identifiants, qui doivent rester uniques), dans l'état final de la partie.
+   Chaque bloc porte son code et sa contrainte finale ; le plus gros émetteur de
+   2100 est tracé en orange, les blocs sous loi-cadre en vert. */
+function carteFin(s){
+  const src=document.querySelector("#mapbox svg.map"), box=$("#finMap");
+  if(!src||!box) return;
+  const svg=src.cloneNode(true);
+  svg.removeAttribute("class"); svg.classList.add("map","mapfin");
+  svg.setAttribute("aria-label","Le monde en "+AN_FIN+", bloc par bloc");
+  const emax=Math.max(...s.blocs.map(z=>z.e));
+  s.blocs.forEach(b=>{
+    const p=svg.querySelector("#p_"+b.k); if(!p) return;
+    p.removeAttribute("id");
+    p.setAttribute("class","bl"+(b.e===emax?" max":"")+(b.verrou?" verrou":""));
+    p.style.setProperty("--bf",teinteBloc(s,b));
+    const NS="http://www.w3.org/2000/svg", X=150+b.x/100*2340, Y=15+b.y/100*1150;
+    const t=document.createElementNS(NS,"text");
+    t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+(b.e===emax?" max":""));
+    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${Math.round(b.contr)} · ${fr(b.e,1)} Gt</tspan>`;
+    svg.appendChild(t);
+  });
+  box.prepend(svg);
 }
 
 /* ==================== sauvegarde ====================
@@ -4195,15 +4228,29 @@ function couleurBande(v){
   const a=BANDES_PAL[i], b=BANDES_PAL[Math.min(i+1,BANDES_PAL.length-1)];
   return "rgb("+a.map((c,k)=>Math.round(c+(b[k]-c)*f)).join(",")+")";
 }
-function renderBandes(){
-  const box=$("#bandes"); if(!box) return;
+/* Les bandes de 1850 à 2100 : l'observé jusqu'en 2014, puis une trajectoire de
+   la partie donnée tour par tour (18 valeurs, 2015 à 2100), interpolée par année. */
+function bandesHTML(traj){
   let h="";
   BANDES_OBS.forEach(v=>{ h+=`<i style="background:${couleurBande(v)}"></i>`; });
   for(let y=AN0;y<=AN_FIN;y++){
-    const t=(y-AN0)/YPT, i=Math.min(Math.floor(t),PASSIF_T.length-2), f=t-i;
-    h+=`<i style="background:${couleurBande(PASSIF_T[i]+(PASSIF_T[i+1]-PASSIF_T[i])*f)}"></i>`;
+    const t=(y-AN0)/YPT, i=Math.min(Math.floor(t),traj.length-2), f=t-i;
+    h+=`<i style="background:${couleurBande(traj[i]+(traj[i+1]-traj[i])*f)}"></i>`;
   }
-  box.innerHTML=h;
+  return h;
+}
+/* La trajectoire réellement jouée. Les parties enregistrées avant la v0.15.4 ne
+   gardaient pas la température tour par tour : on la reconstitue alors sur la forme
+   de la partie passive, remise à l'échelle entre 1,0 °C et la température finale. */
+function trajPartie(s){
+  const h=(s.hist||[]).slice(0,PASSIF_T.length);
+  if(h.length===PASSIF_T.length && h.every(x=>typeof x.t==="number")) return h.map(x=>x.t);
+  const k=(s.T-T0)/(PASSIF_T[PASSIF_T.length-1]-T0);
+  return PASSIF_T.map(v=>T0+(v-T0)*k);
+}
+function renderBandes(){
+  const box=$("#bandes"); if(!box) return;
+  box.innerHTML=bandesHTML(PASSIF_T);
   $("#an2015").style.left=((AN0-1850)/(AN_FIN-1850+1)*100)+"%";
   // où en est le monde réel aujourd'hui : l'année en cours d'après l'horloge, le dernier réchauffement observé
   const ici=Math.max(AN0,Math.min(AN_FIN,new Date().getFullYear()));
