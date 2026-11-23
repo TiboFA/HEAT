@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.16.2</title>
+<title>HEAT — version jouable v0.16.3</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -857,12 +857,12 @@ body.compact .card .id>.tag:not(.defi){display:none}
 /* 7 · le tableau de bord */
 .cockpit{padding:8px}
 .dash{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.tl{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
-.tl .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
-.tl b small{font-size:11px;color:var(--muted);font-weight:500}
-.tl.proj b{color:var(--wire-hot)}
-.tl .s{display:block;font-size:10.5px;color:var(--muted)}
+.tuile{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
+.tuile .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tuile b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
+.tuile b small{font-size:11px;color:var(--muted);font-weight:500}
+.tuile.proj b{color:var(--wire-hot)}
+.tuile .s{display:block;font-size:10.5px;color:var(--muted)}
 .dd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}.dd.bon{color:#4fd18b}.dd.mal{color:var(--wire-hot)}
 .dsec{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:11px;color:var(--muted)}
 .dsec b{color:var(--ink-2);font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -924,6 +924,36 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mb.fiche .fl-t td:last-child b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
 .mb.fiche .fl-al{border-left:2px solid var(--wire-hot);padding-left:8px}
 @media (max-width:560px){.finmap.fmap .fin-lb{display:inline}.finmap.fmap .fin-lb tspan+tspan{display:none}.finmap.fmap .fin-lb .c{font-size:90px}}
+/* ---- panneau partie et catalogue filaires (v0.16.3) ---- */
+.mb.partie .pstat,.mb.catalogue .pstat{font:11.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink-2);border:1px solid rgba(63,183,166,.25);
+ border-radius:6px;padding:7px 10px;margin-bottom:10px;background:rgba(63,183,166,.05)}
+.pbox{position:relative;border:1px solid rgba(63,183,166,.25);border-radius:6px;padding:11px 13px 12px;margin-bottom:10px;
+ background:repeating-linear-gradient(0deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px)}
+.pbox .cnr,.frise .cnr{position:absolute;width:11px;height:11px;border:2px solid var(--wire);opacity:.8}
+.pbox .cnr.tl,.frise .cnr.tl{top:-2px;left:-2px;border-right:0;border-bottom:0}.pbox .cnr.tr,.frise .cnr.tr{top:-2px;right:-2px;border-left:0;border-bottom:0}
+.pbox .cnr.bl,.frise .cnr.bl{bottom:-2px;left:-2px;border-right:0;border-top:0}.pbox .cnr.br,.frise .cnr.br{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.mb.partie .ms,.mb.catalogue .ms{color:var(--wire)}
+.voy{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:0}
+.voy.ok{background:#4fd18b;box-shadow:0 0 6px rgba(79,209,139,.7)}.voy.att{background:#e0b04a}.voy.ko{background:var(--wire-hot)}
+.mb.partie .mini.go{background:var(--wire);border-color:var(--wire);color:#03140f;font-weight:800}
+.mb.partie .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
+.mb.partie code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--wire)}
+/* catalogue : frise des époques */
+.frise{position:relative;height:58px;margin:14px 6px 6px;border:1px solid rgba(63,183,166,.25);border-radius:6px;background:var(--sea-w)}
+.fr-l{position:absolute;left:12px;right:12px;top:31px;height:2px;background:rgba(63,183,166,.25)}
+.fr-f{position:absolute;left:12px;top:31px;height:2px;background:var(--wire);max-width:calc(100% - 24px);box-shadow:0 0 6px rgba(63,183,166,.6)}
+.frise .tk,.frise .ici,.frise .fr-b{position:absolute;font:10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.frise .tk{top:6px;transform:translateX(-50%);margin-left:12px;text-align:center;white-space:nowrap}
+.frise .tk b{display:block;color:var(--wire);font-weight:700;letter-spacing:.06em}
+.frise .tk.tk0{transform:none;text-align:left}.frise .tk.tk0::after{left:0}
+.frise .tk::after{content:"";position:absolute;left:50%;top:22px;width:1px;height:9px;background:var(--wire)}
+.frise .ici{bottom:5px;transform:translateX(-50%);margin-left:12px;color:var(--wire-hot);font-weight:700}
+.frise .ici::before{content:"";position:absolute;left:50%;top:-12px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:var(--wire-hot);box-shadow:0 0 6px rgba(255,122,61,.7)}
+.frise .fr-b{bottom:5px;margin:0 8px}
+.mb.catalogue .avl{border-bottom-color:rgba(63,183,166,.1)}
+.mb.catalogue .avl:hover{background:rgba(63,183,166,.06)}
+.mb.catalogue .avid{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire)}
+.mb.catalogue .avr{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10.5px}
 </style>
 </head>
 <body>
@@ -1067,7 +1097,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.16.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.16.3 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -3884,8 +3914,12 @@ function panneauAVenir(){
    <div class="mh"><h2>Le catalogue à venir</h2>
      <span class="sub">${av.length} levier${av.length>1?"s":""} pas encore ouvert${av.length>1?"s":""} · ${pool(s,camp).length} disponibles aujourd'hui</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb"><div class="full">
+   <div class="mb catalogue"><div class="full">
      <p class="gx" style="margin-bottom:4px">Le répertoire de l'action climatique s'est élargi avec le temps, et celui de l'obstruction avec lui. Un levier s'ouvre quand son époque arrive, ou quand la partie a produit ce qu'il suppose. Cliquez un levier pour ouvrir sa fiche complète.</p>
+     ${(()=>{ // la frise des trois époques, avec l'année en cours
+        const y0=AN0, y1=AN_FIN, pos=y=>((y-y0)/(y1-y0)*100).toFixed(1)+"%";
+        const ep=[1,2,3].map(e=>`<span class="tk${e===1?" tk0":""}" style="left:${pos(anEpoque(e))}"><b>Époque ${e}</b>${anEpoque(e)}</span>`).join("");
+        return `<div class="frise"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="fr-l"></div><div class="fr-f" style="width:${pos(s.year)}"></div>${ep}<span class="ici" style="left:${pos(s.year)}">${s.year}</span><span class="fr-b" style="right:0">${y1}</span></div>`;})()}
      ${sect("Époque 2","à partir de "+anEpoque(2)+" — ce que la décennie 2020 a rendu praticable",parEp[2]||[])}
      ${sect("Époque 3","à partir de "+anEpoque(3)+" — l'échelon institutionnel et international",parEp[3]||[])}
      ${sect("En attente d'un prérequis","ceux-là ne dépendent pas du calendrier mais de vous",parReq)}
@@ -3980,7 +4014,7 @@ function renderDash(){
   const dl=(v,n,bonSiBaisse)=>{ if(!v) return `<span class="dd">=</span>`; const bon=bonSiBaisse?v<0:v>0;
     return `<span class="dd ${bon?"bon":"mal"}">${v>0?"+":"−"}${n?fr(Math.abs(v),n):Math.abs(v)}</span>`; };
   const dern=A&&!D;
-  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tl ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
+  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tuile ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
   $("#dash").innerHTML=
     tuile("","Réchauffement",fr(T,2)," °C",
       dern?dl(+(T-A.T).toFixed(2),2,act)+" au dernier tour":"1,00 °C en 2015",
@@ -5291,8 +5325,9 @@ function panneauPartie(){
   $("#modal").innerHTML=`
    <div class="mh"><h2>Votre partie</h2><span class="sub">tour ${S.turn} sur ${NTURNS} · ${S.year} à ${S.year+YPT}</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb"><div class="full">
-     <div class="ms">Sauvegarde automatique</div>
+   <div class="mb partie"><div class="full">
+     <div class="pstat mono">${S.camp==="actif"?"Climato-actif":"Climato-attentiste"} · niveau ${NIV(S).nom} · ${(SCENARIOS[S.scen]||SCENARIOS.hasard).nom} · ${fr(S.T,2)} °C → ${fr(projeter(S),2)} °C en ${AN_FIN}</div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms"><span class="voy ${dispo?(r?"ok":"att"):"ko"}"></span>Sauvegarde automatique</div>
      <p class="gx">${dispo
        ? (r ? "Enregistrée dans ce navigateur à la fin de chaque tour. Dernier enregistrement : <b>tour "+r.turn+"</b>"+(r.quand?", le "+r.quand:"")+". Elle vous sera proposée à la prochaine ouverture du fichier."
             : "Active. Le premier enregistrement se fera à la fin de ce tour.")
@@ -5301,16 +5336,19 @@ function panneauPartie(){
        <button class="mini" id="psave">Enregistrer maintenant</button>
        ${r?'<button class="mini" id="pclr">Effacer la sauvegarde</button>':''}
      </div>
-     <div class="ms" style="margin-top:16px">Fichier de partie</div>
+     </div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms">Fichier de partie</div>
      <p class="gx">Un fichier <code>.json</code> qui contient la partie entière — l'état du monde, votre main, le journal, la graine du générateur. Il survit au nettoyage du cache et se recharge sur n'importe quelle machine, tant que c'est la même version du jeu.</p>
      <div class="pbtn">
        <button class="mini go" id="pexp">Exporter la partie</button>
        <button class="mini" id="pimp">Charger un fichier…</button>
      </div>
      <p class="gx" id="pmsg" style="margin-top:8px"></p>
-     <div class="ms" style="margin-top:16px">Recommencer</div>
+     </div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms">Recommencer</div>
      <p class="gx">Revient à l'écran d'accueil. La sauvegarde automatique n'est pas effacée : vous pourrez encore reprendre cette partie.</p>
      <div class="pbtn"><button class="mini" id="phome">Retour à l'accueil</button></div>
+     </div>
    </div></div>`;
   ouvrirModal(false);
   $("#mx").onclick=fermer;
