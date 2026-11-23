@@ -720,4 +720,40 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .hero-ici b{top:9px;font-weight:700;letter-spacing:.04em}
 .hero-ici span{top:25px;color:rgba(255,255,255,.88)}
 @media (max-width:560px){.hero-ici{height:96px}.hero-ici b{left:auto;right:7px}.hero-ici span{display:none}}
+/* ---- écran de fin filaire (v0.15.4) ---- */
+.finmap{position:relative;border:1px solid rgba(63,183,166,.25);border-radius:10px;overflow:hidden;margin-bottom:14px;background:var(--sea-w)}
+.finmap svg.mapfin{border-radius:0}
+.finmap::after{content:"";position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(255,255,255,.016) 0 1px,transparent 1px 3px),
+            radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(6,9,11,.6) 100%)}
+.finmap .cnr{position:absolute;width:16px;height:16px;border:2px solid var(--wire);opacity:.7;z-index:2}
+.finmap .cnr.tl{top:9px;left:9px;border-right:0;border-bottom:0}.finmap .cnr.tr{top:9px;right:9px;border-left:0;border-bottom:0}
+.finmap .cnr.bl{bottom:9px;left:9px;border-right:0;border-top:0}.finmap .cnr.br{bottom:9px;right:9px;border-left:0;border-top:0}
+.finmap-t{position:absolute;z-index:2;right:22px;bottom:16px;text-align:right;pointer-events:none}
+.finmap-t span{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--wire)}
+.finmap-t b{font:700 clamp(26px,5vw,42px)/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire-hot)}
+.bl.verrou{stroke:#4fd18b}
+.fin-lb{fill:#e7f4f1;font:600 24px ui-monospace,Menlo,Consolas,monospace;text-anchor:middle;paint-order:stroke;stroke:#06090b;stroke-width:6px}
+.fin-lb .c{font-weight:800;font-size:28px;letter-spacing:.08em;fill:var(--wire)}
+.fin-lb.max .c{fill:var(--wire-hot)}
+.fin .fbox{border-color:rgba(63,183,166,.2)}
+.fin .fbox .num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:0}
+.fin .fbox .lab{color:var(--wire)}
+.fin svg line[stroke="var(--grid)"]{stroke:rgba(63,183,166,.18)}
+@media (max-width:560px){.fin-lb{display:none}}
+/* bandes de l'écran de fin : votre partie, et la partie passive en dessous */
+.finband{margin-bottom:14px;cursor:help}
+.fb-row{display:grid;grid-template-columns:96px minmax(0,1fr) 64px;align-items:center;gap:10px}
+.fb-row+.fb-row{margin-top:5px}
+.fb-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--wire);font-weight:700}
+.fb-row.ref .fb-l{color:var(--muted)}
+.fb-v{font:700 14px ui-monospace,"SF Mono",Menlo,Consolas,monospace;text-align:right}
+.bandes{display:flex;height:64px;border-radius:6px;overflow:hidden}
+.bandes i{flex:1}
+.fb-row.ref .bandes{height:16px;opacity:.85}
+.fb-row.ref .fb-v{color:var(--muted);font-size:12px}
+.fb-ax{position:relative;height:16px;margin:4px 74px 0 106px;font:10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.fb-ax span{position:absolute;top:0}.fb-ax span:first-child{left:0}.fb-ax span:last-child{right:0}
+.fb-ax span:nth-child(2){transform:translateX(-50%)}
+@media (max-width:560px){.fin .finrow{grid-template-columns:1fr}.fin .fbox .num{white-space:nowrap}.fb-v{white-space:nowrap}.finmap-t{right:14px;bottom:10px}.finmap-t b{font-size:22px}.finmap-t span{font-size:9px}.fb-row{grid-template-columns:minmax(0,1fr) 64px}.fb-l{grid-column:1/-1}.fb-ax{margin:4px 62px 0 0}.bandes{height:48px}}
 </style>

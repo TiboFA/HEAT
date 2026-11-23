@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.15.3</title>
+<title>HEAT — version jouable v0.15.4</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -726,6 +726,42 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .hero-ici b{top:9px;font-weight:700;letter-spacing:.04em}
 .hero-ici span{top:25px;color:rgba(255,255,255,.88)}
 @media (max-width:560px){.hero-ici{height:96px}.hero-ici b{left:auto;right:7px}.hero-ici span{display:none}}
+/* ---- écran de fin filaire (v0.15.4) ---- */
+.finmap{position:relative;border:1px solid rgba(63,183,166,.25);border-radius:10px;overflow:hidden;margin-bottom:14px;background:var(--sea-w)}
+.finmap svg.mapfin{border-radius:0}
+.finmap::after{content:"";position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(255,255,255,.016) 0 1px,transparent 1px 3px),
+            radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(6,9,11,.6) 100%)}
+.finmap .cnr{position:absolute;width:16px;height:16px;border:2px solid var(--wire);opacity:.7;z-index:2}
+.finmap .cnr.tl{top:9px;left:9px;border-right:0;border-bottom:0}.finmap .cnr.tr{top:9px;right:9px;border-left:0;border-bottom:0}
+.finmap .cnr.bl{bottom:9px;left:9px;border-right:0;border-top:0}.finmap .cnr.br{bottom:9px;right:9px;border-left:0;border-top:0}
+.finmap-t{position:absolute;z-index:2;right:22px;bottom:16px;text-align:right;pointer-events:none}
+.finmap-t span{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--wire)}
+.finmap-t b{font:700 clamp(26px,5vw,42px)/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire-hot)}
+.bl.verrou{stroke:#4fd18b}
+.fin-lb{fill:#e7f4f1;font:600 24px ui-monospace,Menlo,Consolas,monospace;text-anchor:middle;paint-order:stroke;stroke:#06090b;stroke-width:6px}
+.fin-lb .c{font-weight:800;font-size:28px;letter-spacing:.08em;fill:var(--wire)}
+.fin-lb.max .c{fill:var(--wire-hot)}
+.fin .fbox{border-color:rgba(63,183,166,.2)}
+.fin .fbox .num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:0}
+.fin .fbox .lab{color:var(--wire)}
+.fin svg line[stroke="var(--grid)"]{stroke:rgba(63,183,166,.18)}
+@media (max-width:560px){.fin-lb{display:none}}
+/* bandes de l'écran de fin : votre partie, et la partie passive en dessous */
+.finband{margin-bottom:14px;cursor:help}
+.fb-row{display:grid;grid-template-columns:96px minmax(0,1fr) 64px;align-items:center;gap:10px}
+.fb-row+.fb-row{margin-top:5px}
+.fb-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--wire);font-weight:700}
+.fb-row.ref .fb-l{color:var(--muted)}
+.fb-v{font:700 14px ui-monospace,"SF Mono",Menlo,Consolas,monospace;text-align:right}
+.bandes{display:flex;height:64px;border-radius:6px;overflow:hidden}
+.bandes i{flex:1}
+.fb-row.ref .bandes{height:16px;opacity:.85}
+.fb-row.ref .fb-v{color:var(--muted);font-size:12px}
+.fb-ax{position:relative;height:16px;margin:4px 74px 0 106px;font:10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.fb-ax span{position:absolute;top:0}.fb-ax span:first-child{left:0}.fb-ax span:last-child{right:0}
+.fb-ax span:nth-child(2){transform:translateX(-50%)}
+@media (max-width:560px){.fin .finrow{grid-template-columns:1fr}.fin .fbox .num{white-space:nowrap}.fb-v{white-space:nowrap}.finmap-t{right:14px;bottom:10px}.finmap-t b{font-size:22px}.finmap-t span{font-size:9px}.fb-row{grid-template-columns:minmax(0,1fr) 64px}.fb-l{grid-column:1/-1}.fb-ax{margin:4px 62px 0 0}.bandes{height:48px}}
 </style>
 </head>
 <body>
@@ -869,7 +905,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.15.3 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.15.4 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -2443,7 +2479,7 @@ function newGame(camp,level,scen){
     reveles:2, satur:false, actions:0, plan:[],
     picE:0, picAn:null, seuilAn:null,
     adv:[], mien:[], rendus:[],          // ce que l'adversaire a joué, ce que vous avez joué : nommément, tour par tour
-    hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:T_BASELINE,g:GHOST[0]}],
+    hand:[], handAI:[], ev:null, attribue:0, log:[], hist:[{p:T_BASELINE,g:GHOST[0],t:T0}],
     over:false, elec:0
   };
   // les aides du niveau Découverte vont au joueur, quel que soit son camp
@@ -3123,7 +3159,7 @@ function finTour(s){
   s.fx.push({t:"bilan"});
   // 8. tour suivant
   s.turn++; s.year+=YPT;
-  s.hist.push({p:projeter(s),g:GHOST[Math.min(s.turn-1,GHOST.length-1)]});
+  s.hist.push({p:projeter(s),g:GHOST[Math.min(s.turn-1,GHOST.length-1)],t:+s.T.toFixed(3)});   // t : température atteinte, pour les bandes de l'écran de fin
   /* ---- le verdict des faits, tous les quatre tours ----
      Ni un levier ni un événement : la trajectoire elle-même tranche. Elle a baissé,
      le camp actif est cru sur parole pour la suite ; elle stagne, c'est le camp
@@ -4786,6 +4822,13 @@ function renderFin(){
     <div class="app fin" style="padding:0">
       <div class="mh"><h2>Fin de partie — ${AN_FIN}</h2><span class="sub">${b.rang}</span></div>
       <div style="padding:18px 22px 22px">
+        <div class="finmap" id="finMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i>
+          <div class="finmap-t"><span>Le monde en ${AN_FIN}</span><b>${fr(b.T,2)} °C</b></div></div>
+        <div class="finband" data-tip="Chaque bande est une année. Jusqu'en 2014, le monde observé (NOAA). À partir de ${AN0}, la température atteinte dans votre partie, tour par tour — et en dessous, la même chose si personne n'avait joué.">
+          <div class="fb-row"><span class="fb-l">Votre partie</span><div class="bandes">${bandesHTML(trajPartie(s))}</div><span class="fb-v">${fr(s.T,2)} °C</span></div>
+          <div class="fb-row ref"><span class="fb-l">Sans action</span><div class="bandes">${bandesHTML(PASSIF_T)}</div><span class="fb-v">${fr(T_BASELINE,2)} °C</span></div>
+          <div class="fb-ax"><span>1850</span><span style="left:${((AN0-1850)/(AN_FIN-1850+1)*100).toFixed(1)}%">${AN0}</span><span>${AN_FIN}</span></div>
+        </div>
         <div class="finrow" style="margin-bottom:14px">
           <div class="fbox"><div class="lab">Pic des émissions</div>
             <div class="num" style="color:${s.picAn?"var(--s-reel)":"var(--s-fric)"}">${s.picAn||"jamais"}</div>
@@ -4836,6 +4879,7 @@ function renderFin(){
       </div>
     </div>
    </div>`;
+  carteFin(s);
   bindTips($("#fin"));
   $("#rejouer").onclick=()=>{location.reload();};
   $("#revoirjour").onclick=()=>{
@@ -4843,6 +4887,31 @@ function renderFin(){
       <div class="mb"><div class="full jour" style="max-height:60vh">${S.log.map(l=>l.cls==="th"?`<div class="th">${l.txt}</div>`:`<div class="l ${l.cls}">${l.txt}</div>`).join("")}</div></div>`;
     ouvrirModal(true); $("#mx").onclick=fermer;
   };
+}
+
+/* La carte filaire de l'écran de fin : une copie de celle du plateau (sans les
+   identifiants, qui doivent rester uniques), dans l'état final de la partie.
+   Chaque bloc porte son code et sa contrainte finale ; le plus gros émetteur de
+   2100 est tracé en orange, les blocs sous loi-cadre en vert. */
+function carteFin(s){
+  const src=document.querySelector("#mapbox svg.map"), box=$("#finMap");
+  if(!src||!box) return;
+  const svg=src.cloneNode(true);
+  svg.removeAttribute("class"); svg.classList.add("map","mapfin");
+  svg.setAttribute("aria-label","Le monde en "+AN_FIN+", bloc par bloc");
+  const emax=Math.max(...s.blocs.map(z=>z.e));
+  s.blocs.forEach(b=>{
+    const p=svg.querySelector("#p_"+b.k); if(!p) return;
+    p.removeAttribute("id");
+    p.setAttribute("class","bl"+(b.e===emax?" max":"")+(b.verrou?" verrou":""));
+    p.style.setProperty("--bf",teinteBloc(s,b));
+    const NS="http://www.w3.org/2000/svg", X=150+b.x/100*2340, Y=15+b.y/100*1150;
+    const t=document.createElementNS(NS,"text");
+    t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+(b.e===emax?" max":""));
+    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${Math.round(b.contr)} · ${fr(b.e,1)} Gt</tspan>`;
+    svg.appendChild(t);
+  });
+  box.prepend(svg);
 }
 
 /* ==================== sauvegarde ====================
@@ -5128,15 +5197,29 @@ function couleurBande(v){
   const a=BANDES_PAL[i], b=BANDES_PAL[Math.min(i+1,BANDES_PAL.length-1)];
   return "rgb("+a.map((c,k)=>Math.round(c+(b[k]-c)*f)).join(",")+")";
 }
-function renderBandes(){
-  const box=$("#bandes"); if(!box) return;
+/* Les bandes de 1850 à 2100 : l'observé jusqu'en 2014, puis une trajectoire de
+   la partie donnée tour par tour (18 valeurs, 2015 à 2100), interpolée par année. */
+function bandesHTML(traj){
   let h="";
   BANDES_OBS.forEach(v=>{ h+=`<i style="background:${couleurBande(v)}"></i>`; });
   for(let y=AN0;y<=AN_FIN;y++){
-    const t=(y-AN0)/YPT, i=Math.min(Math.floor(t),PASSIF_T.length-2), f=t-i;
-    h+=`<i style="background:${couleurBande(PASSIF_T[i]+(PASSIF_T[i+1]-PASSIF_T[i])*f)}"></i>`;
+    const t=(y-AN0)/YPT, i=Math.min(Math.floor(t),traj.length-2), f=t-i;
+    h+=`<i style="background:${couleurBande(traj[i]+(traj[i+1]-traj[i])*f)}"></i>`;
   }
-  box.innerHTML=h;
+  return h;
+}
+/* La trajectoire réellement jouée. Les parties enregistrées avant la v0.15.4 ne
+   gardaient pas la température tour par tour : on la reconstitue alors sur la forme
+   de la partie passive, remise à l'échelle entre 1,0 °C et la température finale. */
+function trajPartie(s){
+  const h=(s.hist||[]).slice(0,PASSIF_T.length);
+  if(h.length===PASSIF_T.length && h.every(x=>typeof x.t==="number")) return h.map(x=>x.t);
+  const k=(s.T-T0)/(PASSIF_T[PASSIF_T.length-1]-T0);
+  return PASSIF_T.map(v=>T0+(v-T0)*k);
+}
+function renderBandes(){
+  const box=$("#bandes"); if(!box) return;
+  box.innerHTML=bandesHTML(PASSIF_T);
   $("#an2015").style.left=((AN0-1850)/(AN_FIN-1850+1)*100)+"%";
   // où en est le monde réel aujourd'hui : l'année en cours d'après l'horloge, le dernier réchauffement observé
   const ici=Math.max(AN0,Math.min(AN_FIN,new Date().getFullYear()));
