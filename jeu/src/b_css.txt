@@ -846,12 +846,12 @@ body.compact .card .id>.tag:not(.defi){display:none}
 /* 7 · le tableau de bord */
 .cockpit{padding:8px}
 .dash{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.tl{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
-.tl .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
-.tl b small{font-size:11px;color:var(--muted);font-weight:500}
-.tl.proj b{color:var(--wire-hot)}
-.tl .s{display:block;font-size:10.5px;color:var(--muted)}
+.tuile{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
+.tuile .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tuile b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
+.tuile b small{font-size:11px;color:var(--muted);font-weight:500}
+.tuile.proj b{color:var(--wire-hot)}
+.tuile .s{display:block;font-size:10.5px;color:var(--muted)}
 .dd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}.dd.bon{color:#4fd18b}.dd.mal{color:var(--wire-hot)}
 .dsec{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:11px;color:var(--muted)}
 .dsec b{color:var(--ink-2);font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -913,4 +913,34 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mb.fiche .fl-t td:last-child b{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
 .mb.fiche .fl-al{border-left:2px solid var(--wire-hot);padding-left:8px}
 @media (max-width:560px){.finmap.fmap .fin-lb{display:inline}.finmap.fmap .fin-lb tspan+tspan{display:none}.finmap.fmap .fin-lb .c{font-size:90px}}
+/* ---- panneau partie et catalogue filaires (v0.16.3) ---- */
+.mb.partie .pstat,.mb.catalogue .pstat{font:11.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink-2);border:1px solid rgba(63,183,166,.25);
+ border-radius:6px;padding:7px 10px;margin-bottom:10px;background:rgba(63,183,166,.05)}
+.pbox{position:relative;border:1px solid rgba(63,183,166,.25);border-radius:6px;padding:11px 13px 12px;margin-bottom:10px;
+ background:repeating-linear-gradient(0deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px)}
+.pbox .cnr,.frise .cnr{position:absolute;width:11px;height:11px;border:2px solid var(--wire);opacity:.8}
+.pbox .cnr.tl,.frise .cnr.tl{top:-2px;left:-2px;border-right:0;border-bottom:0}.pbox .cnr.tr,.frise .cnr.tr{top:-2px;right:-2px;border-left:0;border-bottom:0}
+.pbox .cnr.bl,.frise .cnr.bl{bottom:-2px;left:-2px;border-right:0;border-top:0}.pbox .cnr.br,.frise .cnr.br{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.mb.partie .ms,.mb.catalogue .ms{color:var(--wire)}
+.voy{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:0}
+.voy.ok{background:#4fd18b;box-shadow:0 0 6px rgba(79,209,139,.7)}.voy.att{background:#e0b04a}.voy.ko{background:var(--wire-hot)}
+.mb.partie .mini.go{background:var(--wire);border-color:var(--wire);color:#03140f;font-weight:800}
+.mb.partie .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
+.mb.partie code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--wire)}
+/* catalogue : frise des époques */
+.frise{position:relative;height:58px;margin:14px 6px 6px;border:1px solid rgba(63,183,166,.25);border-radius:6px;background:var(--sea-w)}
+.fr-l{position:absolute;left:12px;right:12px;top:31px;height:2px;background:rgba(63,183,166,.25)}
+.fr-f{position:absolute;left:12px;top:31px;height:2px;background:var(--wire);max-width:calc(100% - 24px);box-shadow:0 0 6px rgba(63,183,166,.6)}
+.frise .tk,.frise .ici,.frise .fr-b{position:absolute;font:10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.frise .tk{top:6px;transform:translateX(-50%);margin-left:12px;text-align:center;white-space:nowrap}
+.frise .tk b{display:block;color:var(--wire);font-weight:700;letter-spacing:.06em}
+.frise .tk.tk0{transform:none;text-align:left}.frise .tk.tk0::after{left:0}
+.frise .tk::after{content:"";position:absolute;left:50%;top:22px;width:1px;height:9px;background:var(--wire)}
+.frise .ici{bottom:5px;transform:translateX(-50%);margin-left:12px;color:var(--wire-hot);font-weight:700}
+.frise .ici::before{content:"";position:absolute;left:50%;top:-12px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:var(--wire-hot);box-shadow:0 0 6px rgba(255,122,61,.7)}
+.frise .fr-b{bottom:5px;margin:0 8px}
+.mb.catalogue .avl{border-bottom-color:rgba(63,183,166,.1)}
+.mb.catalogue .avl:hover{background:rgba(63,183,166,.06)}
+.mb.catalogue .avid{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire)}
+.mb.catalogue .avr{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10.5px}
 </style>

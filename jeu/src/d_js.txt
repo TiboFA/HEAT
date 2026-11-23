@@ -2764,8 +2764,12 @@ function panneauAVenir(){
    <div class="mh"><h2>Le catalogue à venir</h2>
      <span class="sub">${av.length} levier${av.length>1?"s":""} pas encore ouvert${av.length>1?"s":""} · ${pool(s,camp).length} disponibles aujourd'hui</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb"><div class="full">
+   <div class="mb catalogue"><div class="full">
      <p class="gx" style="margin-bottom:4px">Le répertoire de l'action climatique s'est élargi avec le temps, et celui de l'obstruction avec lui. Un levier s'ouvre quand son époque arrive, ou quand la partie a produit ce qu'il suppose. Cliquez un levier pour ouvrir sa fiche complète.</p>
+     ${(()=>{ // la frise des trois époques, avec l'année en cours
+        const y0=AN0, y1=AN_FIN, pos=y=>((y-y0)/(y1-y0)*100).toFixed(1)+"%";
+        const ep=[1,2,3].map(e=>`<span class="tk${e===1?" tk0":""}" style="left:${pos(anEpoque(e))}"><b>Époque ${e}</b>${anEpoque(e)}</span>`).join("");
+        return `<div class="frise"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="fr-l"></div><div class="fr-f" style="width:${pos(s.year)}"></div>${ep}<span class="ici" style="left:${pos(s.year)}">${s.year}</span><span class="fr-b" style="right:0">${y1}</span></div>`;})()}
      ${sect("Époque 2","à partir de "+anEpoque(2)+" — ce que la décennie 2020 a rendu praticable",parEp[2]||[])}
      ${sect("Époque 3","à partir de "+anEpoque(3)+" — l'échelon institutionnel et international",parEp[3]||[])}
      ${sect("En attente d'un prérequis","ceux-là ne dépendent pas du calendrier mais de vous",parReq)}
@@ -2860,7 +2864,7 @@ function renderDash(){
   const dl=(v,n,bonSiBaisse)=>{ if(!v) return `<span class="dd">=</span>`; const bon=bonSiBaisse?v<0:v>0;
     return `<span class="dd ${bon?"bon":"mal"}">${v>0?"+":"−"}${n?fr(Math.abs(v),n):Math.abs(v)}</span>`; };
   const dern=A&&!D;
-  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tl ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
+  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tuile ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
   $("#dash").innerHTML=
     tuile("","Réchauffement",fr(T,2)," °C",
       dern?dl(+(T-A.T).toFixed(2),2,act)+" au dernier tour":"1,00 °C en 2015",
@@ -4171,8 +4175,9 @@ function panneauPartie(){
   $("#modal").innerHTML=`
    <div class="mh"><h2>Votre partie</h2><span class="sub">tour ${S.turn} sur ${NTURNS} · ${S.year} à ${S.year+YPT}</span>
      <button class="x" id="mx">×</button></div>
-   <div class="mb"><div class="full">
-     <div class="ms">Sauvegarde automatique</div>
+   <div class="mb partie"><div class="full">
+     <div class="pstat mono">${S.camp==="actif"?"Climato-actif":"Climato-attentiste"} · niveau ${NIV(S).nom} · ${(SCENARIOS[S.scen]||SCENARIOS.hasard).nom} · ${fr(S.T,2)} °C → ${fr(projeter(S),2)} °C en ${AN_FIN}</div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms"><span class="voy ${dispo?(r?"ok":"att"):"ko"}"></span>Sauvegarde automatique</div>
      <p class="gx">${dispo
        ? (r ? "Enregistrée dans ce navigateur à la fin de chaque tour. Dernier enregistrement : <b>tour "+r.turn+"</b>"+(r.quand?", le "+r.quand:"")+". Elle vous sera proposée à la prochaine ouverture du fichier."
             : "Active. Le premier enregistrement se fera à la fin de ce tour.")
@@ -4181,16 +4186,19 @@ function panneauPartie(){
        <button class="mini" id="psave">Enregistrer maintenant</button>
        ${r?'<button class="mini" id="pclr">Effacer la sauvegarde</button>':''}
      </div>
-     <div class="ms" style="margin-top:16px">Fichier de partie</div>
+     </div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms">Fichier de partie</div>
      <p class="gx">Un fichier <code>.json</code> qui contient la partie entière — l'état du monde, votre main, le journal, la graine du générateur. Il survit au nettoyage du cache et se recharge sur n'importe quelle machine, tant que c'est la même version du jeu.</p>
      <div class="pbtn">
        <button class="mini go" id="pexp">Exporter la partie</button>
        <button class="mini" id="pimp">Charger un fichier…</button>
      </div>
      <p class="gx" id="pmsg" style="margin-top:8px"></p>
-     <div class="ms" style="margin-top:16px">Recommencer</div>
+     </div>
+     <div class="pbox"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="ms">Recommencer</div>
      <p class="gx">Revient à l'écran d'accueil. La sauvegarde automatique n'est pas effacée : vous pourrez encore reprendre cette partie.</p>
      <div class="pbtn"><button class="mini" id="phome">Retour à l'accueil</button></div>
+     </div>
    </div></div>`;
   ouvrirModal(false);
   $("#mx").onclick=fermer;
