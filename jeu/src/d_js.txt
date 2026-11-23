@@ -3971,14 +3971,28 @@ function logHTML(entries,tout){
     :l.cls==="sh"?`<div class="sh">${l.txt}</div>`
     :`<div class="l ${l.cls}">${l.txt}</div>`);
 }
+/* v0.17.1 : le journal se masque, comme le panneau adverse se réduit. Le choix
+   est retenu d'une partie à l'autre. Masqué, il continue d'être écrit : le
+   réafficher montre tout ce qui s'est passé entre-temps. */
+let JOUR_MASQUE=null;
+function jourMasque(){
+  if(JOUR_MASQUE===null){ try{ JOUR_MASQUE=localStorage.getItem("heat.jourMasque")==="1"; }catch(e){ JOUR_MASQUE=false; } }
+  return JOUR_MASQUE;
+}
 function renderLog(){
   const s=S;
-  const f=$("#jourFiltre");
-  if(f) f.innerHTML=`<span class="lnk" id="jourTog" data-tip="${JOURTOUT
+  const f=$("#jourFiltre"), mq=jourMasque(), side=document.querySelector(".sideR");
+  if(side) side.classList.toggle("jourMasque",mq);
+  const bd=document.querySelector(".board"); if(bd) bd.classList.toggle("jourMasque",mq);
+  if(f) f.innerHTML=(mq?"":`<span class="lnk" id="jourTog" data-tip="${JOURTOUT
     ?"Vous voyez tout : chaque effet automatique du moteur est écrit, dérives et recharges comprises. Basculer sur l'essentiel ne garde que les décisions des deux camps."
-    :"Vous ne voyez que les décisions des deux camps et ce qui les sanctionne. Basculer sur tout affiche l'intégralité des effets automatiques."}">${JOURTOUT?"voir l'essentiel":"tout voir"}</span>`;
+    :"Vous ne voyez que les décisions des deux camps et ce qui les sanctionne. Basculer sur tout affiche l'intégralité des effets automatiques."}">${JOURTOUT?"voir l'essentiel":"tout voir"}</span> · `)
+    +`<span class="lnk" id="jourMasq" data-tip="${mq?"Réaffiche le journal. Il a continué d'être écrit pendant qu'il était masqué."
+      :"Masque le journal pour gagner de la place. Il continue d'être écrit ; le bilan de chaque tour reste disponible."}">${mq?"afficher":"masquer"}</span>`;
   $("#jour").innerHTML=logHTML(s.log,JOURTOUT).slice(-400).join("");
-  const tg=$("#jourTog"); if(tg) tg.onclick=()=>{JOURTOUT=!JOURTOUT;renderLog();};
+  // le lien est redessiné sous la souris : sans ça, son infobulle resterait affichée
+  const tg=$("#jourTog"); if(tg) tg.onclick=()=>{JOURTOUT=!JOURTOUT; tip().style.opacity=0; renderLog();};
+  const tm=$("#jourMasq"); if(tm) tm.onclick=()=>{ JOUR_MASQUE=!mq; tip().style.opacity=0; try{ localStorage.setItem("heat.jourMasque", JOUR_MASQUE?"1":"0"); }catch(e){} renderLog(); };
   if(f) bindTips(f);
   $("#jour").scrollTop=$("#jour").scrollHeight;
 }

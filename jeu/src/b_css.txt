@@ -1068,4 +1068,9 @@ body.compact .card .id>.tag:not(.defi){display:none}
  @keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
  @keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}}
 }
+/* ---- journal masquable (v0.17.1) ---- */
+.sideR.jourMasque .jourw{display:none}
+/* sur grand écran, la place rendue va à la carte : la colonne de droite se resserre */
+@media (min-width:1181px){.board.jourMasque{grid-template-columns:minmax(0,1fr) 220px}
+ .sideR.jourMasque .ct{flex-wrap:wrap}}
 </style>
