@@ -3277,8 +3277,10 @@ function renderMap(){
   const c=sel?card(sel):null;
   s.blocs.forEach(b=>{
     const land=document.getElementById("p_"+b.k);
-    land.className.baseVal="bl"+(b.bloque>0?" lock":"");
     const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
+    // style filaire : le plus gros émetteur est tracé en orange, les cibles possibles s'éclairent
+    land.className.baseVal="bl"+(b.bloque>0?" lock":"")+(ciblable?" tgt":"")
+      +(b.e===Math.max(...s.blocs.map(z=>z.e))?" max":"");
     const hot=b.fr>SEUIL_FR;
     // ce que l'adversaire a fait ici : au tour précédent, et depuis le début
     const advL=(s.adv||[]).filter(a=>a.turn===s.turn-1&&a.bk===b.k);
@@ -4161,7 +4163,35 @@ function finDeTour(){
 
 /* ---------- accueil ---------- */
 let choixCamp="actif", choixLvl=2, choixScen="hasard";
+/* ==================== accueil : bandes de réchauffement ====================
+   Une bande par année, colorée selon l'écart de température à 1850-1900
+   (palette des « warming stripes » d'Ed Hawkins). À gauche, l'observé :
+   NOAA GlobalTemp (série GCAG, via datasets/global-temp), rebasé sur la moyenne
+   1850-1900, de 1850 à 2014. À droite, la partie passive du jeu, de 2015 à 2100 :
+   PASSIF_T est la température atteinte à chaque tour sans aucun coup joué
+   (moteur du jeu, v0.15), interpolée année par année. */
+const BANDES_OBS=[-0.07,0.09,0.13,0.1,0.06,0.07,0.03,-0.11,-0.04,0.07,-0.05,-0.11,-0.2,-0.03,-0.14,-0.03,-0.04,-0.04,-0.01,0.04,0.03,-0.02,0.05,0.04,-0.01,-0.01,-0.05,0.27,0.37,0.07,0.05,0.14,0.09,0.03,-0.12,-0.1,-0.05,-0.13,-0.02,0.11,-0.14,-0.04,-0.15,-0.14,-0.12,-0.08,0.08,0.1,-0.12,0.01,0.13,0.07,-0.08,-0.18,-0.24,-0.05,0.04,-0.14,-0.15,-0.18,-0.16,-0.18,-0.12,-0.11,0.1,0.17,-0.06,-0.19,-0.07,0.02,0.05,0.12,0.02,0.04,0.05,0.08,0.24,0.13,0.15,-0.03,0.19,0.25,0.21,0.03,0.18,0.14,0.19,0.34,0.34,0.32,0.43,0.39,0.36,0.36,0.5,0.4,0.23,0.26,0.23,0.2,0.12,0.29,0.37,0.43,0.24,0.16,0.09,0.32,0.34,0.31,0.24,0.34,0.3,0.33,0.06,0.16,0.21,0.24,0.19,0.33,0.27,0.15,0.27,0.41,0.19,0.25,0.15,0.46,0.36,0.45,0.55,0.6,0.39,0.58,0.4,0.4,0.45,0.6,0.63,0.53,0.71,0.69,0.48,0.52,0.58,0.73,0.63,0.77,0.93,0.68,0.68,0.84,0.89,0.9,0.82,0.96,0.92,0.94,0.82,0.95,1.03,0.89,0.93,0.98,1.03];
+const PASSIF_T=[1,1.107,1.222,1.344,1.473,1.607,1.747,1.892,2.04,2.192,2.346,2.503,2.662,2.822,2.984,3.147,3.311,3.475];
+const BANDES_PAL=[[8,48,107],[33,102,172],[67,147,195],[146,197,222],[209,229,240],[253,219,199],[244,165,130],[214,96,77],[178,24,43],[103,0,13],[60,0,8]];
+function couleurBande(v){
+  const x=Math.max(0,Math.min(1,(v+0.6)/4.2))*(BANDES_PAL.length-1), i=Math.floor(x), f=x-i;
+  const a=BANDES_PAL[i], b=BANDES_PAL[Math.min(i+1,BANDES_PAL.length-1)];
+  return "rgb("+a.map((c,k)=>Math.round(c+(b[k]-c)*f)).join(",")+")";
+}
+function renderBandes(){
+  const box=$("#bandes"); if(!box) return;
+  let h="";
+  BANDES_OBS.forEach(v=>{ h+=`<i style="background:${couleurBande(v)}"></i>`; });
+  for(let y=AN0;y<=AN_FIN;y++){
+    const t=(y-AN0)/YPT, i=Math.min(Math.floor(t),PASSIF_T.length-2), f=t-i;
+    h+=`<i style="background:${couleurBande(PASSIF_T[i]+(PASSIF_T[i+1]-PASSIF_T[i])*f)}"></i>`;
+  }
+  box.innerHTML=h;
+  $("#an2015").style.left=((AN0-1850)/(AN_FIN-1850+1)*100)+"%";
+  $("#heroT").innerHTML=`<b>${fr(T_BASELINE,2)} °C</b><small>en ${AN_FIN} si personne n'agit · monde réel : ${fr(REEL_2100,2)} °C</small>`;
+}
 function initHome(){
+  renderBandes();
   // vue compacte des cartes : le choix du joueur s'il en a fait un, sinon active sur téléphone
   let vc=null; try{ vc=localStorage.getItem("heat.compact"); }catch(e){}
   if(vc==="1" || (vc===null && matchMedia("(max-width:700px)").matches)) document.body.classList.add("compact");
