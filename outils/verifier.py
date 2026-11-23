@@ -59,10 +59,23 @@ out = harnais("calib3.py", N)
 print("     " + out.strip().replace("\n", "\n     "))
 m = re.search(r"passif \(aucun coup\)\s*:\s*([\d.]+)", out)
 ok("passif à 3,48 °C", bool(m) and m.group(1) == "3.48", m.group(1) if m else "illisible")
+# En --vite (10 parties), deux niveaux voisins peuvent s'inverser par le seul
+# hasard des tirages : l'inversion est tolérée si elle tient dans deux erreurs
+# types de la différence, et signalée. En mode complet (30 parties, la CI),
+# l'ordre doit être strict.
+VITE = N == "10"
 for camp in ("actif", "attentiste"):
-    sc = [int(x) for x in re.findall(r"^%s\s+niveau \d : .*?score=(\d+)" % camp, out, re.M)]
-    ok("%s : score décroissant avec le niveau" % camp,
-       len(sc) == 4 and all(a > b for a, b in zip(sc, sc[1:])), str(sc))
+    lus = re.findall(r"^%s\s+niveau \d : .*?score=(\d+) \(±(\d+)\)" % camp, out, re.M)
+    sc = [int(x) for x, _ in lus]; et = [int(e) for _, e in lus]
+    bruit = []
+    bon = len(sc) == 4
+    for i in range(3 if bon else 0):
+        if sc[i] > sc[i + 1]: continue
+        marge = 2 * ((et[i] ** 2 + et[i + 1] ** 2) / int(N)) ** 0.5
+        if VITE and sc[i + 1] - sc[i] <= marge: bruit.append("niv. %d/%d : +%d, marge %.0f" % (i + 1, i + 2, sc[i + 1] - sc[i], marge))
+        else: bon = False
+    ok("%s : score décroissant avec le niveau" % camp, bon,
+       str(sc) + (" — inversion dans le bruit de 10 parties (" + "; ".join(bruit) + "), à confirmer sans --vite" if bruit and bon else ""))
 
 print()
 print("TOUT PASSE" if not echecs else "%d ÉCHEC(S) : %s" % (len(echecs), ", ".join(echecs)))

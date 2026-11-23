@@ -5,7 +5,8 @@ from playwright.sync_api import sync_playwright
 import pathlib,statistics,sys
 url="file://"+str(pathlib.Path("jeu.html").resolve())
 N=int(sys.argv[1]) if len(sys.argv)>1 else 30
-JS=r"""([camp,lvl,n,passif])=>{
+MULTI={"multi":0.5,"multi1":1.01}.get(sys.argv[2],0) if len(sys.argv)>2 else 0
+JS=r"""([camp,lvl,n,passif,multi])=>{
   const out=[];
   for(let p=0;p<n;p++){
     rng=(p*2654435761+lvl*7919+(camp==="actif"?1:2))&0x7fffffff;
@@ -23,6 +24,13 @@ JS=r"""([camp,lvl,n,passif])=>{
           const c=j[Math.floor(rnd()*j.length)];
           const b=c.cible==="bloc"?S.blocs.find(z=>!jouable(S,c,z,camp)):null;
           jouer(S,c.id,b?b.k:null,camp); k+=pds(c);
+          // v0.16.6 : comme le joueur humain depuis la v0.15.7, un levier de bloc peut
+          // servir sur d'autres blocs dans le même tour, chacun au prix plein.
+          // Politique neutre : une fois sur deux, on l'étend tant qu'on peut.
+          if(multi && b) while(rnd()<multi && k+pds(c)<=BUD){
+            const z=S.blocs.filter(y=>!jouable(S,c,y,camp)); if(!z.length) break;
+            const y=z[Math.floor(rnd()*z.length)]; jouer(S,c.id,y.k,camp); k+=pds(c);
+          }
         }
       }
       if(!passif) iaJoue(S);
@@ -34,15 +42,15 @@ JS=r"""([camp,lvl,n,passif])=>{
 }"""
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(); pg.goto(url); pg.wait_for_timeout(300)
-    r=pg.evaluate(JS,["actif",2,1,True])
+    r=pg.evaluate(JS,["actif",2,1,True,0])
     print(f"passif (aucun coup)      : {r[0][0]:.2f} °C · {r[0][2]:.1f} GtCO₂/an")
     for camp,nom in (("actif","actif     "),("att","attentiste")):
         for lvl in (1,2,3,4):
-            r=pg.evaluate(JS,[camp,lvl,N,False])
+            r=pg.evaluate(JS,[camp,lvl,N,False,MULTI])
             T=[x[0] for x in r]; sc=[x[1] for x in r]
             pic=[x[3] for x in r if x[3]]; se=[x[4] for x in r if x[4]]
             print(f"{nom} niveau {lvl} : T={statistics.mean(T):.2f} (±{statistics.stdev(T):.2f})"
-                  f"  score={statistics.mean(sc):.0f}"
+                  f"  score={statistics.mean(sc):.0f} (±{statistics.stdev(sc):.0f})"
                   f"  pic={statistics.mean(pic):.0f}" if pic else "",
                   f" seuil atteint {len(se)}/{N}")
     b.close()
