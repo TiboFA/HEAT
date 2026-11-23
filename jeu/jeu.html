@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.16.4</title>
+<title>HEAT — version jouable v0.16.5</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -990,6 +990,32 @@ body.compact .card .id>.tag:not(.defi){display:none}
 #home .dlab .dv{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--wire)}
 #home .rpz .mini.go{background:var(--wire);border-color:var(--wire);color:#03140f;font-weight:800}
 #home .rpz .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
+/* ---- tableau de bord filaire (v0.16.5) ----
+   Même grammaire que l'accueil : coins en équerre dessinés en fond, quadrillage
+   discret. La projection garde ses coins orange : c'est la valeur qui bouge avec
+   le plan. */
+.cockpit{--cn:linear-gradient(var(--wire),var(--wire));border-radius:6px;padding:11px 13px;border-color:rgba(63,183,166,.25);
+ background:var(--cn) 0 0/12px 2px no-repeat,var(--cn) 0 0/2px 12px no-repeat,
+  var(--cn) 100% 0/12px 2px no-repeat,var(--cn) 100% 0/2px 12px no-repeat,
+  var(--cn) 0 100%/12px 2px no-repeat,var(--cn) 0 100%/2px 12px no-repeat,
+  var(--cn) 100% 100%/12px 2px no-repeat,var(--cn) 100% 100%/2px 12px no-repeat,
+  repeating-linear-gradient(0deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px),
+  repeating-linear-gradient(90deg,rgba(63,183,166,.035) 0 1px,transparent 1px 22px),var(--sea-w)}
+.tuile{--tc:rgba(127,224,210,.7);--c2:linear-gradient(var(--tc),var(--tc));border-radius:3px;border-color:rgba(63,183,166,.16);
+ background:var(--c2) 0 0/7px 1.5px no-repeat,var(--c2) 0 0/1.5px 7px no-repeat,
+  var(--c2) 100% 0/7px 1.5px no-repeat,var(--c2) 100% 0/1.5px 7px no-repeat,
+  var(--c2) 0 100%/7px 1.5px no-repeat,var(--c2) 0 100%/1.5px 7px no-repeat,
+  var(--c2) 100% 100%/7px 1.5px no-repeat,var(--c2) 100% 100%/1.5px 7px no-repeat,rgba(20,24,25,.82);
+ transition:border-color .15s}
+.tuile:hover{border-color:rgba(63,183,166,.45)}
+.tuile .l{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire);letter-spacing:.12em;font-size:9.5px}
+.tuile.proj{--tc:var(--wire-hot);border-color:rgba(255,122,61,.28)}
+.tuile.proj .l{color:var(--wire-hot)}
+.tuile .s{font-size:10.5px}
+.dsec{border-top:1px dashed rgba(63,183,166,.22);padding-top:6px;margin-top:1px}
+.dsec>span:not(.lnk){font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10px;letter-spacing:.04em}
+.dsec b{color:var(--wire-hi)}
+.dsec .lnk{color:var(--wire)}
 </style>
 </head>
 <body>
@@ -1133,7 +1159,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.16.4 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.16.5 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
