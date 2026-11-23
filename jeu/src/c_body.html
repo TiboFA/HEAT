@@ -141,7 +141,7 @@
     </div>
   </details>
 
-  <div class="vers">HEAT v0.17.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.17.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -165,7 +165,7 @@
           <span data-tip="<b>Soutien réel</b><br>Lent, difficile à déplacer, insensible aux campagnes adverses.<br>Monte tout seul avec les dommages subis."><i style="background:var(--s-reel)"></i>Réel</span>
           <span data-tip="<b>Soutien perçu</b><br>Volatile. C'est lui qui détermine ce que les décideurs osent faire.<br>Écart réel/perçu documenté : 69 % contre 43 % (Andre et al., 2024)."><i style="background:var(--s-percu)"></i>Perçu</span>
           <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure non compensée. Au-delà de 55, retour de flamme : une mesure est annulée."><i style="background:var(--s-fric)"></i>Friction</span>
-          <span style="margin-left:auto" class="lg-l">Survol : explication · clic sur un bloc : fiche</span><span style="margin-left:auto" class="lg-n">Touchez un bloc ci-dessous : fiche ou cible</span>
+          <span style="margin-left:auto" class="lg-l">Survol : explication · clic sur un bloc : fiche</span><span style="margin-left:auto" class="lg-n">Un bloc ci-dessous : sa fiche, ou la cible du levier choisi</span><span id="carteTog"></span>
         </div>
         <div class="bgrid" id="blocGrid" aria-label="Les huit blocs"></div>
         <div class="cockpit"><div class="dash" id="dash"></div></div>
@@ -175,7 +175,7 @@
           <div class="advp" id="advPanel"></div></div>
         <div id="docBox"><div class="ct">Votre doctrine <span id="docEtat"></span></div>
           <div class="doc" id="docPanel"></div></div>
-        <div class="ct">La presse</div>
+        <div class="ct">La presse <span id="presseTog"></span></div>
         <div id="presse"></div>
         <div class="ct">Journal <span id="jourFiltre"></span></div>
         <div class="jourw"><div class="jour" id="jour"></div></div>

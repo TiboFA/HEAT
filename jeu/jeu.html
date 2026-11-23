@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.17.1</title>
+<title>HEAT — version jouable v0.17.2</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1058,32 +1058,50 @@ body.compact .card .id>.tag:not(.defi){display:none}
  .lg-l{display:none}.lg-n{display:inline}
  #mapbox .gp{display:none}
  .bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
- .bt{border:1px solid rgba(63,183,166,.18);border-radius:4px;background:rgba(17,22,23,.95);padding:7px 8px 6px;cursor:pointer;min-width:0;
-  -webkit-tap-highlight-color:transparent;transition:border-color .15s}
- .bth{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:3px}
- .bth b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .bth span{flex:0 0 auto;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
- .bt .c2r{grid-template-columns:50px minmax(0,1fr) 26px;font-size:10px;margin:3px 0}
- .bt .c2t{height:7px}
- .bt .c2r b{font-size:10px}
- .bts{font-size:10px;line-height:1.3;color:var(--muted);margin-top:3px;min-height:13px}
- .bt.tgt{border-color:#8fbdf2;box-shadow:0 0 0 1px #8fbdf2;background:rgba(57,135,229,.10)}
- .bt.tgt .bts{color:#8fbdf2;font-weight:600}
- .bt.hors{opacity:.5}
- .bt.hot{border-color:rgba(255,122,61,.55)}
- .bt.hot .bts{color:var(--wire-hot)}
- .bt.adv0 .bts{color:#e88}
- .bt.evt{box-shadow:inset 0 2px 0 var(--s-percu)}
- .bt.fx{animation:btfx .75s ease-out}
- .bt.fx.bad{animation-name:btbad}
- @keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
- @keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}}
+}
+.bt{border:1px solid rgba(63,183,166,.18);border-radius:4px;background:rgba(17,22,23,.95);padding:7px 8px 6px;cursor:pointer;min-width:0;
+ -webkit-tap-highlight-color:transparent;transition:border-color .15s}
+.bth{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:3px}
+.bth b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bth span{flex:0 0 auto;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
+.bt .c2r{grid-template-columns:50px minmax(0,1fr) 26px;font-size:10px;margin:3px 0}
+.bt .c2t{height:7px}
+.bt .c2r b{font-size:10px}
+.bts{font-size:10px;line-height:1.3;color:var(--muted);margin-top:3px;min-height:13px}
+.bt.tgt{border-color:#8fbdf2;box-shadow:0 0 0 1px #8fbdf2;background:rgba(57,135,229,.10)}
+.bt.tgt .bts{color:#8fbdf2;font-weight:600}
+.bt.hors{opacity:.5}
+.bt.hot{border-color:rgba(255,122,61,.55)}
+.bt.hot .bts{color:var(--wire-hot)}
+.bt.adv0 .bts{color:#e88}
+.bt.evt{box-shadow:inset 0 2px 0 var(--s-percu)}
+.bt.fx{animation:btfx .75s ease-out}
+.bt.fx.bad{animation-name:btbad}
+@keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}
 }
 /* ---- journal masquable (v0.17.1) ---- */
 .sideR.jourMasque .jourw{display:none}
 /* sur grand écran, la place rendue va à la carte : la colonne de droite se resserre */
 @media (min-width:1181px){.board.jourMasque{grid-template-columns:minmax(0,1fr) 220px}
  .sideR.jourMasque .ct{flex-wrap:wrap}}
+/* ---- sections repliables (v0.17.2) ---- */
+.repl{margin-left:auto;font-size:10.5px;white-space:nowrap}
+.cetour .repl{margin-left:auto}
+.cetour.replie{padding-top:6px;padding-bottom:6px}
+.cetour .ctr{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.dmini{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;font-size:11.5px;color:var(--muted)}
+.dmini b{font:700 14px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink);margin-left:4px}
+.dmini .pj b{color:var(--wire-hot)}
+.cockpit:has(.dash.replie){padding:7px 13px}
+.dsec .repl{margin-left:12px}
+.legend #carteTog{margin-left:12px}
+.legend #carteTog .repl{font-size:11px}
+.board.carteMasquee .mapbox{display:none}
+.board.carteMasquee .lg-l{display:none}
+.board.carteMasquee .lg-n{display:inline}
+.board.carteMasquee .bgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+@media (max-width:1180px){.board.carteMasquee .bgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -1228,7 +1246,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.17.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.17.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -1252,7 +1270,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
           <span data-tip="<b>Soutien réel</b><br>Lent, difficile à déplacer, insensible aux campagnes adverses.<br>Monte tout seul avec les dommages subis."><i style="background:var(--s-reel)"></i>Réel</span>
           <span data-tip="<b>Soutien perçu</b><br>Volatile. C'est lui qui détermine ce que les décideurs osent faire.<br>Écart réel/perçu documenté : 69 % contre 43 % (Andre et al., 2024)."><i style="background:var(--s-percu)"></i>Perçu</span>
           <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure non compensée. Au-delà de 55, retour de flamme : une mesure est annulée."><i style="background:var(--s-fric)"></i>Friction</span>
-          <span style="margin-left:auto" class="lg-l">Survol : explication · clic sur un bloc : fiche</span><span style="margin-left:auto" class="lg-n">Touchez un bloc ci-dessous : fiche ou cible</span>
+          <span style="margin-left:auto" class="lg-l">Survol : explication · clic sur un bloc : fiche</span><span style="margin-left:auto" class="lg-n">Un bloc ci-dessous : sa fiche, ou la cible du levier choisi</span><span id="carteTog"></span>
         </div>
         <div class="bgrid" id="blocGrid" aria-label="Les huit blocs"></div>
         <div class="cockpit"><div class="dash" id="dash"></div></div>
@@ -1262,7 +1280,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
           <div class="advp" id="advPanel"></div></div>
         <div id="docBox"><div class="ct">Votre doctrine <span id="docEtat"></span></div>
           <div class="doc" id="docPanel"></div></div>
-        <div class="ct">La presse</div>
+        <div class="ct">La presse <span id="presseTog"></span></div>
         <div id="presse"></div>
         <div class="ct">Journal <span id="jourFiltre"></span></div>
         <div class="jourw"><div class="jour" id="jour"></div></div>
@@ -3994,6 +4012,26 @@ const RES_TIP={
       +"<br><br><b>Ce qui la fait bouger sans que personne ne la joue.</b> Tous les quatre tours, la trajectoire tranche : elle a baissé, on vous croit ; elle stagne, on croit l'autre. Un retour de flamme donne raison au camp attentiste, le pic des émissions au camp actif, une échéance net zéro manquée coûte cher. Et la controverse s'oublie : chaque tour, les deux crédibilités reviennent un peu vers 50. Une avance ne se met pas en banque."
 };
 
+/* v0.17.2 : sections repliables. Une clé par section, mémorisée dans le
+   navigateur d'une partie à l'autre ; toutes ouvertes par défaut. Le lien
+   porte data-repli : un seul gestionnaire de clic pour toutes. Le camp adverse
+   et le journal gardent leurs propres réglages, antérieurs. */
+const REPLI={};
+function replie(k){
+  if(!(k in REPLI)){ let v=null; try{ v=localStorage.getItem("heat.repli."+k); }catch(e){} REPLI[k]=v==="1"; }
+  return REPLI[k];
+}
+function lienRepli(k,ouvert,ferme,tipO,tipF){
+  const r=replie(k);
+  return `<span class="lnk repl" data-repli="${k}" data-tip="${r?tipF:tipO}">${r?ferme:ouvert}</span>`;
+}
+function deplier(k){ REPLI[k]=false; try{ localStorage.setItem("heat.repli."+k,"0"); }catch(e){} }
+document.addEventListener("click",e=>{
+  const t=e.target.closest&&e.target.closest("[data-repli]"); if(!t) return;
+  const k=t.dataset.repli; REPLI[k]=!replie(k);
+  try{ localStorage.setItem("heat.repli."+k, REPLI[k]?"1":"0"); }catch(_){}
+  tip().style.opacity=0; render();
+});
 function render(garde){
   const s=V();
   if(S.over&&!garde){renderFin();return;}
@@ -4047,8 +4085,11 @@ function renderEvent(){
       ?`<button class="mini undo" id="bunattr">retirer</button>`
       :`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"attribuer":"désattribuer"} · 1 attention</button>`):""}</span>`;
   const ag=(RESO||DASHV||S.over)?"":agenda(s).filter(x=>!x.ev).map(x=>`<span class="pl ag ${x.cls}" data-tip="${x.tip.replace(/"/g,'&quot;')}"><b>${x.t}</b>${x.r?"<i>"+x.r+"</i>":""}</span>`).join("");
+  const rCt=replie("cetour");
+  $("#cetour").classList.toggle("replie",rCt);
   $("#cetour").innerHTML=`<span class="k" data-tip="Ce qui se joue ce tour : l'événement, l'objectif de la partie, le défi du tour, et tout ce que la résolution appliquera quoi que vous fassiez.">Ce tour</span>`
-    +evp+pastilleObjectif(s)+(s.defi?pastilleDefi(s):"")+ag;
+    +(rCt?`<span class="ctr">${e?e.t:"aucun événement"}${s.defi?" · ★ "+s.defi.t:""}</span>`:evp+pastilleObjectif(s)+(s.defi?pastilleDefi(s):"")+ag)
+    +lienRepli("cetour","réduire","afficher","Réduit cette ligne à son titre. L'événement et le défi restent nommés.","Réaffiche l'événement, l'objectif, le défi et l'agenda du tour.");
   const ba=$("#battr"); if(ba) ba.onclick=()=>{ if(RESO)return; planAjouter({k:"attr"}); render(); };
   const bu=$("#bunattr"); if(bu) bu.onclick=()=>{ if(RESO)return; planRetirer(planAttr()); render(); };
 }
@@ -4190,6 +4231,14 @@ function renderDash(){
     `<span data-tip="<b>Compteur partagé</b><br>Cumul des décès liés à la chaleur depuis 2015. Repère réel : environ 546 000 par an.">Décès chaleur <b>${fr(D?D.morts:s.morts,1)} M</b></span>`+
     `<span data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent, les autres non.">Dommages riches / autres <b>${s.dmgBase} / ${s.dmgAutres}</b></span>`+
     (BILAN&&!D&&!RESO?`<span class="lnk" id="dashBilan">trajectoire et bilan du tour ${BILAN.turn}</span>`:"")+`</div>`;
+  if(replie("dash")){
+    $("#dash").innerHTML=`<div class="dmini"><span>Réchauffement <b>${fr(T,2)} °C</b></span><span class="pj">${S.turn>NTURNS?"Résultat":"Projection"} ${AN_FIN} <b>${fr(proj,2)} °C</b></span>`
+      +`<span>Émissions <b>${fr(em,1)} Gt/an</b></span><span>Score <b>${sc} pts</b></span>`
+      +lienRepli("dash","réduire","afficher","","Réaffiche les quatre tuiles, leurs écarts et la ligne secondaire.")+`</div>`;
+  } else {
+    const ds=$("#dash .dsec"); if(ds) ds.insertAdjacentHTML("beforeend",lienRepli("dash","réduire","afficher","Réduit le tableau de bord à une ligne de chiffres.",""));
+  }
+  $("#dash").classList.toggle("replie",replie("dash"));
   const db=$("#dashBilan"); if(db) db.onclick=bilanTour;
 }
 
@@ -4619,6 +4668,11 @@ function renderMap(){
      une grille de huit tuiles en dessous porte les jauges et reçoit les touchers.
      La grille est construite à chaque rendu ; le CSS ne l'affiche que sous 700 px. */
   const grille=$("#blocGrid"); let gh="";
+  const rCarte=replie("carte"), bd=document.querySelector(".board");
+  if(bd) bd.classList.toggle("carteMasquee",rCarte);
+  const ctg=$("#carteTog"); if(ctg) ctg.innerHTML=lienRepli("carte","masquer la carte","afficher la carte",
+    "Masque la carte. Les huit blocs restent jouables dans une grille de tuiles, avec leurs jauges.",
+    "Réaffiche la carte du monde. Sur ordinateur, la grille de tuiles s'efface alors.");
   s.blocs.forEach(b=>{
     const land=document.getElementById("p_"+b.k);
     const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
@@ -4835,7 +4889,7 @@ function renderHand(){
         return;
       }
       sel = sel===id?null:id; render();
-      if(sel && matchMedia("(max-width:700px)").matches){ const g=$("#blocGrid"); if(g) g.scrollIntoView({behavior:"smooth",block:"center"}); } };
+      if(sel && (matchMedia("(max-width:700px)").matches||replie("carte"))){ const g=$("#blocGrid"); if(g) g.scrollIntoView({behavior:"smooth",block:"center"}); } };
   });
   bindTips(zone);
   const rd=$("#redraw");
@@ -5236,6 +5290,9 @@ function renderPresse(){
     ? s.presse.map(m=>`<div class="pr"><span>${m.s}</span><b>${m.t}</b></div>`).join("")
     : `<div class="pr"><span>en attente</span><b>Rien n'a encore été publié sur cette partie.</b></div>`;
   $("#presse").innerHTML=h;
+  const rp=replie("presse");
+  $("#presse").style.display=rp?"none":"";
+  const pt=$("#presseTog"); if(pt) pt.innerHTML=lienRepli("presse","réduire","afficher","Replie la presse et les combinaisons du tour.","Réaffiche la presse et les combinaisons du tour.");
 }
 
 /* Le journal contient tout ce que la machine fait toute seule — dérives, effets
@@ -5605,7 +5662,8 @@ const GUIDE=[
   d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et pourquoi."}
 ];
 let GI=-1, GUIDE_VU=false;
-function guideOuvrir(i){ GI=i||0; GUIDE_VU=true; $("#guide").classList.add("on"); guidePas(); }
+function guideOuvrir(i){ ["cetour","carte","dash","presse"].forEach(deplier); if(S&&!S.over) render();
+  GI=i||0; GUIDE_VU=true; $("#guide").classList.add("on"); guidePas(); }
 function guideFermer(){ GI=-1; $("#guide").classList.remove("on"); }
 function guidePas(){
   const st=GUIDE[GI];

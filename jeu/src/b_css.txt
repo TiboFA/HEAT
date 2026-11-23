@@ -1047,30 +1047,48 @@ body.compact .card .id>.tag:not(.defi){display:none}
  .lg-l{display:none}.lg-n{display:inline}
  #mapbox .gp{display:none}
  .bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
- .bt{border:1px solid rgba(63,183,166,.18);border-radius:4px;background:rgba(17,22,23,.95);padding:7px 8px 6px;cursor:pointer;min-width:0;
-  -webkit-tap-highlight-color:transparent;transition:border-color .15s}
- .bth{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:3px}
- .bth b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .bth span{flex:0 0 auto;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
- .bt .c2r{grid-template-columns:50px minmax(0,1fr) 26px;font-size:10px;margin:3px 0}
- .bt .c2t{height:7px}
- .bt .c2r b{font-size:10px}
- .bts{font-size:10px;line-height:1.3;color:var(--muted);margin-top:3px;min-height:13px}
- .bt.tgt{border-color:#8fbdf2;box-shadow:0 0 0 1px #8fbdf2;background:rgba(57,135,229,.10)}
- .bt.tgt .bts{color:#8fbdf2;font-weight:600}
- .bt.hors{opacity:.5}
- .bt.hot{border-color:rgba(255,122,61,.55)}
- .bt.hot .bts{color:var(--wire-hot)}
- .bt.adv0 .bts{color:#e88}
- .bt.evt{box-shadow:inset 0 2px 0 var(--s-percu)}
- .bt.fx{animation:btfx .75s ease-out}
- .bt.fx.bad{animation-name:btbad}
- @keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
- @keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}}
+}
+.bt{border:1px solid rgba(63,183,166,.18);border-radius:4px;background:rgba(17,22,23,.95);padding:7px 8px 6px;cursor:pointer;min-width:0;
+ -webkit-tap-highlight-color:transparent;transition:border-color .15s}
+.bth{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:3px}
+.bth b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bth span{flex:0 0 auto;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
+.bt .c2r{grid-template-columns:50px minmax(0,1fr) 26px;font-size:10px;margin:3px 0}
+.bt .c2t{height:7px}
+.bt .c2r b{font-size:10px}
+.bts{font-size:10px;line-height:1.3;color:var(--muted);margin-top:3px;min-height:13px}
+.bt.tgt{border-color:#8fbdf2;box-shadow:0 0 0 1px #8fbdf2;background:rgba(57,135,229,.10)}
+.bt.tgt .bts{color:#8fbdf2;font-weight:600}
+.bt.hors{opacity:.5}
+.bt.hot{border-color:rgba(255,122,61,.55)}
+.bt.hot .bts{color:var(--wire-hot)}
+.bt.adv0 .bts{color:#e88}
+.bt.evt{box-shadow:inset 0 2px 0 var(--s-percu)}
+.bt.fx{animation:btfx .75s ease-out}
+.bt.fx.bad{animation-name:btbad}
+@keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}
 }
 /* ---- journal masquable (v0.17.1) ---- */
 .sideR.jourMasque .jourw{display:none}
 /* sur grand écran, la place rendue va à la carte : la colonne de droite se resserre */
 @media (min-width:1181px){.board.jourMasque{grid-template-columns:minmax(0,1fr) 220px}
  .sideR.jourMasque .ct{flex-wrap:wrap}}
+/* ---- sections repliables (v0.17.2) ---- */
+.repl{margin-left:auto;font-size:10.5px;white-space:nowrap}
+.cetour .repl{margin-left:auto}
+.cetour.replie{padding-top:6px;padding-bottom:6px}
+.cetour .ctr{font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.dmini{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;font-size:11.5px;color:var(--muted)}
+.dmini b{font:700 14px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink);margin-left:4px}
+.dmini .pj b{color:var(--wire-hot)}
+.cockpit:has(.dash.replie){padding:7px 13px}
+.dsec .repl{margin-left:12px}
+.legend #carteTog{margin-left:12px}
+.legend #carteTog .repl{font-size:11px}
+.board.carteMasquee .mapbox{display:none}
+.board.carteMasquee .lg-l{display:none}
+.board.carteMasquee .lg-n{display:inline}
+.board.carteMasquee .bgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+@media (max-width:1180px){.board.carteMasquee .bgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
