@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.16.7</title>
+<title>HEAT — version jouable v0.17</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1049,6 +1049,36 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .endturn{border-radius:4px}
 .endturn.armed{background:var(--wire);color:#03140f;box-shadow:0 0 0 1px var(--wire-hi)}
 .endturn.armed:hover{background:var(--wire-hi)}
+/* ---- grille des blocs sur téléphone (v0.17) ----
+   Sous 700 px, les pastilles de la carte disparaissent : la carte garde ses
+   couleurs (cible, préempté, plus gros émetteur) et la grille porte les jauges. */
+.bgrid{display:none}
+.lg-n{display:none}
+@media (max-width:700px){
+ .lg-l{display:none}.lg-n{display:inline}
+ #mapbox .gp{display:none}
+ .bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+ .bt{border:1px solid rgba(63,183,166,.18);border-radius:4px;background:rgba(17,22,23,.95);padding:7px 8px 6px;cursor:pointer;min-width:0;
+  -webkit-tap-highlight-color:transparent;transition:border-color .15s}
+ .bth{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:3px}
+ .bth b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .bth span{flex:0 0 auto;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
+ .bt .c2r{grid-template-columns:50px minmax(0,1fr) 26px;font-size:10px;margin:3px 0}
+ .bt .c2t{height:7px}
+ .bt .c2r b{font-size:10px}
+ .bts{font-size:10px;line-height:1.3;color:var(--muted);margin-top:3px;min-height:13px}
+ .bt.tgt{border-color:#8fbdf2;box-shadow:0 0 0 1px #8fbdf2;background:rgba(57,135,229,.10)}
+ .bt.tgt .bts{color:#8fbdf2;font-weight:600}
+ .bt.hors{opacity:.5}
+ .bt.hot{border-color:rgba(255,122,61,.55)}
+ .bt.hot .bts{color:var(--wire-hot)}
+ .bt.adv0 .bts{color:#e88}
+ .bt.evt{box-shadow:inset 0 2px 0 var(--s-percu)}
+ .bt.fx{animation:btfx .75s ease-out}
+ .bt.fx.bad{animation-name:btbad}
+ @keyframes btfx{0%{box-shadow:0 0 0 2px var(--wire-hi)}100%{box-shadow:0 0 0 0 transparent}}
+ @keyframes btbad{0%{box-shadow:0 0 0 2px var(--wire-hot)}100%{box-shadow:0 0 0 0 transparent}}
+}
 </style>
 </head>
 <body>
@@ -1193,7 +1223,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.16.7 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.17 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -1217,8 +1247,9 @@ body.compact .card .id>.tag:not(.defi){display:none}
           <span data-tip="<b>Soutien réel</b><br>Lent, difficile à déplacer, insensible aux campagnes adverses.<br>Monte tout seul avec les dommages subis."><i style="background:var(--s-reel)"></i>Réel</span>
           <span data-tip="<b>Soutien perçu</b><br>Volatile. C'est lui qui détermine ce que les décideurs osent faire.<br>Écart réel/perçu documenté : 69 % contre 43 % (Andre et al., 2024)."><i style="background:var(--s-percu)"></i>Perçu</span>
           <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure non compensée. Au-delà de 55, retour de flamme : une mesure est annulée."><i style="background:var(--s-fric)"></i>Friction</span>
-          <span style="margin-left:auto">Survol : explication · clic sur un bloc : fiche</span>
+          <span style="margin-left:auto" class="lg-l">Survol : explication · clic sur un bloc : fiche</span><span style="margin-left:auto" class="lg-n">Touchez un bloc ci-dessous : fiche ou cible</span>
         </div>
+        <div class="bgrid" id="blocGrid" aria-label="Les huit blocs"></div>
         <div class="cockpit"><div class="dash" id="dash"></div></div>
       </div>
       <div class="side sideR">
@@ -3748,6 +3779,9 @@ function jaugeEls(k){
 function majBarres(k){
   const v=VIS[k], e=jaugeEls(k); if(!e)return;
   const vals=[v.contr,v.reel,v.percu,v.fr];
+  const t=document.querySelector('#blocGrid .bt[data-k="'+k+'"]');
+  if(t){ const f=t.querySelectorAll(".c2f"), nb=t.querySelectorAll(".c2r b");
+    vals.forEach((x,i)=>{ if(f[i]) f[i].style.width=Math.max(0,Math.min(100,x))+"%"; if(nb[i]) nb[i].textContent=Math.round(x); }); }
   vals.forEach((x,i)=>{
     const w=Math.max(0,Math.min(100,x));
     if(e.cb[i])e.cb[i].style.height=w+"%";
@@ -3767,6 +3801,9 @@ function flotte(k,txt,cls){
   setTimeout(()=>{d.remove(); if(--FLOTN[k]<=0) delete FLOTN[k];},1400+(n-1)*130);
 }
 function pulseBloc(k,bad){
+  const t=document.querySelector('#blocGrid .bt[data-k="'+k+'"]');
+  if(t){ t.classList.remove("fx","bad"); void t.offsetWidth; t.classList.add("fx"); if(bad)t.classList.add("bad");
+    setTimeout(()=>t.classList.remove("fx","bad"),750); }
   const gp=$("#mapbox").querySelector('.gp[data-k="'+k+'"]'); if(!gp)return;
   gp.classList.remove("fx","bad"); void gp.offsetWidth;
   gp.classList.add("fx"); if(bad)gp.classList.add("bad");
@@ -4572,6 +4609,11 @@ function renderMap(){
   const s=V(), box=$("#mapbox");
   box.querySelectorAll(".gp").forEach(e=>e.remove());
   const c=sel?card(sel):null;
+  /* v0.17 : sur téléphone, les pastilles de la carte se chevauchent et leurs
+     jauges sont illisibles. La carte reste en vue d'ensemble, sans pastilles, et
+     une grille de huit tuiles en dessous porte les jauges et reçoit les touchers.
+     La grille est construite à chaque rendu ; le CSS ne l'affiche que sous 700 px. */
+  const grille=$("#blocGrid"); let gh="";
   s.blocs.forEach(b=>{
     const land=document.getElementById("p_"+b.k);
     const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
@@ -4619,7 +4661,27 @@ function renderMap(){
     land.onclick=()=>clicBloc(b.k);
     if(ciblable) land.classList.add("tgt"); else land.classList.remove("tgt");
     box.appendChild(d);
+    const etat = pourquoi ? String(pourquoi).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué")
+      : b.bloque>0 ? "préempté — "+b.bloque+" tour"+(b.bloque>1?"s":"")
+      : ciblable ? "toucher pour jouer ici"
+      : hot ? "⚠ retour de flamme imminent"
+      : advL.length ? "◂ "+advL.length+" levier"+(advL.length>1?"s":"")+" adverse"+(advL.length>1?"s":"")+" au tour dernier"
+      : prev ? "valeurs prévues" : "";
+    gh+=`<div class="bt${hot?" hot":""}${ciblable?" tgt":""}${pourquoi?" hors":""}${b.bloque>0?" lock":""}${prev?" prev":""}${advL.length?" adv0":""}${(s.ev&&s.ev.attr&&s.ev.bloc===b.k)?" evt":""}" data-k="${b.k}" role="button" tabindex="0">
+       <div class="bth"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %${advT?` · ◂${advT}`:""}</span></div>
+       ${row("contr","Contrainte",v.contr,dl&&dl.contr)}${row("reel","Réel",v.reel,dl&&dl.reel)}${row("percu","Perçu",v.percu,dl&&dl.percu)}${row("fric","Friction",v.fr,dl&&dl.fr)}
+       <div class="bts">${etat}</div></div>`;
   });
+  if(grille){
+    grille.innerHTML=gh;
+    grille.querySelectorAll(".bt").forEach(t=>{
+      const k=t.dataset.k;
+      t.onclick=()=>{ const land=document.getElementById("p_"+k);
+        if(land){ land.classList.add("on"); setTimeout(()=>land.classList.remove("on"),700); }
+        clicBloc(k); };
+      t.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); t.onclick(); } };
+    });
+  }
   const cg=$("#consigne");
   if(cg){
     if(c&&c.cible==="bloc"&&!RESO){
@@ -4767,7 +4829,8 @@ function renderHand(){
         if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
         return;
       }
-      sel = sel===id?null:id; render(); };
+      sel = sel===id?null:id; render();
+      if(sel && matchMedia("(max-width:700px)").matches){ const g=$("#blocGrid"); if(g) g.scrollIntoView({behavior:"smooth",block:"center"}); } };
   });
   bindTips(zone);
   const rd=$("#redraw");
