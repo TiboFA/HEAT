@@ -943,4 +943,40 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mb.catalogue .avl:hover{background:rgba(63,183,166,.06)}
 .mb.catalogue .avid{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire)}
 .mb.catalogue .avr{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10.5px}
+/* ---- écran d'accueil filaire (v0.16.4) ----
+   Les coins de cadre sont dessinés en fond (huit dégradés d'une couleur), sans
+   balisage supplémentaire : ils s'appliquent à tous les cadres de l'accueil. */
+#home{--cn:linear-gradient(var(--wire),var(--wire))}
+#home .hsec,#home .hdet,#home .rpz:not(.rien){border-radius:6px;border-color:rgba(63,183,166,.25);
+ background:var(--cn) 0 0/12px 2px no-repeat,var(--cn) 0 0/2px 12px no-repeat,
+  var(--cn) 100% 0/12px 2px no-repeat,var(--cn) 100% 0/2px 12px no-repeat,
+  var(--cn) 0 100%/12px 2px no-repeat,var(--cn) 0 100%/2px 12px no-repeat,
+  var(--cn) 100% 100%/12px 2px no-repeat,var(--cn) 100% 100%/2px 12px no-repeat,
+  repeating-linear-gradient(0deg,rgba(63,183,166,.03) 0 1px,transparent 1px 24px),
+  repeating-linear-gradient(90deg,rgba(63,183,166,.03) 0 1px,transparent 1px 24px),var(--surface)}
+#home .hsec .ct,#home .hdet .ct{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:10px;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--wire);font-weight:700;margin-top:14px;margin-bottom:9px}
+#home .hdet .ct span,#home .hsec .ct span{text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted);font-size:11.5px}
+#home .opt{border-radius:5px;border-color:rgba(63,183,166,.2);background:rgba(6,9,11,.55);position:relative}
+#home .opt:hover{border-color:rgba(63,183,166,.5)}
+#home .opt[aria-pressed="true"]{border-color:var(--wire);background:rgba(63,183,166,.08);box-shadow:inset 0 0 0 1px var(--wire)}
+#home .opt[aria-pressed="true"]::after{content:"✓";position:absolute;top:8px;right:10px;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:var(--wire)}
+#home .opt[aria-pressed="true"] b{color:var(--wire-hi)}
+#start{border-radius:5px;background:var(--wire);color:#03140f;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+ letter-spacing:.14em;text-transform:uppercase;font-size:14px;font-weight:800;box-shadow:0 0 18px rgba(63,183,166,.25)}
+#start:hover{background:var(--wire-hi)}
+#home .startnote .lnk{color:var(--wire)}
+#home .hsec .ct:first-child{margin-top:0}
+#home .hdet>summary{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--wire)}
+#home .hdet>summary::before{color:var(--wire)}
+#home .hdet[open]>summary{border-bottom-color:rgba(63,183,166,.2);color:var(--wire-hi)}
+#home .rules b{color:var(--wire-hi)}
+#home .rules>b:first-child{color:var(--wire)}
+#home .pitch i{color:var(--wire-hi)}
+#home .vers{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:10.5px}
+#home input[type=range].dsl::-webkit-slider-thumb{background:var(--wire);box-shadow:0 0 6px rgba(63,183,166,.6)}
+#home input[type=range].dsl::-moz-range-thumb{background:var(--wire)}
+#home .dlab .dv{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--wire)}
+#home .rpz .mini.go{background:var(--wire);border-color:var(--wire);color:#03140f;font-weight:800}
+#home .rpz .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
 </style>
