@@ -3037,6 +3037,7 @@ function bilanTour(){
      </div>
      <div>
        <div class="ms">Les huit blocs</div>
+       <div class="finmap bmap" id="bilanMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i></div>
        <div class="bthead"><span></span><span></span><span>contr.</span><span>réel</span><span>perçu</span><span>fric.</span><span></span></div>
        ${blocs}
        <p class="gx" style="margin-top:10px">Les écarts sont lus de votre point de vue : vert quand la variation vous sert, rouge quand elle sert l'autre camp.</p>
@@ -3073,6 +3074,7 @@ function bilanTour(){
      </div>
    </div>`;
   ouvrirModal(true);
+  carteBilan(s,A);
   $("#mx").onclick=fermer; $("#bok").onclick=fermer;
   $("#bauto").onchange=e=>{AUTOBILAN=e.target.checked;};
   $("#bjTog").onclick=()=>{BJOURTOUT=!BJOURTOUT;bilanTour();};
@@ -3924,25 +3926,52 @@ function renderFin(){
    identifiants, qui doivent rester uniques), dans l'état final de la partie.
    Chaque bloc porte son code et sa contrainte finale ; le plus gros émetteur de
    2100 est tracé en orange, les blocs sous loi-cadre en vert. */
-function carteFin(s){
-  const src=document.querySelector("#mapbox svg.map"), box=$("#finMap");
-  if(!src||!box) return;
-  const svg=src.cloneNode(true);
+/* Une copie filaire de la carte du plateau (sans les identifiants, qui doivent
+   rester uniques), avec pour chaque bloc une classe et deux lignes d'étiquette
+   données par l'appelant : etiq(b) renvoie [classe du tracé, classe de
+   l'étiquette, seconde ligne en HTML]. Sert à l'écran de fin et au bilan de tour. */
+function carteFilaire(s,label,etiq){
+  const src=document.querySelector("#mapbox svg.map"); if(!src) return null;
+  const svg=src.cloneNode(true), NS="http://www.w3.org/2000/svg";
   svg.removeAttribute("class"); svg.classList.add("map","mapfin");
-  svg.setAttribute("aria-label","Le monde en "+AN_FIN+", bloc par bloc");
-  const emax=Math.max(...s.blocs.map(z=>z.e));
+  svg.setAttribute("aria-label",label);
   s.blocs.forEach(b=>{
     const p=svg.querySelector("#p_"+b.k); if(!p) return;
-    p.removeAttribute("id");
-    p.setAttribute("class","bl"+(b.e===emax?" max":"")+(b.verrou?" verrou":""));
+    const [cp,cl,l2]=etiq(b);
+    p.removeAttribute("id"); p.setAttribute("class","bl"+cp);
     p.style.setProperty("--bf",teinteBloc(s,b));
-    const NS="http://www.w3.org/2000/svg", X=150+b.x/100*2340, Y=15+b.y/100*1150;
-    const t=document.createElementNS(NS,"text");
-    t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+(b.e===emax?" max":""));
-    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${Math.round(b.contr)} · ${fr(b.e,1)} Gt</tspan>`;
+    const X=150+b.x/100*2340, Y=15+b.y/100*1150, t=document.createElementNS(NS,"text");
+    t.setAttribute("x",X.toFixed(0)); t.setAttribute("y",Y.toFixed(0)); t.setAttribute("class","fin-lb"+cl);
+    t.innerHTML=`<tspan class="c">${b.code}</tspan><tspan x="${X.toFixed(0)}" dy="34">${l2}</tspan>`;
     svg.appendChild(t);
   });
-  box.prepend(svg);
+  return svg;
+}
+/* L'écran de fin : chaque bloc avec sa contrainte et ses émissions de 2100, le plus
+   gros émetteur en orange, les lois-cadres en vert. */
+function carteFin(s){
+  const box=$("#finMap"); if(!box) return;
+  const emax=Math.max(...s.blocs.map(z=>z.e));
+  const svg=carteFilaire(s,"Le monde en "+AN_FIN+", bloc par bloc",b=>[
+    (b.e===emax?" max":"")+(b.verrou?" verrou":""), b.e===emax?" max":"",
+    `${Math.round(b.contr)} · ${fr(b.e,1)} Gt`]);
+  if(svg) box.prepend(svg);
+}
+/* Le bilan de tour : ce qui a bougé pendant le tour. Chaque bloc porte la variation
+   de sa contrainte, en vert si elle vous sert, en rouge sinon ; un bloc où rien n'a
+   bougé est estompé ; un bloc où l'adversaire a joué est tracé en orange. */
+function carteBilan(s,A){
+  const box=$("#bilanMap"); if(!box) return;
+  const act=s.camp==="actif";
+  const svg=carteFilaire(s,"Ce qui a bougé pendant le tour "+A.turn,b=>{
+    const o=A.blocs.find(z=>z.k===b.k)||b, dc=Math.round(b.contr-o.contr);
+    const bouge=dc||Math.round(b.reel-o.reel)||Math.round(b.percu-o.percu)||Math.round(b.fr-o.fr);
+    const adv=(s.adv||[]).some(a=>a.turn===A.turn&&a.bk===b.k);
+    const sens=dc?((act?dc>0:dc<0)?"bon":"mal"):"";
+    return [(adv?" max":"")+(bouge?"":" calme"), (adv?" max":"")+(bouge?"":" calme"),
+      dc?`<tspan class="${sens}">${dc>0?"+":"−"}${Math.abs(dc)}</tspan> contr.`:(bouge?"contr. =":"—")];
+  });
+  if(svg) box.prepend(svg);
 }
 
 /* ==================== sauvegarde ====================
