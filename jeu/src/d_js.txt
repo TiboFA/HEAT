@@ -2502,6 +2502,9 @@ function jaugeEls(k){
 function majBarres(k){
   const v=VIS[k], e=jaugeEls(k); if(!e)return;
   const vals=[v.contr,v.reel,v.percu,v.fr];
+  const t=document.querySelector('#blocGrid .bt[data-k="'+k+'"]');
+  if(t){ const f=t.querySelectorAll(".c2f"), nb=t.querySelectorAll(".c2r b");
+    vals.forEach((x,i)=>{ if(f[i]) f[i].style.width=Math.max(0,Math.min(100,x))+"%"; if(nb[i]) nb[i].textContent=Math.round(x); }); }
   vals.forEach((x,i)=>{
     const w=Math.max(0,Math.min(100,x));
     if(e.cb[i])e.cb[i].style.height=w+"%";
@@ -2521,6 +2524,9 @@ function flotte(k,txt,cls){
   setTimeout(()=>{d.remove(); if(--FLOTN[k]<=0) delete FLOTN[k];},1400+(n-1)*130);
 }
 function pulseBloc(k,bad){
+  const t=document.querySelector('#blocGrid .bt[data-k="'+k+'"]');
+  if(t){ t.classList.remove("fx","bad"); void t.offsetWidth; t.classList.add("fx"); if(bad)t.classList.add("bad");
+    setTimeout(()=>t.classList.remove("fx","bad"),750); }
   const gp=$("#mapbox").querySelector('.gp[data-k="'+k+'"]'); if(!gp)return;
   gp.classList.remove("fx","bad"); void gp.offsetWidth;
   gp.classList.add("fx"); if(bad)gp.classList.add("bad");
@@ -3326,6 +3332,11 @@ function renderMap(){
   const s=V(), box=$("#mapbox");
   box.querySelectorAll(".gp").forEach(e=>e.remove());
   const c=sel?card(sel):null;
+  /* v0.17 : sur téléphone, les pastilles de la carte se chevauchent et leurs
+     jauges sont illisibles. La carte reste en vue d'ensemble, sans pastilles, et
+     une grille de huit tuiles en dessous porte les jauges et reçoit les touchers.
+     La grille est construite à chaque rendu ; le CSS ne l'affiche que sous 700 px. */
+  const grille=$("#blocGrid"); let gh="";
   s.blocs.forEach(b=>{
     const land=document.getElementById("p_"+b.k);
     const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
@@ -3373,7 +3384,27 @@ function renderMap(){
     land.onclick=()=>clicBloc(b.k);
     if(ciblable) land.classList.add("tgt"); else land.classList.remove("tgt");
     box.appendChild(d);
+    const etat = pourquoi ? String(pourquoi).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué")
+      : b.bloque>0 ? "préempté — "+b.bloque+" tour"+(b.bloque>1?"s":"")
+      : ciblable ? "toucher pour jouer ici"
+      : hot ? "⚠ retour de flamme imminent"
+      : advL.length ? "◂ "+advL.length+" levier"+(advL.length>1?"s":"")+" adverse"+(advL.length>1?"s":"")+" au tour dernier"
+      : prev ? "valeurs prévues" : "";
+    gh+=`<div class="bt${hot?" hot":""}${ciblable?" tgt":""}${pourquoi?" hors":""}${b.bloque>0?" lock":""}${prev?" prev":""}${advL.length?" adv0":""}${(s.ev&&s.ev.attr&&s.ev.bloc===b.k)?" evt":""}" data-k="${b.k}" role="button" tabindex="0">
+       <div class="bth"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %${advT?` · ◂${advT}`:""}</span></div>
+       ${row("contr","Contrainte",v.contr,dl&&dl.contr)}${row("reel","Réel",v.reel,dl&&dl.reel)}${row("percu","Perçu",v.percu,dl&&dl.percu)}${row("fric","Friction",v.fr,dl&&dl.fr)}
+       <div class="bts">${etat}</div></div>`;
   });
+  if(grille){
+    grille.innerHTML=gh;
+    grille.querySelectorAll(".bt").forEach(t=>{
+      const k=t.dataset.k;
+      t.onclick=()=>{ const land=document.getElementById("p_"+k);
+        if(land){ land.classList.add("on"); setTimeout(()=>land.classList.remove("on"),700); }
+        clicBloc(k); };
+      t.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); t.onclick(); } };
+    });
+  }
   const cg=$("#consigne");
   if(cg){
     if(c&&c.cible==="bloc"&&!RESO){
@@ -3521,7 +3552,8 @@ function renderHand(){
         if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
         return;
       }
-      sel = sel===id?null:id; render(); };
+      sel = sel===id?null:id; render();
+      if(sel && matchMedia("(max-width:700px)").matches){ const g=$("#blocGrid"); if(g) g.scrollIntoView({behavior:"smooth",block:"center"}); } };
   });
   bindTips(zone);
   const rd=$("#redraw");
