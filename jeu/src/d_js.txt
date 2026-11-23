@@ -4445,6 +4445,9 @@ function initHome(){
     choixScen=o.dataset.v; document.querySelectorAll("#optScen .opt").forEach(z=>z.setAttribute("aria-pressed",String(z===o)));});
   $("#start").onclick=()=>{ rng=Date.now()&0x7fffffff; S=newGame(choixCamp,choixLvl,choixScen);
     S.doc.actif={...DOCH.actif}; S.doc.att={...DOCH.att};
+    // newGame a déjà tiré une main avec la doctrine par défaut : on la jette pour
+    // retirer avec celle du joueur, et son éventuel message de levier clef avec elle
+    S.log=S.log.filter(l=>!/^Levier clef de l'objectif/.test(l.txt||""));
     S.hand=[]; S.handAI=[]; refill(S); refillAI(S); sel=null; PV=null; BILAN=null; render(); sauverAuto();
     if(!GUIDE_VU) setTimeout(()=>guideOuvrir(0),420); };
   accueilReprise();
