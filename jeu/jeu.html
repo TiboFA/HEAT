@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.15.1</title>
+<title>HEAT — version jouable v0.15.2</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -869,7 +869,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.15.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.15.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -5108,8 +5108,19 @@ const BANDES_OBS=[-0.07,0.09,0.13,0.1,0.06,0.07,0.03,-0.11,-0.04,0.07,-0.05,-0.1
 const OBS_RECENT={an:2025, t:1.41};
 const PASSIF_T=[1,1.107,1.222,1.344,1.473,1.607,1.747,1.892,2.04,2.192,2.346,2.503,2.662,2.822,2.984,3.147,3.311,3.475];
 const BANDES_PAL=[[8,48,107],[33,102,172],[67,147,195],[146,197,222],[209,229,240],[253,219,199],[244,165,130],[214,96,77],[178,24,43],[103,0,13],[60,0,8]];
+/* Échelle des bandes. Comme chez Ed Hawkins, le blanc est la moyenne 1971-2000
+   (0,51 °C au-dessus de 1850-1900 dans la série NOAA) : ce qui est plus froid est
+   bleu, ce qui est plus chaud est rouge. Côté rouge, la rampe va de 0,51 à 3,5 °C
+   avec un exposant 0,75, pour que le premier degré se voie : 1,4 °C tombe vers le
+   milieu des rouges, 3,48 °C au plus sombre. Jusqu'en v0.15.1, le blanc était à
+   1,3 °C et les années récentes ressortaient pâles, presque bleues. */
+const BANDE_BLANC=0.51, BANDE_FROID=-0.2, BANDE_CHAUD=3.5;
 function couleurBande(v){
-  const x=Math.max(0,Math.min(1,(v+0.6)/4.2))*(BANDES_PAL.length-1), i=Math.floor(x), f=x-i;
+  const n=BANDES_PAL.length-1, mil=4;   // index du blanc dans la palette
+  const x = v<=BANDE_BLANC
+    ? mil*Math.max(0,(v-BANDE_FROID)/(BANDE_BLANC-BANDE_FROID))
+    : mil+(n-mil)*Math.pow(Math.min(1,(v-BANDE_BLANC)/(BANDE_CHAUD-BANDE_BLANC)),0.75);
+  const i=Math.min(Math.floor(x),n), f=x-i;
   const a=BANDES_PAL[i], b=BANDES_PAL[Math.min(i+1,BANDES_PAL.length-1)];
   return "rgb("+a.map((c,k)=>Math.round(c+(b[k]-c)*f)).join(",")+")";
 }
