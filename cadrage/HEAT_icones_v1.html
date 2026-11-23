@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAT — propositions d'icône</title>
+<style>
+:root{--plane:#0b0d0e;--surface:#141819;--ink:#eef5f3;--ink-2:#b9c6c3;--muted:#8a9794;--ring:rgba(255,255,255,.09);--wire:#3fb7a6;--hot:#ff7a3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
+.notice{border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:14px 16px;margin-bottom:14px}
+.notice h1{font-size:18px;margin:0}.notice p{margin:6px 0 0;color:var(--ink-2)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ico{border:1px solid var(--ring);border-radius:12px;background:var(--surface);padding:16px}
+.ico h2{font-size:15px;margin:0 0 4px}.ico p{margin:0 0 12px;color:var(--ink-2);font-size:13px}
+.sizes{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.sizes figure{margin:0;text-align:center;font-size:10.5px;color:var(--muted)}
+.sizes svg{display:block;margin:0 auto 4px}
+/* aperçu dans un onglet de navigateur, clair et sombre */
+.tabs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:7px;border-radius:8px 8px 0 0;padding:6px 12px;font-size:12px;min-width:170px}
+.tab.clair{background:#f1f3f4;color:#202124}.tab.sombre{background:#35363a;color:#e8eaed}
+.tab svg{width:16px;height:16px;flex:0 0 auto}
+.verdict{margin-top:14px;border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:14px 16px;color:var(--ink-2)}
+.verdict b{color:var(--ink)}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="notice"><h1>HEAT — quatre propositions d'icône</h1>
+<p>Chaque icône est un SVG de quelques centaines d'octets, intégrable dans le fichier unique comme icône d'onglet, et en version 180 px pour l'écran d'accueil d'un téléphone. Elles sont montrées aux tailles réelles, puis dans un onglet clair et un onglet sombre : c'est à 16 px que tout se joue.</p></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <!-- A · les bandes -->
+  <symbol id="icoA" viewBox="0 0 64 64">
+   <defs><clipPath id="rA"><rect width="64" height="64" rx="14"/></clipPath></defs>
+   <g clip-path="url(#rA)">
+    <rect x="0"  width="9.2" height="64" fill="#2166ac"/><rect x="9.1" width="9.2" height="64" fill="#67a9cf"/>
+    <rect x="18.2" width="9.2" height="64" fill="#d1e5f0"/><rect x="27.4" width="9.2" height="64" fill="#fddbc7"/>
+    <rect x="36.5" width="9.2" height="64" fill="#ef8a62"/><rect x="45.7" width="9.2" height="64" fill="#b2182b"/>
+    <rect x="54.8" width="9.2" height="64" fill="#67001f"/>
+   </g>
+  </symbol>
+  <!-- B · globe filaire -->
+  <symbol id="icoB" viewBox="0 0 64 64">
+   <rect width="64" height="64" rx="14" fill="#06090b"/>
+   <g fill="none" stroke="#3fb7a6" stroke-width="2.6">
+    <circle cx="32" cy="32" r="21"/><ellipse cx="32" cy="32" rx="9" ry="21"/>
+    <path d="M11 32h42M14.5 21h35M14.5 43h35"/>
+   </g>
+   <path d="M32 11a21 21 0 0 1 21 21" fill="none" stroke="#ff7a3d" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <!-- C · le H thermomètre -->
+  <symbol id="icoC" viewBox="0 0 64 64">
+   <rect width="64" height="64" rx="14" fill="#06090b"/>
+   <rect x="14" y="12" width="9" height="40" rx="4.5" fill="#eef5f3"/>
+   <rect x="41" y="12" width="9" height="40" rx="4.5" fill="#2a3436"/>
+   <rect x="42.5" y="24" width="6" height="28" rx="3" fill="#ef6a4a"/>
+   <rect x="21" y="28" width="22" height="8" fill="#eef5f3"/>
+   <circle cx="45.5" cy="50" r="7.5" fill="#ef6a4a"/>
+  </symbol>
+  <!-- D · la trajectoire qui bifurque -->
+  <symbol id="icoD" viewBox="0 0 64 64">
+   <rect width="64" height="64" rx="14" fill="#06090b"/>
+   <path d="M10 46H54M10 46V12" stroke="rgba(63,183,166,.35)" stroke-width="2"/>
+   <path d="M11 40C22 37 26 32 32 30S46 14 54 10" fill="none" stroke="#ff7a3d" stroke-width="4.5" stroke-linecap="round"/>
+   <path d="M32 30C39 28 45 29 54 34" fill="none" stroke="#3fb7a6" stroke-width="4.5" stroke-linecap="round"/>
+   <circle cx="32" cy="30" r="4" fill="#eef5f3"/>
+  </symbol>
+ </defs>
+</svg>
+
+<div class="grid">
+ <div class="ico"><h2>A · Les bandes</h2>
+  <p>Sept bandes du bleu au rouge sombre : l'image de l'accueil, réduite. La plus reconnaissable et la plus lisible à 16 px. En revanche, elle ressemble à toutes les « warming stripes » : elle dit « climat », pas forcément « HEAT ».</p>
+  <div class="sizes"><figure><svg width="16" height="16"><use href="#icoA"/></svg>16</figure><figure><svg width="32" height="32"><use href="#icoA"/></svg>32</figure><figure><svg width="64" height="64"><use href="#icoA"/></svg>64</figure><figure><svg width="120" height="120"><use href="#icoA"/></svg>180 (réduit)</figure></div>
+  <div class="tabs"><span class="tab clair"><svg><use href="#icoA"/></svg>HEAT — version jouable</span><span class="tab sombre"><svg><use href="#icoA"/></svg>HEAT — version jouable</span></div>
+ </div>
+ <div class="ico"><h2>B · Le globe filaire</h2>
+  <p>Le langage du plateau : globe en traits vert d'eau, un arc orange qui chauffe. Cohérent avec la carte, sobre. À 16 px, les méridiens fusionnent un peu, mais la silhouette tient.</p>
+  <div class="sizes"><figure><svg width="16" height="16"><use href="#icoB"/></svg>16</figure><figure><svg width="32" height="32"><use href="#icoB"/></svg>32</figure><figure><svg width="64" height="64"><use href="#icoB"/></svg>64</figure><figure><svg width="120" height="120"><use href="#icoB"/></svg>180 (réduit)</figure></div>
+  <div class="tabs"><span class="tab clair"><svg><use href="#icoB"/></svg>HEAT — version jouable</span><span class="tab sombre"><svg><use href="#icoB"/></svg>HEAT — version jouable</span></div>
+ </div>
+ <div class="ico"><h2>C · Le H thermomètre</h2>
+  <p>L'initiale du jeu, dont la seconde jambe est un thermomètre : le rouge monte depuis le bulbe, aux deux tiers du tube. La seule qui porte le nom. Lisible à 16 px ; le niveau du thermomètre se lit à partir de 32.</p>
+  <div class="sizes"><figure><svg width="16" height="16"><use href="#icoC"/></svg>16</figure><figure><svg width="32" height="32"><use href="#icoC"/></svg>32</figure><figure><svg width="64" height="64"><use href="#icoC"/></svg>64</figure><figure><svg width="120" height="120"><use href="#icoC"/></svg>180 (réduit)</figure></div>
+  <div class="tabs"><span class="tab clair"><svg><use href="#icoC"/></svg>HEAT — version jouable</span><span class="tab sombre"><svg><use href="#icoC"/></svg>HEAT — version jouable</span></div>
+ </div>
+ <div class="ico"><h2>D · La trajectoire qui bifurque</h2>
+  <p>Le propos du jeu en un dessin : à partir d'aujourd'hui, la courbe monte (orange, sans action) ou se replie (vert d'eau, avec). La plus juste sur le fond, la moins lisible à 16 px.</p>
+  <div class="sizes"><figure><svg width="16" height="16"><use href="#icoD"/></svg>16</figure><figure><svg width="32" height="32"><use href="#icoD"/></svg>32</figure><figure><svg width="64" height="64"><use href="#icoD"/></svg>64</figure><figure><svg width="120" height="120"><use href="#icoD"/></svg>180 (réduit)</figure></div>
+  <div class="tabs"><span class="tab clair"><svg><use href="#icoD"/></svg>HEAT — version jouable</span><span class="tab sombre"><svg><use href="#icoD"/></svg>HEAT — version jouable</span></div>
+ </div>
+</div>
+<div class="verdict"><b>Recommandation : C, le H thermomètre.</b> C'est la seule qui identifie le jeu et pas seulement le thème, elle reste nette à 16 px dans les deux onglets, et elle reprend le rouge de la chaleur sur le fond sombre du plateau. A est le meilleur second choix si l'on veut prolonger l'accueil.</div>
+</div>
+</body>
+</html>

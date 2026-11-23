@@ -2704,12 +2704,16 @@ function render(garde){
   const og=$("#ouvrirGuide"); if(og) og.onclick=()=>guideOuvrir(0);
   const op=$("#ouvrirPartie"); if(op) op.onclick=panneauPartie;
   $("#res").innerHTML=
-    `<div data-tip="${RES_TIP.cp}"><span class="pill" style="background:var(--s-reel)"></span>Capital politique <span class="v">${r.cp}</span></div>`+
+    `<div data-tip="${RES_TIP.cp}"><span class="pill" style="background:var(--s-reel)"></span>Politique <span class="v">${r.cp}</span></div>`+
     `<div data-tip="${RES_TIP.cap}"><span class="pill" style="background:var(--s-traj)"></span>Capital <span class="v">${r.cap}</span></div>`+
     `<div data-tip="${RES_TIP.att}"><span class="pill" style="background:var(--s-percu)"></span>Attention <span class="v">${r.att}</span></div>`+
     (()=>{const e=ecartCred(s,s.camp==="actif"?"actif":"att");
       return `<div data-tip="${RES_TIP.cred}"><span class="pill" style="background:var(--s-base)"></span>Crédibilité <span class="v">${r.cred}</span>`
-        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e+" d'avance":e<0?Math.abs(e)+" de retard":"à égalité"}</span></div>`;})();
+        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e+" d'avance":e<0?Math.abs(e)+" de retard":"à égalité"}</span></div>`;})()
+    +(()=>{ // la puissance : ce qui reste ce tour sur le budget du tour, en jauge de demi-points
+      const tot=S.actions, reste=V().actions, cases=[];
+      for(let i=0;i<Math.ceil(tot);i++){ const v=reste-i; cases.push(`<i class="${v>=1?"u":v>=0.5?"h":""}"></i>`); }
+      return `<div class="pui" data-tip="<b>Puissance</b><br>Votre budget du tour : ${fmtP(tot)} points, fixé par votre crédibilité. Chaque levier en consomme sa puissance (de 1 à 3,5). Il en reste ${fmtP(reste)} après votre plan."><span class="pill" style="background:var(--wire)"></span>Puissance <span class="v">${fmtP(reste)} / ${fmtP(tot)}</span><span class="jg">${cases.join("")}</span></div>`;})();
   const np=S.plan.length;
   $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
     : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+" pt"+(s.actions>1?"s":"")+" restant"+(s.actions>1?"s":"")+")" : "Terminer le tour");
@@ -2718,6 +2722,10 @@ function render(garde){
   bindTips(document);
 }
 
+/* v0.16 : les trois cadres du haut (événement, objectif, défi) et l'agenda
+   « quoi qu'il arrive » tiennent dans une seule ligne de pastilles, #cetour.
+   Le détail de chacune est dans son infobulle ; seule l'attribution de
+   l'événement garde un bouton, puisque c'est une action. */
 function renderEvent(){
   const s=V(),e=s.ev, ia=planAttr();
   const peut = e.attr && !s.satur && s.attribue===0 && s.res[s.camp==="actif"?"actif":"att"].att>=1;
@@ -2726,19 +2734,13 @@ function renderEvent(){
     : s.attribue===1 ? "attribué : l'opinion a bougé"
     : s.attribue===-1 ? "désattribué : aucun effet"
     : e.attr ? "non attribué · effet 0" : "effet automatique à la résolution";
-  $("#events").innerHTML=`
-    <div class="ev ${s.attribue!==0?'done':(e.attr?'':'cold')}">
-      <div class="eh"><h4>${e.t}</h4><span class="loc">${e.blocNom}</span></div>
-      <p>${e.txt}</p>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        ${e.attr?(ia>=0
-            ?`<button class="mini undo" id="bunattr">Retirer l'attribution</button>`
-            :`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"Attribuer":"Désattribuer"} — 1 Attention</button>`):""}
-        <span class="st">${etat}</span>
-      </div>
-    </div>
-    ${carteObjectif(s)}
-    ${s.defi?defiCarte(s):""}`;
+  const txt=e.txt.replace(/"/g,'&quot;');
+  const evp=`<span class="pl pev ${s.attribue!==0?'done':(e.attr?'':'cold')}" data-tip="<b>${e.t}</b> — ${e.blocNom}<br>${txt}"><b>${e.t}</b><i>${e.blocNom} · ${etat}</i>${e.attr?(ia>=0
+      ?`<button class="mini undo" id="bunattr">retirer</button>`
+      :`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"attribuer":"désattribuer"} · 1 attention</button>`):""}</span>`;
+  const ag=(RESO||DASHV||S.over)?"":agenda(s).filter(x=>!x.ev).map(x=>`<span class="pl ag ${x.cls}" data-tip="${x.tip.replace(/"/g,'&quot;')}"><b>${x.t}</b>${x.r?"<i>"+x.r+"</i>":""}</span>`).join("");
+  $("#cetour").innerHTML=`<span class="k" data-tip="Ce qui se joue ce tour : l'événement, l'objectif de la partie, le défi du tour, et tout ce que la résolution appliquera quoi que vous fassiez.">Ce tour</span>`
+    +evp+pastilleObjectif(s)+(s.defi?pastilleDefi(s):"")+ag;
   const ba=$("#battr"); if(ba) ba.onclick=()=>{ if(RESO)return; planAjouter({k:"attr"}); render(); };
   const bu=$("#bunattr"); if(bu) bu.onclick=()=>{ if(RESO)return; planRetirer(planAttr()); render(); };
 }
@@ -2779,6 +2781,21 @@ function panneauAVenir(){
    d'un coup : ce qu'il demande, où on en est, ce qu'il rapporte, et quand il est jugé.
    La jauge se lit dans deux sens selon le défi : remplir pour atteindre un objectif,
    ou rester sous la barre pour en tenir un. */
+function pastilleDefi(s){
+  const D=s.defi, ok=!!D.test(s), tenir=D.sens==="tenir";
+  const etat = ok ? (tenir?"tenu":"rempli") : (tenir?"seuil dépassé":"en cours");
+  const tip=("<b>★ "+D.t+"</b><br>"+D.d+"<br><br>"+(D.prog?D.prog(s)+" · ":"")+"récompense : "+(D.rec||"—")+"<br>Jugé à la résolution, après le coup de l'adversaire."
+    +(D.clefs?(s.hand.some(id=>D.clefs.includes(id))?"<br>Un levier clef est dans votre main (★).":"<br>Aucun levier clef disponible."):"")).replace(/"/g,'&quot;');
+  return `<span class="pl defi ${ok?"ok":tenir?"warn":""}" data-tip="${tip}"><b>★ ${D.t}</b><i>${D.prog?D.prog(s)+" · ":""}${D.rec||""} · ${etat}</i></span>`;
+}
+function pastilleObjectif(s){
+  const e=totE(s), dep=Math.max(E0,s.picE);
+  const pc = e<=SEUIL_E ? 100 : Math.max(0,Math.round(100*(dep-e)/(dep-SEUIL_E)));
+  const tip=("<b>L'objectif de la partie</b><br>Ramener les émissions mondiales sous "+SEUIL_E+" GtCO₂ par an. Ce qui compte n'est pas d'y arriver ou non, c'est <b>en quelle année</b>.<br><br>"
+    +(s.picAn?"Pic passé en "+s.picAn+" (maximum "+fr(s.picE,1)+" Gt).":"Le pic des émissions n'est pas encore franchi.")+"<br>"
+    +(s.seuilAn?"Seuil franchi en "+s.seuilAn+".":"Reste "+fr(Math.max(0,e-SEUIL_E),1)+" Gt à retirer.")).replace(/"/g,'&quot;');
+  return `<span class="pl obj${s.seuilAn?" ok":""}" data-tip="${tip}"><b>Objectif ${fr(e,1)} → ${SEUIL_E} Gt</b><span class="objb"><span style="width:${pc}%"></span></span><i>${s.picAn?"pic passé en "+s.picAn:"pic non franchi"}</i></span>`;
+}
 function defiCarte(s){
   const D=s.defi, ok=!!D.test(s), tenir=D.sens==="tenir";
   // la jauge se lit toujours pareil : pleine et verte = tout va bien.
@@ -2833,42 +2850,35 @@ let DASHV=null;
    ce que vous obtenez, où la partie finit, l'état du monde. La courbe la suit
    immédiatement — c'est la même information à deux échelles de temps. */
 function renderDash(){
-  const s=V(), act=s.camp==="actif";
-  const D=DASHV;
-  // quand un plan est en cours, ces chiffres sont ceux qu'il produirait : on le dit
-  const pf=(PV&&!D)?' <span class="pfx" data-tip="Valeur recalculée avec les leviers que vous avez engagés ce tour. Rien n\'est encore appliqué : le tour n\'est pas validé.">prévu</span>':'';
-  const evite=fr(D?D.evite:(T_BASELINE-projeter(s)),2);
-  const sc=D?D.sc:score(s), pal=palier(sc), suiv=palierSuivant(sc);
-  const proj=D?D.proj:projeter(s);
-  const t1 = act
-   ? "<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Sans aucune action : 3,48 °C. Le monde réel : 2,70 °C."
-   : "<b>Ce que vous préservez</b><br>Votre objectif n'est pas que rien ne change : c'est de préserver la valeur des actifs et d'éviter les coûts d'ajustement.";
-  const kc=(lab,val,unit,tip)=>`<div class="ckc" data-tip="${tip}"><span>${lab}</span><b>${val}${unit?"<small>"+unit+"</small>":""}</b></div>`;
+  /* v0.16 : quatre tuiles au lieu d'un cockpit et d'un graphique. Chacune donne sa
+     valeur et ce qu'elle a fait au dernier tour ; avec un plan en cours, la
+     projection et le score sont ceux que le plan produirait. Le graphique de
+     trajectoire est passé dans le bilan de tour. */
+  const s=V(), act=s.camp==="actif", D=DASHV, A=BILAN, plan=!!(PV&&!D);
+  const T=D?D.T:s.T, proj=D?D.proj:projeter(s), em=D?D.emis:totE(s), sc=D?D.sc:score(s), pal=palier(sc);
+  const pj0=projeter(S), sc0=score(S);
+  const dl=(v,n,bonSiBaisse)=>{ if(!v) return `<span class="dd">=</span>`; const bon=bonSiBaisse?v<0:v>0;
+    return `<span class="dd ${bon?"bon":"mal"}">${v>0?"+":"−"}${n?fr(Math.abs(v),n):Math.abs(v)}</span>`; };
+  const dern=A&&!D;
+  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tl ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
   $("#dash").innerHTML=
-   `<div class="ckm" data-tip="${t1}">
-      <span class="ct">Votre position${pf}</span>
-      <div class="hv">${act?evite+" °C":s.actifs+" Md$"}</div>
-      <div class="hs">${act?"réchauffement évité":s.evitees+" mesures évitées"}</div>
-    </div>`+
-   `<div class="ckm" data-tip="<b>Où finit votre partie</b><br>Le modèle est rejoué du tour courant jusqu'en ${AN_FIN}, contraintes figées à leur niveau actuel. Ce n'est pas une extrapolation : c'est la température que votre partie atteindra si plus rien ne bouge.<br>Zone de victoire du camp actif : sous 2,2 °C. Zone grise : 2,2 à 2,8 °C.">
-      <span class="ct">${S.turn>NTURNS?"Résultat "+AN_FIN:"Trajectoire "+AN_FIN}${pf}</span>
-      <div class="hv">${fr(proj,2)} °C</div>
-      <div class="hs">réel 2,70 · sans action 3,48</div>
-    </div>`+
-   `<div class="cksc" data-tip="<b>Votre score</b><br>Il additionne l'avance prise sur les deux jalons datés, les événements attribués, la contrainte moyenne installée et les verrous juridiques obtenus.<br>Le palier est le repère : il dit ce que vaut la partie, pas seulement le total.">
-      <div class="scb">
-        <div class="sct"><div class="scf" style="width:${suiv?Math.min(100,Math.round((sc-pal[0])/(suiv[0]-pal[0])*100)):100}%"></div></div>
-        <div class="scl"><span>${sc} pt${Math.abs(sc)>1?"s":""} · <b>${pal[1]}</b></span><span>${suiv?suiv[1]+" à "+suiv[0]:"palier maximal"}</span></div>
-      </div>
-    </div>`+
-   `<div class="ckk">
-      ${kc("Réchauffement",fr(D?D.T:s.T,2),"°C","<b>Température atteinte</b><br>1,0 °C en 2015, plus 0,00058 °C par gigatonne cumulée depuis. C'est une conséquence, pas un objectif.")}
-      ${kc("Émissions",fr(D?D.emis:totE(s),1),"Gt/an","<b>Émissions mondiales</b><br>35,5 GtCO₂/an en 2015. L'objectif de la partie est de passer sous "+SEUIL_E+", le plus tôt possible.")}
-      ${kc("Décès chaleur",fr(D?D.morts:s.morts,1),"M","<b>Compteur partagé</b><br>Cumul des décès liés à la chaleur depuis 2015. Repère réel 2024-2025 : environ 546 000 par an.")}
-      ${kc("Indice tech.",D?D.tech:s.tech,(s.tech>=40?" ▲▲":s.tech>=30?" ▲":""),"<b>Courbe d'apprentissage</b><br>Monte avec les subventions au déploiement et les percées industrielles.<br>À <b>30</b> : le capital coûte moins cher.<br>À <b>40</b> : les blocs déjà contraints gagnent +2 de contrainte par tour, gratuitement.<br>Actuellement : "+(s.tech>=40?"les blocs contraints progressent seuls":s.tech>=30?"capital plus efficace":"aucun seuil franchi")+".")}
-      <div class="ckc dmg" data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent : climatisation, assurance, irrigation, relocalisation. Les autres non.<br>Repère réel : le 1 % le plus riche émet 75,1 tCO₂/an contre 2,1 t « équitables » (Oxfam, 2026).">
-        <span>Dommages r. / autres</span><b><i>${s.dmgBase}</i> / <u>${s.dmgAutres}</u></b></div>
-    </div>`;
+    tuile("","Réchauffement",fr(T,2)," °C",
+      dern?dl(+(T-A.T).toFixed(2),2,act)+" au dernier tour":"1,00 °C en 2015",
+      "<b>Température atteinte</b><br>1,0 °C en 2015, plus 0,00058 °C par gigatonne cumulée depuis. Elle ne redescend jamais.")+
+    tuile("proj",S.turn>NTURNS?"Résultat "+AN_FIN:"Projection "+AN_FIN,fr(proj,2)," °C",
+      (plan?dl(+(proj-pj0).toFixed(2),2,act)+" avec votre plan · ":dern?dl(+(proj-A.proj).toFixed(2),2,act)+" au dernier tour · ":"")+"sans action "+fr(T_BASELINE,2)+" · réel "+fr(REEL_2100,2),
+      "<b>Où finit votre partie</b><br>Le modèle rejoué jusqu'en "+AN_FIN+", contraintes figées. Ce n'est pas une extrapolation : si plus rien ne bougeait, la partie finirait là."+(plan?"<br><br>Valeur <b>prévue</b> : elle tient compte du plan en cours, pas encore validé.":""))+
+    tuile("","Émissions",fr(em,1)," Gt/an",
+      (dern?dl(+(em-A.emis).toFixed(1),1,act)+" au dernier tour · ":"")+(s.seuilAn?"sous "+SEUIL_E+" depuis "+s.seuilAn:"objectif "+SEUIL_E),
+      "<b>Émissions mondiales</b><br>35,5 GtCO₂/an en 2015. L'objectif de la partie est de passer sous "+SEUIL_E+", le plus tôt possible.")+
+    tuile("",act?"Score · "+fr(Math.max(0,T_BASELINE-proj),2)+" °C évités":"Score · "+s.actifs+" Md$ préservés",sc," pts",
+      (plan?dl(sc-sc0,0,false)+" avec votre plan · ":dern?dl(sc-A.sc,0,false)+" au dernier tour · ":"")+"palier "+pal[1],
+      "<b>Votre score</b><br>L'avance prise sur les deux jalons datés, la contrainte moyenne installée, les verrous juridiques obtenus. Le palier est le repère.")+
+    `<div class="dsec"><span data-tip="<b>Courbe d'apprentissage</b><br>À 30 le capital coûte moins cher, à 40 les blocs contraints progressent seuls.">Indice tech. <b>${D?D.tech:s.tech}</b></span>`+
+    `<span data-tip="<b>Compteur partagé</b><br>Cumul des décès liés à la chaleur depuis 2015. Repère réel : environ 546 000 par an.">Décès chaleur <b>${fr(D?D.morts:s.morts,1)} M</b></span>`+
+    `<span data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent, les autres non.">Dommages riches / autres <b>${s.dmgBase} / ${s.dmgAutres}</b></span>`+
+    (BILAN&&!D&&!RESO?`<span class="lnk" id="dashBilan">trajectoire et bilan du tour ${BILAN.turn}</span>`:"")+`</div>`;
+  const db=$("#dashBilan"); if(db) db.onclick=bilanTour;
 }
 
 /* ---------- l'agenda du tour ----------
@@ -2888,6 +2898,7 @@ function agenda(s){
   out.push({cls:"adv", t:adv==="att"?"Le camp attentiste joue":"Le camp actif joue",
     r:fmtP(n)+" pt"+(n>1?"s":"")+" + 1 gratuit",
     tip:"Au niveau "+NIV(s).nom+", l'adversaire dispose de "+fmtP(n)+" points de puissance par tour — dans la même monnaie que les vôtres — plus son action gratuite sur l'événement, et les revenus pour tout payer. Vous ne saurez ce qu'il joue qu'à la résolution : c'est la seule part du tour qui vous soit cachée."});
+  const n0=out.length;
   if(s.ev){
     if(s.ev.eff==="prix") out.push({cls:P(false),t:"Flambée des prix",r:"friction +8",
       tip:"L'événement de ce tour ajoute 8 de friction à tous les blocs où aucune compensation n'est installée. Une compensation posée avant la résolution en protège le bloc."});
@@ -2906,6 +2917,7 @@ function agenda(s){
       r:(s.ev.eff==="bascule"?"réel +5 partout · ":"")+(s.attribue===0?"perçu inchangé tant qu'il n'est pas attribué":s.attribue===1?"attribué : l'opinion bougera":"désattribué : aucun effet sur l'opinion"),
       tip:"Un événement ne déplace l'opinion que si un camp l'attribue au climat. Attribuer coûte 1 attention et ne consomme pas de puissance."+(s.ev.fort?"<br><br><b>Événement de palier</b> : il n'apparaît qu'au-delà d'un certain réchauffement, et une fois attribué il déplace l'opinion davantage — +20 sur place, +6 ailleurs.":"")});
   }
+  out.slice(n0).forEach(x=>x.ev=true);
   if(s.turn%2===0){
     const d=s.blocs.filter(b=>b.reg==="demo");
     const alt=d.filter(b=>b.percu<50).length;
@@ -2967,7 +2979,7 @@ function agenda(s){
 function agendaHTML(s){
   return agenda(s).map(a=>`<span class="ag ${a.cls}" data-tip="${a.tip.replace(/"/g,'&quot;')}"><b>${a.t}</b>${a.r?"<i>"+a.r+"</i>":""}</span>`).join("");
 }
-function renderAgenda(){
+function renderAgenda(){   // v0.16 : l'agenda vit dans la ligne « Ce tour » (renderEvent)
   const box=$("#agenda");
   if(!box) return;
   if(RESO||DASHV||S.over){ box.innerHTML=""; box.style.display="none"; return; }
@@ -3075,6 +3087,11 @@ function bilanTour(){
          <div class="agenda dansbilan">${agendaHTML(s)}</div>`:""}
      </div>
      <div class="full">
+       <div class="ms">Où finit la partie, vu de chaque tour
+         <span style="float:right;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">— votre partie · ╌ monde réel</span></div>
+       <div id="traj" class="trajb"></div>
+     </div>
+     <div class="full">
        <div class="ms">Le journal du tour ${A.turn}
          <span class="lnk" id="bjTog" style="float:right;text-transform:none;letter-spacing:0;font-weight:400">${BJOURTOUT?"voir l'essentiel":"tout voir"}</span></div>
        <div class="jour" id="bjour" style="max-height:32vh;margin-top:6px">${logHTML(jour,BJOURTOUT).join("")}</div>
@@ -3086,7 +3103,7 @@ function bilanTour(){
      </div>
    </div>`;
   ouvrirModal(true);
-  carteBilan(s,A);
+  carteBilan(s,A); renderTraj();
   $("#mx").onclick=fermer; $("#bok").onclick=fermer;
   const brj=$("#brejouer"); if(brj) brj.onclick=rejouerTour;
   $("#bauto").onchange=e=>{AUTOBILAN=e.target.checked;};
@@ -3104,8 +3121,7 @@ function renderPlan(){
   const lev=s.plan.filter(e=>e.k!=="attr");
   if(!s.plan.length){
     box.className="plan vide";
-    box.innerHTML=`<div class="pmsg">Aucun levier engagé. <span>Rien n'est appliqué au monde avant que vous validiez le tour :
-      vous pouvez ajouter et retirer vos leviers autant de fois que vous voulez, l'aperçu se recalcule à chaque fois.</span></div>`;
+    box.innerHTML=`<div class="pmsg"><span class="pk">Votre plan</span> vide — choisissez un levier ci-dessous (puis un bloc sur la carte pour un levier de bloc). Rien n'est appliqué avant la validation.</div>`;
     return;
   }
   const pv=PV||s;
@@ -3151,25 +3167,14 @@ function renderPlan(){
   const dtxt=v=>(v>0?"+":"−")+Math.abs(v).toFixed(2);
   box.className="plan"+(planKo()?" alerte":"");
   box.innerHTML=`
-    <div class="phead">
-      <div class="pt">Votre tour <span>${lev.length} levier${lev.length>1?"s":""} engagé${lev.length>1?"s":""} · ${fmtP(pv.actions)} pt${pv.actions>1?"s":""} de puissance restant${pv.actions>1?"s":""}</span></div>
-      <div class="pacts"><span class="lnk" id="pclear">tout retirer</span></div>
-    </div>
-    <div class="pchips">${chips}</div>
-    <div class="pimp">
-      <div class="pi" data-tip="Différence entre la trajectoire calculée sur l'état actuel et celle calculée si votre plan s'applique. Elle ne tient pas compte de ce que jouera l'adversaire.">
-        <span class="pk">Fin de partie en ${AN_FIN}</span>
-        <span class="pv2">${fr(projA,2)} → <b>${fr(projB,2)} °C</b></span>
-        <span class="pdd ${dp<0?(act?"bon":"mal"):dp>0?(act?"mal":"bon"):""}">${dp?dtxt(dp)+" °C":"inchangée"}</span></div>
-      <div class="pi" data-tip="Votre score tel qu'il serait recalculé après application du plan, avant la réponse de l'adversaire et la résolution du monde.">
-        <span class="pk">Score</span>
-        <span class="pv2">${scA} → <b>${scB} pts</b></span>
-        <span class="pdd ${ds>0?"bon":ds<0?"mal":""}">${ds?(ds>0?"+":"−")+Math.abs(ds):"inchangé"}</span></div>
-      <div class="pi" data-tip="Ressources qui seront prélevées à la validation. Un pari raté en rend la moitié.">
-        <span class="pk">Coût engagé</span>
-        <span class="pv2">${[cout.cp?cout.cp+" politique":null,cout.cap?cout.cap+" capital":null,cout.att?cout.att+" attention":null].filter(Boolean).join(" · ")||"gratuit"}</span>
-        <span class="pdd">reste ${r1.cp} · ${r1.cap} · ${r1.att}</span></div>
-    </div>
+    <div class="prow"><span class="pk">Votre plan</span><div class="pchips">${chips}</div>
+      <div class="psum">
+        <span data-tip="Points de puissance engagés par votre plan, sur le budget du tour.">Puissance <b>${fmtP(poidsPlan(s))} / ${fmtP(s.actions)}</b></span>
+        <span data-tip="Ressources qui seront prélevées à la validation. Un pari raté en rend la moitié.">Coût <b>${[cout.cp?cout.cp+" politique":null,cout.cap?cout.cap+" capital":null,cout.att?cout.att+" attention":null].filter(Boolean).join(" · ")||"gratuit"}</b></span>
+        <span data-tip="Différence entre la trajectoire calculée sur l'état actuel et celle calculée si votre plan s'applique. Elle ne tient pas compte de ce que jouera l'adversaire.">${AN_FIN} <b>${fr(projB,2)} °C</b> <span class="pdd ${dp<0?(act?"bon":"mal"):dp>0?(act?"mal":"bon"):""}">${dp?dtxt(dp):"="}</span></span>
+        <span data-tip="Votre score tel qu'il serait recalculé après application du plan, avant la réponse de l'adversaire.">Score <b>${scB}</b> <span class="pdd ${ds>0?"bon":ds<0?"mal":""}">${ds?(ds>0?"+":"−")+Math.abs(ds):"="}</span></span>
+        <span class="lnk" id="pclear">tout retirer</span>
+      </div></div>
     ${mv.length?`<div class="pmv">${mv.map(m=>`<span><b>${m.code}</b> ${m.txt}</span>`).join("")}</div>`:""}
     ${cbs.length?`<div class="pnote combo">⚡ ${cbs.map(k=>"<b>"+k.n+"</b> — "+k.d).join(" · ")}</div>`:""}
     ${paris.length?`<div class="pnote">${paris.length} pari${paris.length>1?"s":""} dans ce plan (${paris.map(p=>p+" %").join(", ")}).
@@ -3183,7 +3188,7 @@ function renderPlan(){
 function cout_(s,c,bk){
   const k=cout(s,c,s.camp), b=bk?B(s,bk):null;
   const cap=k.cap+((s.camp==="actif"&&b&&b.reg==="auto"&&c.seuil)?1:0);
-  return [k.cp?k.cp+" pol.":null,cap?cap+" cap.":null,k.att?k.att+" att.":null].filter(Boolean).join(" · ")||"gratuit";
+  return [k.cp?k.cp+" politique":null,cap?cap+" capital":null,k.att?k.att+" attention":null].filter(Boolean).join(" · ")||"gratuit";
 }
 
 /* ---------- le camp adverse ----------
@@ -3242,6 +3247,8 @@ function renderAdv(){
   // panneau repliable, réglage mémorisé dans le navigateur
   const red=advReduit(), side=document.querySelector(".sideR");
   side.classList.toggle("advReduit",red);
+  if(red){ const der=(S.adv||[]).filter(a=>a.turn===S.turn-1).length;
+    $("#advEtat").innerHTML=fmtP(n)+" pt/tour"+(S.turn>1?" · "+der+" levier"+(der>1?"s":"")+" au dernier tour":""); }
   $("#advTog").textContent = red?"afficher":"réduire";
   $("#advTog").onclick=()=>{ try{ localStorage.setItem("heat.advReduit", red?"0":"1"); }catch(e){} ADV_RED=!red; renderAdv(); };
   const tous=s.adv||[];
@@ -3318,7 +3325,11 @@ function renderMap(){
     d.style.left=b.x+"%"; d.style.top=b.y+"%";
     const bar=(cls,v)=>`<div class="cb ${cls}"><span class="bg"></span><i style="height:${Math.max(0,Math.min(100,v))}%"></i></div>`;
     const row=(cls,lab,v,dv)=>`<div class="c2r"><span>${lab}</span><div class="c2t"><div class="c2f ${cls}" style="width:${Math.min(100,v)}%"></div></div><b>${Math.round(v)}${dv?'<u>'+sgn(dv)+'</u>':''}</b></div>`;
+    // levier de bloc sélectionné : chaque bloc impossible dit pourquoi, sur la carte même
+    const pourquoi = (c&&c.cible==="bloc"&&!ciblable) ? (S.plan.some(e=>e.id===c.id&&e.bk===b.k)?"déjà dans le plan":jouable(s,c,b,s.camp)) : null;
+    if(c&&c.cible==="bloc"&&!ciblable){ d.classList.add("hors"); land.classList.add("hors"); } else land.classList.remove("hors");
     d.innerHTML=
+      (pourquoi?`<div class="why">${String(pourquoi).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué")}</div>`:"")+
       `<div class="halo" style="width:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;height:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;--ho:${(0.05+0.20*Math.min(1,b.e/9)).toFixed(3)}"></div>
        <div class="chip">${bar("contr",v.contr)}${bar("reel",v.reel)}${bar("percu",v.percu)}${bar("fric",v.fr)}<b>${b.code}</b>${advT?`<u class="advm">${advT}</u>`:""}</div>
        <div class="card2">
@@ -3339,6 +3350,14 @@ function renderMap(){
     if(ciblable) land.classList.add("tgt"); else land.classList.remove("tgt");
     box.appendChild(d);
   });
+  const cg=$("#consigne");
+  if(cg){
+    if(c&&c.cible==="bloc"&&!RESO){
+      const n=s.blocs.filter(b=>!jouable(s,c,b,s.camp)).length;
+      cg.innerHTML=`Choisissez un bloc pour <b>${c.n}</b> — ${n?n+" possible"+(n>1?"s":"")+", en bleu":"aucun bloc possible"} · <kbd>Échap</kbd> ou <span class="lnk" id="annul">annuler</span>`;
+      cg.classList.add("on"); $("#annul").onclick=()=>{ sel=null; render(); };
+    } else cg.classList.remove("on");
+  }
   // la mer se réchauffe elle aussi, très légèrement : la carte n'est jamais tout à fait la même
   const svg=box.querySelector("svg.map");
   if(svg){ const c=Math.max(0,Math.min(1,(s.T-1.0)/2.2));
@@ -3384,93 +3403,103 @@ function fourchette(s,c,elig){
     tip:"Meilleur bloc : <b>"+hi.n+", "+hi.p+" %</b>"+(v.length>1?"<br>Moins favorable : "+lo.n+", "+lo.p+" %":"")};
 }
 
+/* ==================== la main ====================
+   v0.16 : une seule main, en bas du plateau, au lieu de deux colonnes de part et
+   d'autre de la carte. Les cartes sont réduites à ce qui décide : titre, effet,
+   puissance et coût en clair ; le reste passe en petites mentions, détaillées
+   dans l'infobulle et dans la fiche. Trois ordres de tri, mémorisés. */
+let HAND_TRI=null;
+function triMain(){
+  if(HAND_TRI===null){ try{ HAND_TRI=localStorage.getItem("heat.tri")||"jouables"; }catch(e){ HAND_TRI="jouables"; } }
+  return HAND_TRI;
+}
+const RESS=[["cp","politique","var(--s-reel)"],["cap","capital","var(--s-traj)"],["att","attention","var(--s-percu)"]];
 function renderHand(){
   const s=V();
   const c=sel?card(sel):null;
-  const [gauche,droite]=repartir(s.hand);
   const engage = S.plan.some(e=>e.k!=="attr");
   const peutRe = s.redraw>0 && s.res[s.camp==="actif"?"actif":"att"].att>=1 && !RESO && !engage;
-  // les deux commandes de la main sont réunies sous l'en-tête de la colonne gauche :
-  // renouveler ce qu'on a, et regarder ce qui n'est pas encore ouvert.
   const av=aVenir(s,s.camp==="actif"?"actif":"att");
   const nPool=pool(s,s.camp==="actif"?"actif":"att").length;
-  $("#handHint").innerHTML=s.hand.length+" en main · <span class=\"lnk\" id=\"vueCompacte\" data-tip=\"Réduit chaque carte à son titre, sa puissance, son coût et une ligne d'effet. Tout le reste reste dans la fiche (le <b>i</b>).\">"+(document.body.classList.contains("compact")?"détails":"compact")+"</span>";
-  $("#vueCompacte").onclick=()=>{ const on=document.body.classList.toggle("compact");
-    try{ localStorage.setItem("heat.compact", on?"1":"0"); }catch(e){}
-    render(); };
-  $("#handInfo").innerHTML="suite de votre main";
+  $("#handHint").innerHTML=s.hand.length+" en main";
+  const tri=triMain();
+  $("#handTri").innerHTML=[["jouables","jouables d'abord"],["cout","par puissance"],["famille","par famille"]]
+    .map(([k,l])=>`<span class="${tri===k?"on":""}" data-tri="${k}">${l}</span>`).join("");
+  $("#handTri").querySelectorAll("[data-tri]").forEach(el=>el.onclick=()=>{ HAND_TRI=el.dataset.tri; try{ localStorage.setItem("heat.tri",HAND_TRI); }catch(e){} renderHand(); });
   $("#handCtl").innerHTML=
     `<span class="hcs" data-tip="Votre main est tirée dans les ${nPool} leviers que la progression a ouverts pour votre camp, pondérés par votre doctrine.">${nPool} ouverts</span>`
    +(s.redraw>0
-      ? `<span id="redraw" class="lnk${peutRe?"":" off"}" data-tip="Rend tous les leviers non joués et en tire douze autres. Les leviers rendus ne reviennent pas avant le tour suivant.<br><br>Coûte 1 attention, une fois par tour.${engage?"<br><br><b style=color:#e88>Retirez d'abord les leviers engagés ce tour.</b>":""}">autres leviers</span>`
+      ? `<span id="redraw" class="lnk${peutRe?"":" off"}" data-tip="Rend tous les leviers non joués et en tire douze autres. Les leviers rendus ne reviennent pas avant le tour suivant.<br><br>Coûte 1 attention, une fois par tour.${engage?"<br><br><b style=color:#e88>Retirez d'abord les leviers engagés ce tour.</b>":""}">renouveler · 1 attention</span>`
       : `<span class="off" data-tip="Vous avez déjà renouvelé votre main ce tour.">main déjà renouvelée</span>`)
    +(av.length
-      ? ` <span class="lnk" id="avenir" data-tip="Les ${av.length} leviers que la progression n'a pas encore ouverts, et ce qu'il faut pour y accéder.">${av.length} à venir</span>`
-      : ` <span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`)
-   +((s.masques||[]).length?` <span class="lnk" id="masques" data-tip="Les leviers que vous avez masqués : ils ne vous sont plus proposés. Cliquez pour en réafficher.">${s.masques.length} masqué${s.masques.length>1?"s":""}</span>`:"");
+      ? `<span class="lnk" id="avenir" data-tip="Les ${av.length} leviers que la progression n'a pas encore ouverts, et ce qu'il faut pour y accéder.">${av.length} à venir</span>`
+      : `<span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`)
+   +((s.masques||[]).length?`<span class="lnk" id="masques" data-tip="Les leviers que vous avez masqués : ils ne vous sont plus proposés. Cliquez pour en réafficher.">${s.masques.length} masqué${s.masques.length>1?"s":""}</span>`:"");
   const bav=$("#avenir"); if(bav) bav.onclick=panneauAVenir;
   const bmq=$("#masques"); if(bmq) bmq.onclick=panneauMasques;
   bindTips($("#handCtl"));
-  let hint="";
-  if(c&&c.cible==="bloc") hint=`<div class="hint">Choisissez un bloc sur la carte — <span style="text-decoration:underline;cursor:pointer" id="annul">annuler</span></div>`;
-  const bloc=ids=>{
-  let h=(sel&&ids.includes(sel))?hint:"";
-  h+=`<div class="hand">`;
-  ids.forEach(id=>{
+  // ce que chaque carte permet en l'état, calculé une fois pour le tri et l'affichage
+  const infos=s.hand.map(id=>{
     const cc=card(id), glob=cc.cible!=="bloc";
-    // périmètre : combien de blocs acceptent ce levier en l'état
     const elig = glob ? null : s.blocs.filter(b=>!jouable(s,cc,b,s.camp));
-    const raison = s.actions<pds(cc) ? "il faut "+fmtP(pds(cc))+" points de puissance, il n'en reste "+fmtP(s.actions)
+    const cher = s.actions<pds(cc);
+    const raison = cher ? "il faut "+fmtP(pds(cc))+" points de puissance, il n'en reste "+fmtP(s.actions)
       : glob ? jouable(s,cc,null,s.camp) : (elig.length?null:motifBlocs(s,cc));
+    return {id,cc,glob,elig,cher,raison};
+  });
+  const ord={jouables:(a,b)=>(!!a.raison-!!b.raison)||(pds(a.cc)-pds(b.cc)),
+             cout:(a,b)=>(pds(a.cc)-pds(b.cc))||a.id.localeCompare(b.id),
+             famille:(a,b)=>a.cc.fam.localeCompare(b.cc.fam)||(pds(a.cc)-pds(b.cc))}[tri]||(()=>0);
+  infos.sort(ord);
+  let h=`<div class="hand">`;
+  infos.forEach(({id,cc,glob,elig,cher,raison})=>{
     const ko=!!raison;
     const kk=cout(s,cc,s.camp);
-    const cost=[kk.cp?kk.cp+" pol.":null,kk.cap?kk.cap+" cap.":null,kk.att?kk.att+" att.":null].filter(Boolean).join(" · ");
+    const cost=RESS.filter(([k])=>kk[k]).map(([k,l,col])=>`<span class="rc" style="--c:${col}">${kk[k]} ${l}</span>`).join("")||`<span class="rc">gratuit</span>`;
     const af=Math.round(affin(cc,s.doc[s.camp==="actif"?"actif":"att"])*100);
+    const dw=af>=70?"aligné":af>=40?"neutre":"opposé";
     const pr=PROBA[cc.id]?fourchette(s,cc,elig):null;
     const nPlan=S.plan.filter(e=>e.id===id).length;
+    const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
+    const ptip = p>=3?"<b>Levier extrême — "+lbl+"</b><br>À lui seul il déplace nettement la trajectoire, retourne l'opinion mondiale ou descend les plafonds."
+      :p>=2?"<b>Levier lourd — "+lbl+"</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue."
+      :"<b>Levier léger — "+lbl+"</b><br>Le moins coûteux du barème.";
+    const ic=[];
+    if(nPlan) ic.push(`<span class="ic plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${lbl} et ses ressources.">×${nPlan} dans le plan</span>`);
+    if(clefDefi(s,id)) ic.push(`<span class="ic defi" data-tip="Ce levier sert directement l'objectif du tour : ★ ${s.defi.t}.">★ objectif</span>`);
+    if((s.rendus||[]).some(x=>x.id===id)) ic.push(`<span class="ic" data-tip="Ce levier a déjà été engagé et défait : il n'a pas été consommé, vous pouvez le rejouer.">↻ rejouable</span>`);
+    if(cc.trap&&s.level===1) ic.push(`<span class="ic ko" data-tip="Niveau Découverte : le rendement réel de ce levier est contesté. Ouvrez la fiche avant de le jouer.">à vérifier</span>`);
+    if(cc.lat) ic.push(`<span class="ic" data-tip="L'effet ne tombera qu'à la résolution du tour indiqué.">dans ${cc.lat} tour${cc.lat>1?"s":""}</span>`);
+    if(cc.seuil) ic.push(`<span class="ic" data-tip="Ce levier exige un soutien perçu d'au moins ${cc.seuil} sur le bloc visé. En régime autoritaire il n'y a pas de seuil, mais chaque mesure coûte 1 capital de plus.">perçu ≥ ${cc.seuil}</span>`);
+    if(pr) ic.push(`<span class="ic pari" data-tip="<b>Ce levier peut échouer.</b> Il faut le faire voter, le gagner ou l'obtenir.<br><br>${pr.tip}<br><br>En cas d'échec, la moitié de la mise est rendue et la tentative laisse 6 de friction.">pari ${pr.txt}</span>`);
+    const k=comboDispo(s,id); if(k) ic.push(`<span class="ic combo" data-tip="<b>${k.n}</b><br>${k.d}<br><br>Jouez ce levier et <b>${card(k.autre).n}</b> dans le même tour pour déclencher la combinaison.">⚡ combo</span>`);
+    if(ko) ic.push(`<span class="ic ko" data-tip="${raison.replace(/"/g,'&quot;')}">${cher?"trop cher ce tour":raison.length>26?"injouable ici":raison}</span>`);
     h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""} ${glob?"glob":"blk"}${nPlan?" planif":""}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
-      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant. Vous pouvez le réafficher depuis la liste des leviers masqués, au-dessus de la main.">⊘</div>
-      <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${nPlan?`<span class="tag plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${fmtP(pds(cc))} point${pds(cc)>1?"s":""} et ses ressources.">×${nPlan} dans le plan</span>`:""}${clefDefi(s,id)?' <span class="tag defi" data-tip="Ce levier sert directement l\'objectif du tour : ★ '+s.defi.t+'.">★ objectif</span>':''}${(s.rendus||[]).some(x=>x.id===id)?' <span class="tag rendu" data-tip="Ce levier a déjà été engagé ici et défait — mesure annulée par l\'adversaire, ou tentative échouée. Il n\'a pas été consommé : vous pouvez le rejouer.">↻ rejouable</span>':''}${cc.trap&&s.level===1?' <span class="tag trap" data-tip="Niveau Découverte : le jeu signale les leviers dont le rendement réel est contesté. Ouvrez la fiche avant de le jouer — aux niveaux supérieurs, ce repère disparaît.">à vérifier</span>':''}
-        <span class="scope ${glob?"g":"b"}" data-tip="${glob
-          ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un seul clic, sans désigner de cible. Un levier mondial ne peut être joué qu'une fois dans la partie."
-          :"<b>Levier de bloc</b><br>Il faut lui désigner une cible sur la carte du monde. Le même levier peut servir sur trois blocs au maximum dans la partie, y compris plusieurs dans le même tour : chaque bloc coûte à nouveau sa puissance et ses ressources."+(elig?"<br><br>Actuellement jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span></div>
+      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant.">⊘</div>
+      <div class="lvh"><span class="lvid">${cc.id}</span><span class="scope ${glob?"g":"b"}" data-tip="${glob
+          ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un clic. Une fois par partie."
+          :"<b>Levier de bloc</b><br>Il faut lui désigner un bloc sur la carte. Trois blocs au maximum dans la partie, y compris plusieurs dans le même tour."+(elig?"<br><br>Jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span><span class="dw ${dw}" data-tip="<b>Doctrine : ${dw} (${af} %)</b><br>L'accord entre ce levier et votre doctrine. Aligné : il vous est proposé plus souvent et rend davantage. Opposé : il reste jouable, il rend moins.">${dw}</span></div>
       <h4>${cc.n}</h4>
       <div class="eff">${gloss(cc.e)}</div>
-      <div class="jauge" data-tip="<b>Influence de votre doctrine : ${af} %</b><br>Mesure l'accord entre ce levier et les quatre curseurs de votre doctrine.<br>Plus elle est haute, plus la carte a de chances de vous être proposée au tirage, et plus son effet est renforcé une fois jouée.<br>Une carte à faible influence reste jouable : elle rend simplement moins.">
-        <span class="jl">doctrine</span><span class="jt"><i class="${af>=70?"hi":af>=40?"mid":"lo"}" style="width:${af}%"></i></span><b>${af} %</b></div>
-      <div class="meta">${(()=>{const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
-        const cls = p>=3?"tag extreme":p>=2?"tag lourd":"tag";
-        const tip = p>=3
-          ?"<b>Levier extrême — "+lbl+" de puissance</b><br>Son ampleur mesurée le place parmi les tout premiers du catalogue : à lui seul il déplace nettement la trajectoire, retourne l'opinion mondiale ou descend les plafonds. Il absorbe à lui seul une bonne part du budget d'un tour."
-          :p>=2
-          ?"<b>Levier lourd — "+lbl+" de puissance</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue : à lui seul il déplace la trajectoire, retourne l'opinion mondiale ou descend les plafonds."
-          :"<b>Levier léger — "+lbl+" de puissance</b><br>Le moins coûteux du barème : il en reste toujours pour plusieurs dans le même tour.";
-        return `<span class="${cls}" data-tip="${tip}">⚖ ${lbl}</span>`;})()}<span class="tag cost">${cost||"gratuit"}</span>
-        ${cc.lat?'<span class="tag lat" data-tip="L\'effet ne tombera qu\'à la résolution du tour indiqué : ce levier engage des ressources maintenant pour un résultat plus tard.">effet dans '+cc.lat+' tour'+(cc.lat>1?'s':'')+'</span>':'<span class="tag" data-tip="L\'effet est appliqué dès la validation du tour.">immédiat</span>'}
-        ${cc.seuil?'<span class="tag" data-tip="Ce levier exige un soutien perçu d\'au moins '+cc.seuil+' sur le bloc visé. En régime autoritaire il n\'y a pas de seuil, mais chaque mesure coûte 1 capital de plus.">perçu ≥ '+cc.seuil+'</span>':''}
-        ${pr?`<span class="tag pari" data-tip="<b>Ce levier peut échouer.</b> Il faut le faire voter, le gagner ou l'obtenir. La probabilité dépend du bloc visé : soutien perçu, friction, régime politique et votre crédibilité.<br><br>${pr.tip}<br><br>En cas d'échec, la moitié de la mise est rendue et la tentative laisse 6 de friction.">pari ${pr.txt}</span>`:""}
-        ${(()=>{const k=comboDispo(s,id);return k?`<span class="tag combo" data-tip="<b>${k.n}</b><br>${k.d}<br><br>Jouez ce levier et <b>${card(k.autre).n}</b> dans le même tour pour déclencher la combinaison.">⚡ combo</span>`:""})()}</div>
+      <div class="lvc"><span class="pts${p>=3?" x":p>=2?" l":""}" data-tip="${ptip}">${lbl}</span>${cost}</div>
+      <div class="lvi">${ic.join("")}</div>
     </div>`;
   });
   h+=`</div>`;
-  return h;
-  };
-  $("#handL").innerHTML=bloc(gauche);
-  $("#handR").innerHTML=bloc(droite);
-  [$("#handL"),$("#handR")].forEach(zone=>{
-    zone.querySelectorAll(".card").forEach(el=>{
-      el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
-        if(e.target.dataset.masq){masquerLevier(e.target.dataset.masq);return;}
-        if(el.classList.contains("no")||RESO)return;
-        const id=el.dataset.id, cc=card(id);
-        if(cc.cible!=="bloc"){                       // levier mondial : aucun bloc à désigner
-          if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
-          return;
-        }
-        sel = sel===id?null:id; render(); };
-    });
-    bindTips(zone);
+  const zone=$("#hand");
+  zone.innerHTML=h;
+  zone.querySelectorAll(".card").forEach(el=>{
+    el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
+      if(e.target.dataset.masq){masquerLevier(e.target.dataset.masq);return;}
+      if(el.classList.contains("no")||RESO)return;
+      const id=el.dataset.id, cc=card(id);
+      if(cc.cible!=="bloc"){
+        if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
+        return;
+      }
+      sel = sel===id?null:id; render(); };
   });
+  bindTips(zone);
   const rd=$("#redraw");
   if(rd&&peutRe) rd.onclick=()=>{
     const S0=S;
@@ -3479,13 +3508,12 @@ function renderHand(){
     jlog(S0,"t","Main rendue : douze autres leviers proposés (1 attention).");
     simuler(); render();
   };
-  const a=$("#annul"); if(a)a.onclick=()=>{sel=null;render();};
-
 }
 
 let ADV_RED=null;
 function advReduit(){
-  if(ADV_RED===null){ try{ ADV_RED=localStorage.getItem("heat.advReduit")==="1"; }catch(e){ ADV_RED=false; } }
+  // replié par défaut (v0.16) : on l'ouvre quand on veut lire ce qu'il a fait
+  if(ADV_RED===null){ try{ ADV_RED=localStorage.getItem("heat.advReduit")!=="0"; }catch(e){ ADV_RED=true; } }
   return ADV_RED;
 }
 function masquerLevier(id){
@@ -3816,6 +3844,7 @@ function survolTraj(hist,x,y,yHaut,yBas,pas,libelleFin){
 }
 
 function renderTraj(){
+  if(!$("#traj")) return;   // v0.16 : le graphique n'est plus sur le plateau, seulement dans le bilan
   const s=S,W=880,H=132,L=40,R=90,T=10,Bm=22;
   const n=NTURNS+1;
   // pendant la résolution, la courbe s'arrête au tour précédent : le nouveau point
@@ -4190,21 +4219,21 @@ function accueilReprise(){
 /* ==================== guide d'entrée ==================== */
 const GUIDE=[
  {s:"#mapbox", t:"Le monde en huit blocs",
-  d:"Chaque bloc porte <b>quatre jauges</b> : contrainte (bleu), soutien réel (vert), soutien perçu (jaune), friction (rouge). Le <b>halo rouge</b> autour d'un bloc vaut ses émissions — il rétrécit quand elles baissent, et c'est tout l'objet de la partie. La couleur de la terre suit le siècle : elle rougit avec le réchauffement, elle verdit là où la contrainte est installée."},
- {s:"#events", t:"Ce qu'on vous demande",
-  d:"L'événement du tour, l'état de la technologie, l'objectif de la partie — faire <b>plafonner</b> les émissions puis passer sous 20 GtCO₂/an — et le <b>défi du tour</b>, marqué d'une étoile, qui rapporte des ressources s'il est rempli."},
- {s:"#agenda", t:"Ce qui arrivera sans vous",
-  d:"Élections, effets différés, retours de flamme, coups de l'adversaire : tout ce que la résolution appliquera <b>quoi que vous fassiez</b>. Le bandeau se recalcule à chaque levier que vous engagez. Arbitrer sans le lire, c'est jouer à l'aveugle."},
- {s:"#handL", t:"Vos leviers",
-  d:"Douze cartes tirées dans le catalogue ouvert de votre camp, pondérées par votre <b>doctrine</b> (au-dessus). Chaque carte dit sa puissance, son coût, son effet et son périmètre : <b>◍ monde</b> se joue d'un clic, <b>◎ bloc</b> demande une cible sur la carte. Votre <b>budget de puissance</b> suit votre crédibilité ; un levier léger en prend peu, un <b>⚖ levier lourd</b> ou <b>extrême</b> peut en absorber l'essentiel d'un coup. Le <b>i</b> ouvre la fiche complète — mécanisme, ancrage réel daté, contre-levier."},
+  d:"Chaque bloc porte <b>quatre jauges</b> : contrainte (bleu), soutien réel (vert), soutien perçu (jaune), friction (rouge). Le <b>halo rouge</b> autour d'un bloc vaut ses émissions — il rétrécit quand elles baissent, et c'est tout l'objet de la partie. Le plus gros émetteur est tracé en orange."},
+ {s:"#cetour", t:"Ce tour",
+  d:"Une ligne pour tout ce qui se joue ce tour : l'<b>événement</b> (à attribuer au climat, ou non), l'<b>objectif</b> de la partie — passer sous 20 GtCO₂/an le plus tôt possible —, le <b>défi</b> du tour, et ce que la résolution appliquera <b>quoi que vous fassiez</b> : élections, effets différés, coups de l'adversaire. Survolez une pastille pour le détail."},
+ {s:"#handbar", t:"Vos leviers",
+  d:"Douze cartes tirées dans votre catalogue, pondérées par votre <b>doctrine</b>. Chacune dit sa <b>puissance</b> (de 1 à 3,5 points) et son coût en ressources. <b>◍ monde</b> se joue d'un clic ; <b>◎ bloc</b> demande de désigner un bloc sur la carte. Le <b>i</b> ouvre la fiche, le <b>⊘</b> masque un levier qui ne vous intéresse pas."},
  {s:"#plan", t:"Rien n'est joué avant que vous validiez",
-  d:"Les leviers que vous engagez s'empilent ici. Vous pouvez en retirer un à tout moment (× ou Ctrl+Z) et tout remettre à zéro. Pendant ce temps, <b>toutes les valeurs affichées deviennent celles que le plan produirait</b> : jauges, trajectoire, score. Rien ne touche le monde avant « Fin de tour »."},
- {s:"#advPanel", t:"Quelqu'un joue contre vous",
-  d:"L'adversaire joue après vous, à chaque tour. Vous ne voyez jamais sa main — vous voyez <b>ce qu'il a joué</b>, où, et quand c'est le contre-levier d'un des vôtres. Les chiffres rouges sur la carte comptent ses coups par bloc. Ce qu'il a installé continue d'agir sans qu'il ait à y revenir."},
- {s:".cockpit", t:"Où finit la partie",
-  d:"La <b>trajectoire 2100</b> n'est pas une extrapolation : c'est le modèle rejoué jusqu'au bout, contraintes figées. Si plus rien ne bougeait, la partie finirait là. La courbe garde la même lecture tour après tour ; la ligne grise est le monde réel, à 2,70 °C."},
+  d:"Les leviers engagés s'alignent ici, dans l'ordre où ils s'appliqueront (les flèches le changent). La ligne dit la puissance utilisée, le coût et l'effet attendu sur 2100. Retirez-en un à tout moment : l'aperçu se recalcule."},
+ {s:"#advBox", t:"Quelqu'un joue contre vous",
+  d:"L'adversaire joue après vous, à chaque tour. Vous ne voyez jamais sa main — vous voyez <b>ce qu'il a joué</b>, où, et quand c'est le contre-levier d'un des vôtres. Le panneau est replié : « afficher » l'ouvre."},
+ {s:"#dash", t:"Où en est la partie",
+  d:"Quatre chiffres : le réchauffement atteint, la <b>projection 2100</b> — le modèle rejoué jusqu'au bout, contraintes figées —, les émissions et votre score. Avec un plan en cours, projection et score sont ceux que le plan produirait. La courbe tour par tour est dans le bilan."},
+ {s:"#docBox", t:"Votre doctrine",
+  d:"Quatre réglages qui ne jouent aucune carte : ils décident lesquelles vous sont proposées, et ce qu'elles rendent. « régler » les ouvre ; le premier ajustement du tour coûte 1 attention."},
  {s:"#endturn", t:"Fin de tour",
-  d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et le journal complet. <b>Dix-sept tours, de 2015 à 2100.</b>"}
+  d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et pourquoi."}
 ];
 let GI=-1, GUIDE_VU=false;
 function guideOuvrir(i){ GI=i||0; GUIDE_VU=true; $("#guide").classList.add("on"); guidePas(); }
@@ -4238,6 +4267,7 @@ function guidePas(){
     const pv=$("#gprev"); if(pv) pv.onclick=()=>{ GI=Math.max(0,GI-1); guidePas(); };
   },60);
 }
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&sel&&GI<0&&!$("#ovl").classList.contains("open")){ sel=null; render(); } });
 addEventListener("keydown",e=>{ if(GI>=0){ if(e.key==="Escape")guideFermer();
   else if(e.key==="ArrowRight"||e.key===" "){GI++;guidePas();e.preventDefault();}
   else if(e.key==="ArrowLeft"){GI=Math.max(0,GI-1);guidePas();} } });

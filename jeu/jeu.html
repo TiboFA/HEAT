@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.15.8</title>
+<title>HEAT — version jouable v0.16</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -807,6 +807,104 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mqrow{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ring);padding:8px 0}
 .mqrow b{display:block;font-size:13px}.mqrow span{font-size:11.5px;color:var(--muted)}
 .sideR.advReduit #advPanel{display:none}
+/* ==================== v0.16 : nouvelle disposition du plateau ==================== */
+/* 8 · barre du haut : la puissance en jauge */
+.pui .jg{display:inline-flex;gap:2px;margin-left:5px}
+.pui .jg i{width:10px;height:9px;border:1px solid var(--wire);border-radius:2px}
+.pui .jg i.u{background:var(--wire)}.pui .jg i.h{background:linear-gradient(90deg,var(--wire) 50%,transparent 50%)}
+/* 2 · la ligne « Ce tour » */
+.cetour{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--ring);background:var(--surface-2)}
+.cetour .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700;margin-right:4px;cursor:help}
+.pl{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ring);border-left-width:3px;border-radius:7px;padding:3px 9px;
+ font-size:11.5px;color:var(--ink-2);background:var(--surface);cursor:help;max-width:100%}
+.pl b{color:var(--ink);font-weight:600;white-space:nowrap}
+.pl i{font-style:normal;color:var(--muted);font-size:10.5px}
+.pl .mini{padding:2px 8px;font-size:10.5px}
+.pl.pev{border-left-color:var(--s-percu)}.pl.pev.cold{border-left-color:var(--muted)}.pl.pev.done{border-left-color:var(--s-reel)}
+.pl.obj{border-left-color:var(--wire)}.pl.obj.ok{border-left-color:var(--s-reel)}
+.objb{display:inline-block;width:60px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.objb span{display:block;height:100%;background:var(--wire)}
+.pl.defi{border-left-color:var(--s-percu)}.pl.defi.ok{border-left-color:var(--s-reel)}.pl.defi.warn{border-left-color:var(--s-fric)}
+.pl.ag.g{border-left-color:var(--s-reel)}.pl.ag.r{border-left-color:var(--s-fric)}.pl.ag.h{border-left-color:var(--muted);opacity:.75}
+.pl.ag.adv{border-left-color:var(--wire-hot)}
+@media(max-width:900px){.pl i{display:none}.pl.pev i{display:inline}}
+/* disposition : carte + colonne de droite, puis le plan et la main sur toute la largeur */
+.board{grid-template-columns:minmax(0,1fr) 300px}
+.sideR{max-height:none;overflow:visible}
+.jourw{position:relative;flex:1 1 auto;min-height:140px}
+.jourw .jour{position:absolute;inset:0;max-height:none;overflow:auto}
+.sideR #docPanel .dsum{display:block;font-size:11px;line-height:1.5;color:var(--ink-2)}
+.sideR #docPanel .dsum span{display:inline;color:var(--s-traj-tx);cursor:help}
+.sideR #docPanel .dsum span+span::before{content:" · ";color:var(--muted)}
+.sideR #docPanel .dsum i{display:none}
+@media (max-width:1560px){.pui .jg{display:none}}
+/* 5 · le geste guidé */
+.mapcol{position:relative}
+.consigne{display:none;position:absolute;left:50%;top:18px;transform:translateX(-50%);z-index:6;background:#0c2a36;border:1px solid #8fd3ff;
+ color:#dff3ff;border-radius:999px;padding:6px 15px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.consigne.on{display:block}
+.consigne kbd{font:10.5px ui-monospace,Menlo,Consolas,monospace;border:1px solid rgba(255,255,255,.35);border-radius:4px;padding:0 5px}
+.consigne .lnk{color:#dff3ff}
+.bl.hors{fill-opacity:.18;stroke:rgba(63,183,166,.3)}
+.gp.hors{opacity:.8}
+.gp .why{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:3px;white-space:nowrap;font:600 10px ui-monospace,Menlo,Consolas,monospace;
+ color:var(--wire-hot);background:rgba(6,9,11,.85);border-radius:4px;padding:1px 5px;pointer-events:none}
+/* 7 · le tableau de bord */
+.cockpit{padding:8px}
+.dash{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tl{border:1px solid rgba(63,183,166,.2);border-radius:8px;padding:7px 10px;background:var(--surface);cursor:help;min-width:0}
+.tl .l{display:block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl b{display:block;font:700 22px ui-monospace,"SF Mono",Menlo,Consolas,monospace;margin-top:2px}
+.tl b small{font-size:11px;color:var(--muted);font-weight:500}
+.tl.proj b{color:var(--wire-hot)}
+.tl .s{display:block;font-size:10.5px;color:var(--muted)}
+.dd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}.dd.bon{color:#4fd18b}.dd.mal{color:var(--wire-hot)}
+.dsec{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:11px;color:var(--muted)}
+.dsec b{color:var(--ink-2);font-family:ui-monospace,Menlo,Consolas,monospace}
+.dsec .lnk{margin-left:auto}
+.trajb svg{display:block;width:100%;height:auto}
+/* 3 · le plan */
+.plan{border-top:1px solid var(--ring);border-bottom:0;background:#0f1415;padding:8px 14px}
+.plan .pmsg{font-size:11.5px;color:var(--muted)}
+.pk{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700;margin-right:8px}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prow .pchips{display:flex;gap:6px;flex-wrap:wrap}
+.psum{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2)}
+.psum b{color:var(--ink)}
+.psum .pdd{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+.psum .pdd.bon{color:#4fd18b}.psum .pdd.mal{color:var(--wire-hot)}
+/* 1 + 4 · la main */
+.handbar{border-top:1px solid var(--ring);padding:9px 14px 12px}
+.hbh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.hbt{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);font-weight:700}
+#handHint{font-size:11px;color:var(--muted)}
+.tri{display:flex;gap:4px}
+.tri span{border:1px solid var(--ring);border-radius:999px;padding:1px 9px;font-size:11px;color:var(--ink-2);cursor:pointer}
+.tri span.on{border-color:var(--wire);color:var(--wire)}
+.handbar .hctl{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:11px;padding:0;border:0}
+#hand .hand{display:flex;flex-direction:row;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+#hand .card{flex:0 0 206px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px;padding:8px 10px}
+#hand .card h4{font-size:12.5px;line-height:1.25;padding-right:0}
+#hand .card .eff{font-size:11px;-webkit-line-clamp:2}
+#hand .card:hover .eff{-webkit-line-clamp:4}
+.lvh{display:flex;gap:6px;align-items:center;font-size:10px;padding-right:38px}
+.lvid{font:700 10px ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.lvh .scope{font-size:10px}
+.dw{border-radius:999px;padding:0 6px;font-weight:700;font-size:9.5px;cursor:help}
+.dw.aligné{background:rgba(43,183,132,.16);color:#4fd18b}.dw.neutre{background:rgba(255,255,255,.06);color:var(--muted)}.dw.opposé{background:rgba(255,122,61,.14);color:var(--wire-hot)}
+.lvc{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11.5px;margin-top:auto}
+.lvc .pts{font:700 11.5px ui-monospace,Menlo,Consolas,monospace;color:var(--wire);cursor:help}
+.lvc .pts.l{color:#e0b04a}.lvc .pts.x{color:var(--wire-hot)}
+.rc{display:inline-flex;align-items:center;gap:4px;color:var(--ink-2)}
+.rc::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c,transparent)}
+.lvi{display:flex;gap:4px;flex-wrap:wrap;min-height:17px}
+.ic{font-size:10px;color:var(--muted);border:1px solid var(--ring);border-radius:4px;padding:0 5px;cursor:help;white-space:nowrap}
+.ic.plan{color:var(--wire);border-color:rgba(63,183,166,.5)}.ic.defi{color:#e0b04a;border-color:rgba(224,176,74,.4)}
+.ic.pari{color:#e0b04a}.ic.combo{color:#b0a6f5}.ic.ko{color:var(--wire-hot);border-color:rgba(255,122,61,.4)}
+#hand .card.no{opacity:.5}
+@media (max-width:1180px){.board{grid-template-columns:1fr}.jourw{min-height:0}.jourw .jour{position:static;max-height:280px}}
+@media (max-width:700px){.gp .why{display:none}.topbar .res{flex:1 1 100%;flex-wrap:wrap}.dash{grid-template-columns:repeat(2,minmax(0,1fr))}.psum{margin-left:0}.handbar .hctl{margin-left:0}
+ .consigne{position:static;transform:none;white-space:normal;margin:6px;border-radius:8px;text-align:center}}
 </style>
 </head>
 <body>
@@ -950,7 +1048,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.15.8 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.16 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -963,19 +1061,10 @@ body.compact .card .id>.tag:not(.defi){display:none}
       <div class="res" id="res"></div>
       <button class="endturn" id="endturn">Fin de tour</button>
     </div>
-    <div class="events" id="events"></div>
-    <div class="agenda" id="agenda"></div>
-    <div class="plan vide" id="plan"></div>
+    <div class="cetour" id="cetour"></div>
     <div class="board">
-      <div class="side sideL">
-        <div class="ct">Votre doctrine <span id="docEtat"></span></div>
-        <div class="doc" id="docPanel"></div>
-        <div class="ct" style="margin-top:4px">Vos leviers <span id="handHint"></span></div>
-        <div class="hctl" id="handCtl"></div>
-        <div id="handL"></div>
-      </div>
       <div class="mapcol">
-        <div class="mapbox" id="mapbox"><div id="reso"></div>
+        <div class="consigne" id="consigne"></div><div class="mapbox" id="mapbox"><div id="reso"></div>
           <svg class="map" viewBox="150 15 2340 1150" role="img" aria-label="Carte du monde par blocs"><g class="grat" aria-hidden="true"><line x1="213" y1="15" x2="213" y2="1165"/><line x1="320" y1="15" x2="320" y2="1165"/><line x1="427" y1="15" x2="427" y2="1165"/><line x1="533" y1="15" x2="533" y2="1165"/><line x1="640" y1="15" x2="640" y2="1165"/><line x1="747" y1="15" x2="747" y2="1165"/><line x1="853" y1="15" x2="853" y2="1165"/><line x1="960" y1="15" x2="960" y2="1165"/><line x1="1067" y1="15" x2="1067" y2="1165"/><line x1="1173" y1="15" x2="1173" y2="1165"/><line class="g0" x1="1280" y1="15" x2="1280" y2="1165"/><line x1="1387" y1="15" x2="1387" y2="1165"/><line x1="1493" y1="15" x2="1493" y2="1165"/><line x1="1600" y1="15" x2="1600" y2="1165"/><line x1="1707" y1="15" x2="1707" y2="1165"/><line x1="1813" y1="15" x2="1813" y2="1165"/><line x1="1920" y1="15" x2="1920" y2="1165"/><line x1="2027" y1="15" x2="2027" y2="1165"/><line x1="2133" y1="15" x2="2133" y2="1165"/><line x1="2240" y1="15" x2="2240" y2="1165"/><line x1="2347" y1="15" x2="2347" y2="1165"/><line x1="2453" y1="15" x2="2453" y2="1165"/><line x1="150" y1="1067" x2="2490" y2="1067"/><line x1="150" y1="960" x2="2490" y2="960"/><line x1="150" y1="853" x2="2490" y2="853"/><line x1="150" y1="747" x2="2490" y2="747"/><line class="g0" x1="150" y1="640" x2="2490" y2="640"/><line x1="150" y1="533" x2="2490" y2="533"/><line x1="150" y1="427" x2="2490" y2="427"/><line x1="150" y1="320" x2="2490" y2="320"/><line x1="150" y1="213" x2="2490" y2="213"/><line x1="150" y1="107" x2="2490" y2="107"/></g><path class="bl" id="p_cn" d="M1727 343l2 7,8 2,3 8,-3 3,11 4,4 8,12 3,11 10,7 14,-7 1,4 10,12 7,14 2,33 21,21 0,1 5,5 -7,20 3,13 -12,8 1,4 -3,5 6,-1 3,7 2,2 -3,10 9,2 14,-5 5,0 12,9 -2,1 6,6 4,-1 7,5 1,2 5,7 -3,6 5,-2 -11,16 0,9 -8,9 5,3 7,6 4,17 -1,4 12,4 -1,-2 -8,18 -5,2 -4,2 2,-2 -8,8 7,2 -4,7 0,-1 -2,9 -2,-2 -2,7 -3,3 -7,3 0,3 -8,3 1,-3 -12,3 2,4 -8,-2 -6,6 -2,-3 -3,3 0,-2 -3,2 -1,0 -4,-3 2,4 -4,-12 -4,7 -5,-12 -10,10 3,-20 -22,-8 -4,2 -13,2 2,1 -5,10 -2,1 -5,-16 -4,-6 6,-4 -1,-2 -5,-13 -7,0 -4,9 -2,12 -14,5 5,-4 8,5 1,-3 4,5 0,21 -17,1 -7,13 2,-4 -4,9 -4,-1 -4,9 5,-4 -3,3 -3,-9 -16,3 -4,9 2,-2 -20,-6 -8,-18 6,-10 -10,-27 -10,-29 -24,-14 -4,-17 1,-4 5,6 3,3 19,-8 4,-7 -2,0 14,3 4,18 -2,12 7,1 4,-14 1,-18 15,-12 -3,-2 6,6 6,-7 8,-24 5,-9 5,-26 -8,-37 -2,-14 -13,-31 -8,-13 -20,-27 -13,-7 6,3 11,-17 1,1 15,-16 2,11 16,-2 9,-11 8,-7 1,-4 5,-10 -1,-6 9zM2019 517l1 8,8 2,7 -15,-13 0,-3 5zM2098 481l8 14,3 -27,-7 1,-4 12z" fill-rule="evenodd"/><path class="bl" id="p_na" d="M193 204l-36 13,13 -3,7 -3,33 -7,57 -22,2 -5,40 -16,5 4,-16 1,-16 12,30 -6,5 -7,6 -2,-2 3,10 -2,-4 2,9 2,0 4,26 1,-3 3,8 10,5 -2,0 -4,5 1,-4 4,3 1,6 -6,-2 5,3 1,0 5,-4 3,2 4,-7 9,4 -2,-3 5,6 -2,-5 6,9 -4,-9 9,4 0,-5 1,1 6,8 -4,-11 10,5 -3,-4 6,10 -3,1 2,-10 3,-4 7,7 1,0 4,-13 -2,-1 3,5 -1,-6 4,6 2,2 2,-4 2,14 9,3 -3,-4 -15,6 1,-2 5,8 3,-4 2,2 3,-2 2,-2 4,0 2,-4 4,3 -7,-11 -2,-4 15,-26 33,-12 21,-1 20,6 0,-4 5,1 24,12 5,7 8,1 28,8 11,-2 8,-7 -1,17 15,-3 11,14 16,4 -2,-1 -7,-6 -6,-3 -21,-12 -28,3 -13,11 6,1 16,-3 4,3 -3,4 10,5 2,-1 5,7 8,-3 5,7 5,15 24,2 8,-4 13,3 5,50 30,10 2,12 -5,6 2,12 13,5 -13,10 0,-6 -10,4 -5,16 -1,7 -8,1 5,5 -17,6 -7,0 -5,-26 5,-12 22,-20 2,-12 -5,-10 -31,11 -31,-2 -12,3 1,1 -6,9 -7,25 -9,11 0,7 6,5 -4,6 5,-2 -5,2 -3,-6 -2,2 -2,4 1,23 -2,5 2,1 0,1 5,10 -4,7 10,-2 13,4 12,4 6,4 2,5 -18,0 -36,7 -9,30 -19,7 -1,-1 -6,8 -1,1 -3,-6 -1,6 -1,0 -4,1 6,0 -9,-3 1,-1 -2,3 -2,-1 -6,2 2,-2 -4,3 1,2 -7,2 9,-4 6,10 -10,0 -9,2 4,12 -14,16 -5,-11 2,3 -3,24 -4,-5 -5,9 -11,12 -8,5 1,29 -13,-4 4,9 1,-5 3,-1 -2,-15 7,2 -1,-3 7,3 2,15 -10,21 -6,-5 -4,-8 0,-9 -4,-1 -7,6 -5,-7 1,-4 -4,16 -3,2 -3,-5 -4,-21 4,-26 15,24 -18,17 -8,43 -1,13 -9,22 -7,-3 -4,6 -5,-3 -5,-7 2,4 -2,-2 -3,-20 6,23 -9,-10 -5,-8 0,3 -5,-8 -5,6 -5,-4 -4,3 -1,-4 -4,3 -3,-5 1,4 -3,0 -2,-5 0,5 -2,-3 -1,0 -7,-17 15,-1 -4,-11 7,1 -4,-11 5,8 -6,-6 -1,4 -4,-2 -6,8 -7,-11 -3,2 -2,-7 -6,-15 1,-6 -3,-10 4,2 4,-8 6,3 0,-2 6,-14 11,5 8,-6 12,-26 12,-3 20,-7 8,-1 -3,-5 3,0 4,-4 -4,-4 1,4 -5,-5 -3,0 -7,11 -17,-18 -2,-12 -6,-4 -7,-12 -3,-11 2,7 -13,-8 -3,9 -12,22 -14,19 -7,-12 -8,18 5,4 -4,13 -1,10 -6,-3 -2,16 -6,-3 -3,15 2,0 -6,2 5,15 -5,4 -4,-1 -6,9 -3,-2 -1,4 -2,-4 -1,1 -2,-16 -2,-3 4,3 2,-27 14,-1 -4,8 -7,-3 -4,-13 7,1 -8,6 -1,-10 -2,8 -3,-3 -5,2 -6,-4 -1,10 -4,-1 -2,10 0,19 -8,-16 -2,-14 3,-9 11,2 1,-19 9,2 1,-6 5,11 3,-10 5,5 -1,-1 3,-17 6,-2 4,-3 -3,7 -5,-9 -2,-5 1,-3 4,-21 1,-14 -5,1 -4,-21 5,18 -2,-14 4,-9 10,-2 -2,3 -5,-6 -2,3 -2,-14 3,-18 -1,11 -4,-2 -3,-31 -7,-15 2,4 -4,-14 4,-1 -8,-11 5,-9 1,8 -4,-38 6,-6 2,-1 4,-12 -7,-17 -3,-44 -3,-2 -2,2 -1,-10 -1,-10 1,5 -2,-1 -2,-42 8,-48 14,3 2,2 8,8 0,-3 3,-4 -2,-1 4,3 1,-17 0,6 -3,-35 7,5 3,-6 4,4 2,26 -2,-8 8,-24 4,-29 13,-1 4,3 -1,-8 5,0 5,22 -6,-21 16,14 -3,3 5,7 -5,-1 3,8 -1,-6 5,-41 19,-4 -2zM679 309l-22 0,6 -3,13 0,7 -4,-4 7zM608 296l7 -6,22 -3,-1 -3,22 4,3 9,-3 3,-5 -1,-3 -5,-2 7,-13 14,2 -11,-8 2,9 -11,-8 -6,-14 10,-10 20,-10 5,2 -11,10 -17zM627 325l2 -6,3 3,9 -5,19 -3,-25 12,-8 -1zM594 282l1 -3,-8 1,35 -18,10 4,0 5,7 0,-4 12,-2 -2,-14 2,-9 -3,7 -5,-23 7zM870 40l10 4,18 0,-27 4,12 2,-7 2,5 2,19 2,18 -2,10 2,-3 3,7 3,-5 3,4 1,-5 1,7 2,1 3,-4 2,3 0,0 3,-10 7,8 2,6 -6,0 4,4 1,-4 1,8 2,-4 1,5 4,-21 -2,15 5,-1 3,3 1,-4 2,4 0,-20 7,3 1,-4 -1,-7 8,4 3,-6 5,7 1,-6 1,4 5,-3 7,10 -5,4 0,0 4,-4 -2,-9 3,1 7,3 1,-1 5,4 2,-1 6,4 0,-4 1,4 1,-1 4,11 -1,-2 1,4 -1,3 -3,-4 4,8 1,-3 4,6 -2,3 4,4 -3,-4 -3,6 0,3 -5,-2 -1,6 -2,3 -6,-3 -2,16 -8,-2 -4,5 -1,-1 -5,16 -4,6 -6,3 1,-5 5,17 -5,22 -12,0 -6,4 4,8 0,22 -4,26 -10,-16 -3,-15 2,16 -4,-6 -2,6 -4,9 8,11 -2,1 -5,-4 0,3 -2,-17 -4,4 -2,-8 -2,8 -1,-9 -2,14 -3,18 2,3 -3,-6 -1,-2 2,-2 -3,4 -3,15 1,-12 -6,11 1,1 -4,-7 -1,5 -2,-12 -3,23 -1,-9 -4,5 -2,-13 1,7 -7,21 -8,-15 0,43 -9,-11 -1,-20 2,-9 -1,-15 4,9 -5,-20 2,6 -2,-8 -1,27 -3,-36 -5,-72 2,-8 1,12 4,-15 -2,9 4,-12 -3,-14 0,3 2,-5 1,-5 -2,-4 0,-4 3,2 -2,-8 -1,-19 1,4 2,-11 -1,-5 4,-36 5,12 1,-8 4,-44 7zM737 90l2 4,31 4,19 -1,-1 -4,3 -1,11 10,-8 4,7 -2,8 2,2 10,-6 3,2 2,-15 4,2 3,-3 1,-11 2,1 2,-9 -3,-10 5,7 4,14 -2,2 -3,0 4,4 -2,3 7,5 1,-5 1,2 2,16 8,12 2,1 -2,-10 -11,5 2,1 -3,11 9,4 -7,5 -2,-4 -4,3 -2,-7 -3,0 -5,-4 0,0 -4,6 1,-1 -3,7 -2,2 5,8 -2,-7 4,7 6,5 -7,4 1,5 -2,-2 -3,8 -2,-3 -3,-9 2,6 -4,-7 1,4 -3,-6 -1,2 -2,-7 2,2 -3,-6 -1,3 -1,-9 -1,6 -4,-7 0,14 -2,-9 -2,9 -2,-2 -3,-7 3,6 -5,-12 -1,3 -2,-10 2,8 -4,-9 -2,-4 3,1 -3,-3 0,4 -1,-7 0,6 -2,-9 1,6 -3,-10 -3,-10 3,1 3,-5 -5,-6 3,6 -7,-5 -4,-22 4,-3 5,4 0,-1 3,-9 0,4 2,-4 4,-7 1,0 -1,8 -1,-3 -6,3 -4,15 -7,-13 0,-12 3,-17 13,13 3,-13 1zM812 125l-3 -4,9 -2,5 4,-11 2zM770 30l1 4,13 -1,-11 2,7 5,30 -5,-11 6,16 -2,-11 6,10 -1,-1 2,-11 -1,-2 -3,-24 9,25 1,13 -2,4 2,-2 2,21 -5,-9 -3,38 -10,-13 -1,16 0,-6 -2,89 -17,-66 -3,-81 7,7 0,-2 1,3 0,-4 2,3 1,14 0,-4 2,4 0,38 -4,-1 3,-26 2,6 5,-9 -4,-15 0,3 2,-5 1,7 4,-5 0,9 1,-3 1,-10 -1,5 -2,-8 -2,3 -5,-6 1,-11 -6,-25 5,7 2,-10 1zM577 96l5 6,9 0,-3 5,13 0,31 -7,4 4,13 1,9 -5,-8 2,2 -3,13 -1,3 -3,-11 -4,8 -15,-2 -2,-8 -1,-7 10,-6 1,4 -6,-3 -3,-14 4,4 -2,-16 1,6 -4,-6 -1,-25 6,-10 6,14 1,-16 3,31 5,-34 2zM810 272l17 2,7 -2,-3 3,3 1,5 -3,-7 7,13 -8,-3 8,5 -2,-1 4,2 0,7 -12,-7 4,-1 -2,8 -7,-8 2,7 -7,-6 -2,-6 2,1 -2,-5 -1,4 -3,-4 -1,-6 3,15 -14,-9 2,-15 18,-10 4,5 1,-8 5zM549 82l4 0,3 6,15 -2,18 -8,30 -7,-9 -5,-31 -1,-3 5,-27 12zM741 50l4 3,12 -1,1 3,-6 8,50 2,14 -3,-3 -1,6 -2,-18 -3,-29 2,-3 -4,6 -1,-4 -2,-22 -3,-8 2zM622 59l14 2,7 -3,-3 2,8 1,-14 2,15 1,30 -3,11 -6,-11 1,3 -7,-12 3,2 2,-6 4,-7 0,-8 -6,-29 7zM679 77l8 9,12 -2,12 -7,-7 -2,12 -5,-3 -1,3 -2,-21 3,-5 1,6 2,-4 3,-13 1zM704 144l9 -1,-2 4,7 -1,13 -6,6 4,9 -1,-8 -2,2 -6,-10 -5,-3 1,2 -4,-4 0,-13 13,-8 4zM701 58l20 3,13 -9,-14 -2,-4 1,4 -1,-1 5,-4 -3,-14 6zM603 54l13 2,38 -10,-15 0,-36 8zM716 38l21 5,6 -5,-14 -5,-10 2,5 2,-8 1zM799 72l5 4,17 0,-3 -5,-15 -2,-4 3zM669 103l12 4,10 -2,-6 -6,-16 4zM245 198l17 -5,3 -4,-17 3,-3 6zM784 115l7 1,9 -7,-8 0,-8 6zM364 215l2 -5,1 4,5 -3,1 -9,-6 3,3 -1,-5 6,-1 5zM353 228l1 8,5 -8,-4 -1,11 -8,-6 0,-7 9zM790 291l7 -1,4 -2,-4 -3,4 -5,-7 4,-4 7zM363 203l10 -13,-2 -1,4 -1,-8 -1,-2 2,2 6,-4 8zM748 41l8 1,9 -3,-11 -3,-6 5zM729 61l11 3,2 -7,-8 1,-5 3z" fill-rule="evenodd"/><path class="bl" id="p_as" d="M2036 982l8 5,10 1,19 -10,25 0,26 -14,38 -7,16 6,5 16,-3 5,4 4,22 -20,-10 18,-6 4,7 -3,6 -6,-1 7,-5 5,7 0,2 8,-3 6,7 10,13 3,14 -8,-4 4,6 0,3 7,19 -11,13 -3,27 -34,13 -10,8 -10,14 -26,3 -20,-3 -10,-9 -12,1 -8,-4 -3,-1 4,-2 -1,-3 -19,-16 -11,-1 -35,-11 -5,-5 -31,-9 15,2 2,-14 40,-8 2,-30 -24,6 -12,5 -4,1 -10,-4 5,-3 -2,2 -4,-5 4,-8 -1,-16 -8,4 9,-16 2,-11 17,3 3,-2 4,-3 -3,-8 4,-4 -10,-4 -3,-3 3,-4 -1,-2 5,-2 -3,-2 3,0 5,-8 3,-1 7,-6 -1,2 6,-4 5,-3 -9,-7 7,0 6,-14 15,-27 9,-4 -1,-23 16,1 -6,-9 23,2 16,-4 -6,0 9,-2 -5,-1 2,6 25,-1 26,-11 19zM1522 265l21 19,8 -4,16 0,4 13,-9 -1,-4 6,3 2,-7 -1,19 17,0 8,4 4,-2 -5,7 -2,7 7,-5 4,-7 -4,1 10,5 2,-1 5,6 3,2 13,11 -6,10 -1,32 14,3 9,-4 13,6 20,8 5,-6 11,23 4,17 -5,-1 -6,4 -5,14 -3,2 -11,5 -4,-3 -5,6 0,4 -11,-5 -8,6 -5,14 -1,5 -5,-7 -11,-5 0,-1 -11,5 -5,8 2,25 -15,1 -9,-10 -16,17 -2,-3 -4,1 -12,13 1,3 -3,-3 -8,8 -7,-6 -5,-10 1,-18 -12,-10 2,-8 -4,-2 4,-34 -27,1 -3,-13 8,-6 0,-1 -5,-14 -1,-7 -8,-13 -2,-36 12,-11 0,9 7,-6 1,1 5,-4 4,11 5,0 3,-12 3,-8 -5,-13 1,-5 3,-24 -9,-4 2,-6 -2,-12 9,2 4,-2 3,-8 -5,-2 15zM1609 301l0 -12,9 -2,0 4,4 0,3 7,-3 6,-9 -3,2 -7,-4 -5,2 12,-4 0zM1893 501l18 21,3 24,2 -4,0 5,6 2,10 -9,0 -6,7 7,6 26,0 -3,5 12,-2 5,4 2,-1 31,13 15,11 31,16 13,6 -2,-6 -11,-2 -20,-14 -14,-8 -3,-6 -17,-5 -2,-1 -9,5 -16,0 -9,3 -3,4 1,0 7,8 1,9 8,1 6,3 -1,1 4,6 1,5 5,-1 11,10 -7,-2 -4,4 3,-2 -4,3 2,0 -8,4 3,14 -12,1 -10,-6 -21,-21 -20,-8 -13,6 -15,10 -5,-12 -4,-1 -8,-11 -5,-9 8,-16 0,1 11,-5 -5,-7 3,-2 -5,-5 -1,0 -7,-5 -5,-1 -5,-9 2,-1 -6,5 -11,0 -9,-12 -14,-2 11,-12 5,-4 24,-6 -1,0 14,-3 4,1 5,-3 1zM1796 261l8 7,15 6,14 21,31 8,13 12,36 2,26 8,34 -10,7 -8,-6 -6,1 -5,12 2,5 -5,7 -1,2 -7,20 -5,-17 -10,-15 3,-3 -3,0 -15,-18 -4,-18 9,-14 -1,-20 -8,-22 1,-17 -11,-20 -5,-1 10,5 5,-3 4,-16 -1,-22 -8,-24 15zM1389 332l5 1,-4 10,6 0,2 9,-5 -1,0 2,6 3,1 9,7 0,-6 2,8 -1,10 6,9 -6,15 6,19 -6,3 9,3 -8,19 0,25 -6,13 2,-8 -19,5 -2,-8 -4,-3 -9,-5 -3,-30 5,-25 -10,-14 1,-12 7,-12 -1,-2 3,4 2,-5 2,-15 0,15 -7,-8 -6,-7 -1,-6 11zM2202 697l6 1,4 6,12 -1,-2 5,-11 0,5 12,6 -8,0 4,34 18,5 11,-4 0,4 2,-3 0,2 3,-6 -1,-5 9,10 -1,0 -4,0 3,8 -2,7 10,13 1,4 -2,-5 -7,11 -2,-1 -5,6 1,11 4,12 18,20 5,3 -4,-7 -2,1 -3,-10 -6,-3 -8,-6 -5,-1 -6,6 -1,-3 -6,-12 -5,-2 -7,-8 -6,-48 -20,-12 6,-7 9,-5 0,-4 -5,-1 -16,-11 -4,-12 4,-1 5zM2033 677l3 15,5 4,2 15,11 -2,1 6,9 -5,4 4,7 0,1 6,4 -1,8 -7,3 -8,-2 -4,4 -6,6 -2,3 -16,8 0,-9 -7,1 -5,-6 -8,4 -3,-3 -4,4 -1,-2 -2,7 1,-3 -4,8 -4,-10 -6,-4 1,2 -4,-8 -6,-15 25,-5 -4,-7 12,-9 3,-3 4,-1 -3,-2 11,-11 -5,-5 10zM1928 636l8 15,19 18,3 12,19 32,20 21,2 1,-1 -2,6 -1,3 3,4 -24,-4 -5,-7 1,2 -4,-4 -8,-7 -3,1 -11,-8 1,4 -4,-5 -6,-3 -1,3 7,-6 -8,1 -2,-10 -2,-24 -27,-16 -3zM2144 396l4 6,3 0,-2 -3,4 2,1 12,4 2,0 -3,1 4,4 -3,0 -14,-11 -8,9 1,0 -4,14 -4,7 1,0 5,6 5,6 -7,-4 -6,4 4,11 -3,1 2,4 -7,3 5,2 -3,2 -5,-9 -18,3 -4,-2 -9,-13 -17,-4 -1,4 5,-7 -3,2 11,4 3,0 14,-6 9,-4 1,0 -6,-4 2,2 14,-24 2,-9 10,2 3,-8 5zM2082 338l4 4,6 0,3 8,-3 5,7 4,10 -5,-2 4,6 7,-6 1,8 6,-1 9,5 7,8 -7,7 0,0 -8,-4 -9,-23 -19,0 -5,9 -8,-3 -7,4 -6,-9 -6,1 5,-9 4,3 3,-11 -1,-2 7,-8 7zM2342 1082l9 5,10 -1,23 -17,17 -5,2 -5,25 -19,-9 1,3 -6,-7 3,-22 17,-27 11,-24 16zM2108 709l1 7,4 2,-1 15,7 0,0 -22,5 -3,4 17,3 2,6 -5,-3 -12,-6 -10,16 -9,-14 1,-6 5,-4 -5,-2 -8,3 -4,31 0,5 -10,-12 7,-17 -3,-8 2,-12 33zM2003 743l22 9,48 9,0 -6,4 6,5 -5,-19 -4,-3 -2,-1 -6,-25 0,-17 -8,-7 1,-7 6zM2429 1042l8 0,21 -18,6 0,12 -13,-12 2,-4 -3,1 -10,-3 6,-4 -3,5 -14,-6 -2,1 -5,-3 7,1 10,3 0,-3 9,-10 13,-8 4,5 7,-10 10zM2176 292l8 12,0 7,-5 -1,0 8,6 7,7 -2,-8 -6,21 5,0 -6,11 -6,-9 -8,-1 3,-5 -1,-25 -12zM2106 545l4 10,7 4,-2 6,9 -1,7 6,-1 -5,13 11,-5 -8,3 -2,-17 -3,-4 -12,6 -15,-5 -11,-11 -1,1 20,-5 1zM2130 623l6 -5,5 3,3 -3,3 3,0 8,9 3,1 4,2 -14,4 8,2 -7,-4 -19,-6 -4,1 7,-12 8,-4 -6,-8 8,-2 6zM2217 1059l7 1,5 -5,3 2,13 -20,-9 4,-13 -5,-6 23zM2333 734l14 5,14 -8,2 -9,-5 0,0 4,-6 6,-6 0,1 -4,-14 6zM2162 396l9 6,0 -5,6 0,2 -5,-6 -5,-7 3,-4 6zM2174 675l3 12,4 5,-3 -9,7 -1,-4 -5,3 -6,-8 6,3 -11,-5 9zM2144 576l6 7,0 3,-4 -1,6 13,-1 -10,6 1,-4 -10,-9 -3zM2178 715l2 -3,18 5,2 -2,-10 -6,-7 0,-5 6zM2132 599l7 6,0 -15,-2 0,-5 9zM2140 774l9 -3,4 -5,-1 -4,-5 5,-3 -1,-4 8zM2090 759l1 4,17 -4,-8 -4,-2 1,3 3,-11 0zM2113 759l10 3,17 -5,-14 2,-6 -3,-7 3zM2093 613l17 -18,-1 -9,-1 6,-15 21zM2126 583l2 4,0 7,8 -6,-10 -5z" fill-rule="evenodd"/><path class="bl" id="p_eu" d="M1139 350l3 -2,0 16,14 -2,9 11,10 -6,14 -1,17 -15,1 -13,5 -6,17 -10,0 -10,11 -4,11 4,15 -9,7 0,12 15,32 21,4 10,-4 7,2 0,8 -10,-4 -6,1 -3,4 -3,8 6,0 -2,-18 -12,2 -3,-9 -2,-13 -15,-6 -13,8 -3,4 8,2 -3,2 4,-1 -6,7 9,-2 0,13 9,-4 1,9 2,-4 -1,-3 1,12 2,7 7,0 12,14 18,5 0,-5 4,6 9,9 3,-3 -9,5 1,-3 -4,7 2,-2 -7,5 3,-9 -8,-4 1,2 -2,-1 -11,7 4,0 -3,3 1,-3 -5,14 0,4 -10,9 -1,-4 -4,7 -10,1 -10,14 -15,18 4,-7 7,6 1,1 5,20 -4,-19 -9,8 2,0 -3,0 2,5 -5,15 -4,4 -6,6 -1,0 -14,-14 -3,-6 -4,-11 0,-2 -5,-8 -2,1 -4,-5 -5,-13 2,-2 -9,7 -2,-12 -10,-4 -8,-16 -4,-4 -6,-3 -15,3 -5,-25 0,-3 3,0 3,7 3,-1 9,-4 1,-7 -6,-6 3,-1 14,14 6,1 8,-39 -7,-20 7,3 1,-2 2,-1 -3,-6 -2,3 -1,-2 -3,-16 6,2 -4,-7 1,-5 -4,2 -5,5 3,1 -5,-6 0,8 -7,-5 0,-1 -4,3 -6,-12 6,-3 3,0 8,5 6,-3 -1,-1 2,2 -1,3 9,-4 3,-7 -2,-1 5,-4 -3,-11 4,-6 8,2 3,-6 1,5 1,-17 4,0 6,-10 7,-14 -3,3 9,-12 -2,-11 4,3 0,-3 3,3 2,12 3,4 8,4 2,-2 17,-4 8,-40 -4,-11 6,3 7,-1 14,-7 17zM1246 157l3 8,-2 1,0 4,9 -1,-8 7,6 2,-4 2,6 7,13 -2,12 -10,4 10,4 2,0 6,4 5,2 11,9 -1,0 -3,13 -7,1 -15,8 -2,6 -7,-4 -6,-7 -2,0 -14,24 -15,-3 -3,6 -7,13 0,5 6,-16 13,-5 0,-2 5,4 9,-1 7,10 2,-3 3,3 -2,0 4,29 -6,19 -17,-9 -8,2 -4,-5 -5,1 -6,-7 -9,3 -6,-9 -9,12 -6,-9 -2,9 -3,-13 -3,-2 3,-1 -4,-9 4,0 -4,-8 6,5 -6,-2 -1,-15 5,2 2,-11 -1,5 3,-5 -1,-1 4,-5 1,1 -5,-2 4,-1 -3,-6 3,2 1,-11 5,-2 4,-9 2,2 2,-4 2,6 1,-11 2,-6 8,4 0,-4 5,-6 2,-1 3,-9 6,-3 3,-4 0,1 3,-6 -1,-4 2,5 1,-9 1,5 3,-14 2zM1172 192l4 4,4 -2,-5 4,7 0,-5 11,6 -5,-1 11,11 -2,-3 2,4 4,1 7,-12 0,2 1,-4 3,4 0,1 3,-8 7,16 1,-10 3,-11 9,47 -10,-4 -1,6 -7,-1 -5,-9 0,0 -10,-15 -16,-6 0,5 -1,-2 -2,9 -9,-14 0,6 -9,-11 0,-4 10,-8 -1zM1078 129l15 1,-13 4,12 4,-7 4,21 3,25 -6,9 -6,0 -4,-7 -4,3 -2,-9 -1,-8 4,-4 -2,0 4,-4 -4,-4 3,-3 -2,-7 6,-2 -6,-4 -3,-3 1,1 4,-3 -3,-8 5zM1143 236l4 0,-3 3,3 3,22 -7,3 -4,0 -10,5 -3,0 -4,-3 -3,-9 -1,-5 1,-3 7,-9 0,-1 7,7 2,-11 9zM1280 32l13 8,9 -4,6 2,-14 3,10 2,-7 3,11 5,13 -12,12 -3,-22 -6,-5 0,2 6,-7 -5,-5 2,-4 -3,-12 2zM1294 359l19 8,4 -13,-21 1,-2 4zM1264 331l1 16,9 -1,0 -16,-10 1zM1314 28l31 6,14 -4,-22 -4,-2 3,-21 -1zM1283 206l6 8,-6 0,6 2,4 -4,0 -8,-10 2zM1326 39l7 3,-2 3,19 -2,-24 -4zM1267 318l1 6,3 3,2 -14,-6 5z" fill-rule="evenodd"/><path class="bl" id="p_ru" d="M1379 104l10 9,-3 7,11 19,-3 4,10 7,-19 18,5 -1,9 5,-12 3,-2 7,3 15,5 7,17 4,3 9,11 8,-9 3,5 8,11 -2,6 5,-1 4,8 2,1 4,32 8,0 15,-7 0,-2 4,7 2,-10 4,5 4,-4 7,-7 2,36 21,2 10,12 1,5 11,8 3,-5 3,8 18,-3 2,-12 -2,-23 5,-19 -1,0 5,-5 3,3 10,-12 30,6 16,-1 12,6 3,17 30,9 7,5 20,12 12,15 25,1 14,7 22,5 0,54 -22,13 -13,13 -2,3 -6,16 -11,2 -14,3 1,7 -11,1 -7,-9 -10,-13 -5,-5 -6,-1 -12,-13 18,-19 2,-2 -6,-7 -2,-5 -15,-15 -16,-15 -5,5 -7,11 -1,2 -3,9 2,13 19,25 12,8 -2,2 -2,-3 0,4 -2,5 5,3 7,6 2,26 4,2 -10,9 -4,-6 -13,-15 -14,6 -8,-2 -5,-5 -1,-5 -14,-1 -30,-32 -14,-11 1,-10 6,1 4,-12 3,-23 -9,-4 -12,5 -11,4 1,-22 -21,-2 -10,-1 1,-7 -8,3 -9,9 -1,2 -4,-21 -19,3 -16,10 4,-3 -6,12 -9,17 2,10 8,0 -3,7 2,16 -4,10 5,7 -1,6 -5,-13 -6,6 -3,-2 -5,6 -1,-9 -7,10 0,38 -12,12 2,7 8,14 1,1 5,18 -8,-1 2,35 28,3 -4,7 4,11 -2,17 12,9 -1,7 5,27 -14,37 9,4 -5,-5 -5,2 -10,23 6,14 10,21 -1,15 7,19 2,22 -8,23 5,6 -5,-1 -16,-8 -6,4 -4,18 -1,16 6,27 24,25 8,11 10,20 -5,4 6,2 20,-9 -1,-3 4,9 15,-3 3,4 4,-2 -3,4 0,1 -5,13 4,7 -5,6 -19,3 -26,-11 -17,-2 -10,-11 -9,3 -1,-18 -10,-7 0,0 5,-4 1,-2 -6,-1 4,-17 -7,-1 -4,7 -10,6 -21,10 -3,30 1,-1 -4,23 7,16 -3,-8 -2,-2 -3,3 -15,16 -1,10 10,4 -6,6 -2,-8 -7,11 0,-3 1,9 12,-7 4,-1 19,-7 2,5 5,-2 4,48 47,2 -12,-3 -4,7 -2,-7 -10,7 -4,-8 -6,-3 -7,7 2,-13 -13,-12 -4,0 -7,-5 -6,8 0,3 -5,6 5,0 -4,6 -2,18 6,-3 -5,8 -10,12 -6,13 2,-1 -3,-24 -13,-17 -3,18 0,0 -6,-7 -6,13 6,9 0,37 9,-7 -3,1 -2,-3 -3,6 -1,-4 -5,-34 -7,11 7,-23 -11,-68 -15,-36 -3,14 8,-6 2,-20 -7,-35 1,-23 -9,-39 -1,-32 -9,-9 3,-5 -3,5 0,-38 -4,4 2,-6 0,2 3,7 4,-9 0,1 2,-14 -3,-4 3,-16 -3,3 3,-2 4,-24 -10,5 0,-12 -7,-31 -5,2 6,-76 -7,4 2,-20 6,24 -16,-3 -5,-23 -5,-19 1,0 -3,-20 -4,-10 2,2 5,-10 0,6 3,-32 0,-28 8,4 1,-5 -1,10 7,-32 4,20 10,-21 -4,-15 3,16 7,-18 -3,-9 -10,3 5,-6 5,11 6,-1 5,5 6,15 -1,11 6,-1 4,-11 -8,-9 2,4 8,-9 10,-14 -2,7 0,-2 -2,7 -3,1 -11,-8 -4,-5 -11,-7 -6,1 -5,-12 -5,-9 0,-1 9,-5 5,6 10,14 5,0 4,-33 -9,-16 -1,-2 1,5 4,-4 5,-5 -5,-29 6,3 -6,-4 1,-5 4,-20 4,2 1,-7 1,0 5,-5 1,-10 -4,9 -4,-5 -3,-16 -3,6 4,0 7,5 4,-1 5,-11 -4,-13 8,4 6,-20 -4,-3 2,11 5,-4 3,-15 -5,-4 -12,-15 -8,44 7,6 -3,-3 -8,-53 -16,-18 7zM1500 81l1 4,9 4,-1 -3,4 0,0 4,21 2,-16 -13,8 -8,-2 -2,3 1,-3 -3,4 1,0 -4,12 -5,33 -8,-7 -3,-54 12,3 5,-10 5,6 1,-9 6,3 0,-2 4,-3 0zM2127 218l6 5,-2 5,15 16,26 39,5 5,0 -6,8 5,-16 -15,-4 -12,14 5,-47 -45,-5 -2zM1661 29l3 2,4 0,16 -3,-10 4,37 3,-5 -4,-21 -2,4 -4,-14 -3,-11 2,2 2,-4 1,4 2,-5 0zM1924 55l3 4,18 4,23 -3,0 -2,-26 -4,1 3,-19 -2zM1715 41l20 -1,7 -2,-25 -5,-2 8zM1340 217l3 -2,-2 2,21 1,-1 -5,-14 -1,2 -2,-9 7zM2192 89l3 1,16 -2,-13 -3,-5 0,-1 4zM1441 26l16 -1,-7 2,5 2,17 -4,-6 -1,-25 2zM1973 57l9 4,19 0,-1 -1,-27 -3z" fill-rule="evenodd"/><path class="bl" id="p_in" d="M1650 426l16 15,5 9,-10 16,36 -1,10 14,8 0,-1 3,5 4,9 0,-9 4,0 3,13 12,9 -3,1 -10,4 0,3 4,-3 4,2 14,7 28,27 62,10 10,6 -8,8 -1,-3 -6,5 -4,0 -46,15 -9,-1 -3,21 -24,7 -1,4 -6,-1 -5,8 -7,2 4,2 -3,5 2,1 -4,2 3,1 -3,3 2,2 -6,1 5,-2 -10,11 8,5 13,1 -10,3 -5,0 -13,6 1,4 -23,10 -7,4 2,-1 -9,-7 -3,-5 -8,-4 3,-6 -2,-15 13,-16 -4,-8 8,-2 -6,-20 0,-33 -20,-7 2,-18 -11,-5 -10,7 -2,-7 -9,1 -4,-11 -10,-13 -4,-4 -7,-7 -2,-22 4,-3 4,5 7,-2 9,-7 1,2 5,-5 4,-1 11,-15 4,-4 5,1 7,-17 4,-23 -4zM1841 645l-2 19,7 14,8 -5,-4 -17,-1 0,-3 -6,-5 -5z" fill-rule="evenodd"/><path class="bl" id="p_la" d="M503 559l24 11,11 -1,2 8,10 11,-2 7,3 4,2 2,2 -2,6 5,8 11,4 -3,6 5,4 -1,1 6,7 -2,-2 -7,9 -6,9 6,-4 2,7 12,-1 23,3 1,-6 11,-6 3,-3 10,-9 3,-6 26,5 4,2 -3,2 4,-11 14,1 14,13 12,32 61,46 33,7 61,-1 45,7 27,-2 30,-3 0,9 19,-1 10,5 9,8 -1,3 23,5 2,-5 2,4 14,-5 0,0 -4,-6 1,3 2,-4 6,4 -3,9 5,-2 3,3 2,-4 0,8 7,-2 0,1 4,-4 -1,2 4,-4 0,9 6,-3 -8,2 4,2 -4,3 7,-3 0,3 2,-4 0,7 5,1 -2,1 2,-3 2,4 2,5 7,0 2,-5 -1,12 7,0 -2,1 -2,3 1,-4 1,2 3,-14 -3,9 5,4 -1,6 2,-3 -1,1 -3,5 -3,0 6,-4 0,7 3,3 -2,-2 -7,8 -4,6 1,-10 -6,2 -1,-4 -3,1 -6,2 -2,-3 -1,5 0,1 -10,7 -7,-4 -2,1 -6,-10 -3,-5 -7,10 -8,-2 -13,5 -4,-3 -3,7 1,-4 -5,-4 2,-3 -2,-5 -10,13 1,7 -4,-5 -15,20 -1,10 -4,4 -8,-1 -9,-17 -18,0 -11,1 8,4 4,14 5,11 -1,5 -5,28 -49,-3 -28,3 1,12 -13,7 -1,6 -7,19 0,7 -9,11 -39,0 -41,3 2,9 -17,14 -16,3 -14,-3 -17,-16 -7,-23 -17,-8 2,-17 -5,-5 3,1 -3,-5 6,2 -8,-3 0,0 -7,-3 1,-12 -7,-11 1,-2 7,-7 5,1 -4,-5 2,-6 -2,13 -2,3 -11,-16 0,-1 7,-1 -4,-4 6,-6 3,-3 0,6 -4,0 2,5 -7,-3 2,0 -3,13 -14,-6 -9,-3 -15,-13 -13,-7 -3,-2 2,-2 -3,-12 1,-6 -2,-4 4,-2 -7,-6 -5,-3 3,2 -4,-5 -9,-6 -4,0 1,-12 -1,4 -2,-1 0,2 -7,-15 -7,8 -3,-18 1,3 1,-10 3,-13 -4,-9 1,-13 -15,-3 5,1 2,-12 5,-1 -6,4 -3,-4 1,5 -5,-4 0,-8 6,-16 4,-18 26,-7 -9,-7 -3,-19 7,-7 -4,-10 -15,8 -35,-8 -7,-3 -1,-32 1,6 -9,2 -14,-7 9,0 -4,-14 1,-4 4,6 10,-10 1,-5 13zM824 960l5 -13,3 -1,-1 8,-7 6zM567 495l3 1,13 -7,8 0,-3 2,25 7,1 5,8 3,-4 7,18 0,9 -4,-39 -22,-10 -3,-17 3,-12 8zM642 526l19 3,2 3,6 -7,16 1,1 -3,-16 -10,-7 2,-12 -2,6 11,-13 -1,-2 3zM759 1136l-4 3,1 4,7 1,-3 4,10 5,-10 -2,-3 -5,2 5,-7 3,15 1,0 2,7 -2,22 1,-37 -20zM690 1046l3 12,4 2,0 -10,-7 -4zM611 527l9 4,8 -1,-8 -5,-9 2z" fill-rule="evenodd"/><path class="bl" id="p_af" d="M1069 558l7 6,0 4,4 1,-6 0,0 7,1 -2,7 1,-8 3,4 0,2 5,4 -2,3 0,-3 6,12 12,7 18,4 2,-5 0,34 25,7 3,12 -6,21 -3,10 5,19 -10,22 -4,7 0,8 7,3 10,17 -1,1 -3,10 9,1 -2,5 16,-3 -1,-4 15,5 4,-5 -1,-4 10,7 14,18 21,8 -3,-7 10,6 1,-5 2,11 42,-2 12,-8 10,-6 21,0 12,21 47,4 36,10 14,10 25,2 8,-3 6,4 12,10 3,22 -6,21 0,22 -14,30 -37,4 -17,-3 -2,21 -13,3 -19,-6 -21,13 -9,4 -7,23 -13,8 -13,-1 -36,-6 -7,-2 -24,-5 -11,3 -11,22 -33,44 -44,22 -45,1 -7,4 -2,-3 0,1 -11,-4 -2,-3 3,-40 10,-18 -10,5 -4,-2 -5,-29 -26,-7 -20,-10 -14,-1 -13,-5 -9,-9 -8,2 -7,-27 -49,1 -3,13 19,4 -15,-6 -17,-16 3,-1 -4,-7 -1,-14 7,-29 -7,-25 -11,-12 8,1 8,-7 7,-25 -11,-5 -8,-22 -4,-12 -7,4 -15,-4 -7,4 -5,0 -2,-5 2,-4 -4,-8 3,-51 4,-28 12,-25 -6,-10 17,-16 11,-6 24,-11 12,-12 4,-25 37,-9 25,1 -2,3 3,2 6,-2 5,3 14,-4 15,3 -4,-11 16zM1459 791l1 -24,6 18,1 23,-8 -17zM1443 709l2 -23,10 -5,9 7,-10 15,4 1,-7 6,-4 -6,-4 5zM1424 737l0 -22,5 26,9 18,-5 -1,-9 -21zM1525 876l3 20,5 7,6 3,12 -4,23 -63,4 -20,2 3,3 -4,-8 -28,-8 14,-3 -1,-1 9,-5 6,-21 7,-4 13,2 20,-10 18z" fill-rule="evenodd"/></svg>
         </div>
         <div class="legend">
@@ -985,25 +1074,23 @@ body.compact .card .id>.tag:not(.defi){display:none}
           <span data-tip="<b>Friction</b><br>S'accumule à chaque mesure non compensée. Au-delà de 55, retour de flamme : une mesure est annulée."><i style="background:var(--s-fric)"></i>Friction</span>
           <span style="margin-left:auto">Survol : explication · clic sur un bloc : fiche</span>
         </div>
-        <!-- le cockpit : où en est la partie et où elle finit, en un seul bloc sous la carte -->
-        <div class="cockpit">
-          <div class="ckh" id="dash"></div>
-          <div class="trh"><h3>Où finit la partie, vu de chaque tour</h3>
-            <div class="trl"><span><i style="border-color:var(--s-traj)"></i>Votre partie</span>
-              <span><i style="border-color:var(--muted);border-top-style:dashed"></i>Monde réel</span></div></div>
-          <div id="traj"></div>
-        </div>
+        <div class="cockpit"><div class="dash" id="dash"></div></div>
       </div>
       <div class="side sideR">
-        <div class="ct">Le camp adverse <span><span id="advEtat"></span> · <span class="lnk" id="advTog"></span></span></div>
-        <div class="advp" id="advPanel"></div>
-        <div class="ct" style="margin-top:4px">Vos leviers <span id="handInfo">suite de votre main</span></div>
-        <div id="handR"></div>
-        <div class="ct" style="margin-top:4px">La presse</div>
+        <div id="advBox"><div class="ct">Le camp adverse <span><span id="advEtat"></span> · <span class="lnk" id="advTog"></span></span></div>
+          <div class="advp" id="advPanel"></div></div>
+        <div id="docBox"><div class="ct">Votre doctrine <span id="docEtat"></span></div>
+          <div class="doc" id="docPanel"></div></div>
+        <div class="ct">La presse</div>
         <div id="presse"></div>
-        <div class="ct" style="margin-top:4px">Journal <span id="jourFiltre"></span></div>
-        <div class="jour" id="jour"></div>
+        <div class="ct">Journal <span id="jourFiltre"></span></div>
+        <div class="jourw"><div class="jour" id="jour"></div></div>
       </div>
+    </div>
+    <div class="plan vide" id="plan"></div>
+    <div class="handbar" id="handbar">
+      <div class="hbh"><span class="hbt">Vos leviers</span><span id="handHint"></span><span class="tri" id="handTri"></span><span class="hctl" id="handCtl"></span></div>
+      <div id="hand"></div>
     </div>
   </div>
 </div></div>
@@ -3718,12 +3805,16 @@ function render(garde){
   const og=$("#ouvrirGuide"); if(og) og.onclick=()=>guideOuvrir(0);
   const op=$("#ouvrirPartie"); if(op) op.onclick=panneauPartie;
   $("#res").innerHTML=
-    `<div data-tip="${RES_TIP.cp}"><span class="pill" style="background:var(--s-reel)"></span>Capital politique <span class="v">${r.cp}</span></div>`+
+    `<div data-tip="${RES_TIP.cp}"><span class="pill" style="background:var(--s-reel)"></span>Politique <span class="v">${r.cp}</span></div>`+
     `<div data-tip="${RES_TIP.cap}"><span class="pill" style="background:var(--s-traj)"></span>Capital <span class="v">${r.cap}</span></div>`+
     `<div data-tip="${RES_TIP.att}"><span class="pill" style="background:var(--s-percu)"></span>Attention <span class="v">${r.att}</span></div>`+
     (()=>{const e=ecartCred(s,s.camp==="actif"?"actif":"att");
       return `<div data-tip="${RES_TIP.cred}"><span class="pill" style="background:var(--s-base)"></span>Crédibilité <span class="v">${r.cred}</span>`
-        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e+" d'avance":e<0?Math.abs(e)+" de retard":"à égalité"}</span></div>`;})();
+        +`<span class="ecr ${e>0?"bon":e<0?"mal":""}">${e>0?"+"+e+" d'avance":e<0?Math.abs(e)+" de retard":"à égalité"}</span></div>`;})()
+    +(()=>{ // la puissance : ce qui reste ce tour sur le budget du tour, en jauge de demi-points
+      const tot=S.actions, reste=V().actions, cases=[];
+      for(let i=0;i<Math.ceil(tot);i++){ const v=reste-i; cases.push(`<i class="${v>=1?"u":v>=0.5?"h":""}"></i>`); }
+      return `<div class="pui" data-tip="<b>Puissance</b><br>Votre budget du tour : ${fmtP(tot)} points, fixé par votre crédibilité. Chaque levier en consomme sa puissance (de 1 à 3,5). Il en reste ${fmtP(reste)} après votre plan."><span class="pill" style="background:var(--wire)"></span>Puissance <span class="v">${fmtP(reste)} / ${fmtP(tot)}</span><span class="jg">${cases.join("")}</span></div>`;})();
   const np=S.plan.length;
   $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
     : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+" pt"+(s.actions>1?"s":"")+" restant"+(s.actions>1?"s":"")+")" : "Terminer le tour");
@@ -3732,6 +3823,10 @@ function render(garde){
   bindTips(document);
 }
 
+/* v0.16 : les trois cadres du haut (événement, objectif, défi) et l'agenda
+   « quoi qu'il arrive » tiennent dans une seule ligne de pastilles, #cetour.
+   Le détail de chacune est dans son infobulle ; seule l'attribution de
+   l'événement garde un bouton, puisque c'est une action. */
 function renderEvent(){
   const s=V(),e=s.ev, ia=planAttr();
   const peut = e.attr && !s.satur && s.attribue===0 && s.res[s.camp==="actif"?"actif":"att"].att>=1;
@@ -3740,19 +3835,13 @@ function renderEvent(){
     : s.attribue===1 ? "attribué : l'opinion a bougé"
     : s.attribue===-1 ? "désattribué : aucun effet"
     : e.attr ? "non attribué · effet 0" : "effet automatique à la résolution";
-  $("#events").innerHTML=`
-    <div class="ev ${s.attribue!==0?'done':(e.attr?'':'cold')}">
-      <div class="eh"><h4>${e.t}</h4><span class="loc">${e.blocNom}</span></div>
-      <p>${e.txt}</p>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        ${e.attr?(ia>=0
-            ?`<button class="mini undo" id="bunattr">Retirer l'attribution</button>`
-            :`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"Attribuer":"Désattribuer"} — 1 Attention</button>`):""}
-        <span class="st">${etat}</span>
-      </div>
-    </div>
-    ${carteObjectif(s)}
-    ${s.defi?defiCarte(s):""}`;
+  const txt=e.txt.replace(/"/g,'&quot;');
+  const evp=`<span class="pl pev ${s.attribue!==0?'done':(e.attr?'':'cold')}" data-tip="<b>${e.t}</b> — ${e.blocNom}<br>${txt}"><b>${e.t}</b><i>${e.blocNom} · ${etat}</i>${e.attr?(ia>=0
+      ?`<button class="mini undo" id="bunattr">retirer</button>`
+      :`<button class="mini" id="battr" ${peut?"":"disabled"}>${s.camp==="actif"?"attribuer":"désattribuer"} · 1 attention</button>`):""}</span>`;
+  const ag=(RESO||DASHV||S.over)?"":agenda(s).filter(x=>!x.ev).map(x=>`<span class="pl ag ${x.cls}" data-tip="${x.tip.replace(/"/g,'&quot;')}"><b>${x.t}</b>${x.r?"<i>"+x.r+"</i>":""}</span>`).join("");
+  $("#cetour").innerHTML=`<span class="k" data-tip="Ce qui se joue ce tour : l'événement, l'objectif de la partie, le défi du tour, et tout ce que la résolution appliquera quoi que vous fassiez.">Ce tour</span>`
+    +evp+pastilleObjectif(s)+(s.defi?pastilleDefi(s):"")+ag;
   const ba=$("#battr"); if(ba) ba.onclick=()=>{ if(RESO)return; planAjouter({k:"attr"}); render(); };
   const bu=$("#bunattr"); if(bu) bu.onclick=()=>{ if(RESO)return; planRetirer(planAttr()); render(); };
 }
@@ -3793,6 +3882,21 @@ function panneauAVenir(){
    d'un coup : ce qu'il demande, où on en est, ce qu'il rapporte, et quand il est jugé.
    La jauge se lit dans deux sens selon le défi : remplir pour atteindre un objectif,
    ou rester sous la barre pour en tenir un. */
+function pastilleDefi(s){
+  const D=s.defi, ok=!!D.test(s), tenir=D.sens==="tenir";
+  const etat = ok ? (tenir?"tenu":"rempli") : (tenir?"seuil dépassé":"en cours");
+  const tip=("<b>★ "+D.t+"</b><br>"+D.d+"<br><br>"+(D.prog?D.prog(s)+" · ":"")+"récompense : "+(D.rec||"—")+"<br>Jugé à la résolution, après le coup de l'adversaire."
+    +(D.clefs?(s.hand.some(id=>D.clefs.includes(id))?"<br>Un levier clef est dans votre main (★).":"<br>Aucun levier clef disponible."):"")).replace(/"/g,'&quot;');
+  return `<span class="pl defi ${ok?"ok":tenir?"warn":""}" data-tip="${tip}"><b>★ ${D.t}</b><i>${D.prog?D.prog(s)+" · ":""}${D.rec||""} · ${etat}</i></span>`;
+}
+function pastilleObjectif(s){
+  const e=totE(s), dep=Math.max(E0,s.picE);
+  const pc = e<=SEUIL_E ? 100 : Math.max(0,Math.round(100*(dep-e)/(dep-SEUIL_E)));
+  const tip=("<b>L'objectif de la partie</b><br>Ramener les émissions mondiales sous "+SEUIL_E+" GtCO₂ par an. Ce qui compte n'est pas d'y arriver ou non, c'est <b>en quelle année</b>.<br><br>"
+    +(s.picAn?"Pic passé en "+s.picAn+" (maximum "+fr(s.picE,1)+" Gt).":"Le pic des émissions n'est pas encore franchi.")+"<br>"
+    +(s.seuilAn?"Seuil franchi en "+s.seuilAn+".":"Reste "+fr(Math.max(0,e-SEUIL_E),1)+" Gt à retirer.")).replace(/"/g,'&quot;');
+  return `<span class="pl obj${s.seuilAn?" ok":""}" data-tip="${tip}"><b>Objectif ${fr(e,1)} → ${SEUIL_E} Gt</b><span class="objb"><span style="width:${pc}%"></span></span><i>${s.picAn?"pic passé en "+s.picAn:"pic non franchi"}</i></span>`;
+}
 function defiCarte(s){
   const D=s.defi, ok=!!D.test(s), tenir=D.sens==="tenir";
   // la jauge se lit toujours pareil : pleine et verte = tout va bien.
@@ -3847,42 +3951,35 @@ let DASHV=null;
    ce que vous obtenez, où la partie finit, l'état du monde. La courbe la suit
    immédiatement — c'est la même information à deux échelles de temps. */
 function renderDash(){
-  const s=V(), act=s.camp==="actif";
-  const D=DASHV;
-  // quand un plan est en cours, ces chiffres sont ceux qu'il produirait : on le dit
-  const pf=(PV&&!D)?' <span class="pfx" data-tip="Valeur recalculée avec les leviers que vous avez engagés ce tour. Rien n\'est encore appliqué : le tour n\'est pas validé.">prévu</span>':'';
-  const evite=fr(D?D.evite:(T_BASELINE-projeter(s)),2);
-  const sc=D?D.sc:score(s), pal=palier(sc), suiv=palierSuivant(sc);
-  const proj=D?D.proj:projeter(s);
-  const t1 = act
-   ? "<b>Réchauffement évité</b><br>Le score du camp actif n'est pas la température atteinte mais celle qui ne l'a pas été.<br>Sans aucune action : 3,48 °C. Le monde réel : 2,70 °C."
-   : "<b>Ce que vous préservez</b><br>Votre objectif n'est pas que rien ne change : c'est de préserver la valeur des actifs et d'éviter les coûts d'ajustement.";
-  const kc=(lab,val,unit,tip)=>`<div class="ckc" data-tip="${tip}"><span>${lab}</span><b>${val}${unit?"<small>"+unit+"</small>":""}</b></div>`;
+  /* v0.16 : quatre tuiles au lieu d'un cockpit et d'un graphique. Chacune donne sa
+     valeur et ce qu'elle a fait au dernier tour ; avec un plan en cours, la
+     projection et le score sont ceux que le plan produirait. Le graphique de
+     trajectoire est passé dans le bilan de tour. */
+  const s=V(), act=s.camp==="actif", D=DASHV, A=BILAN, plan=!!(PV&&!D);
+  const T=D?D.T:s.T, proj=D?D.proj:projeter(s), em=D?D.emis:totE(s), sc=D?D.sc:score(s), pal=palier(sc);
+  const pj0=projeter(S), sc0=score(S);
+  const dl=(v,n,bonSiBaisse)=>{ if(!v) return `<span class="dd">=</span>`; const bon=bonSiBaisse?v<0:v>0;
+    return `<span class="dd ${bon?"bon":"mal"}">${v>0?"+":"−"}${n?fr(Math.abs(v),n):Math.abs(v)}</span>`; };
+  const dern=A&&!D;
+  const tuile=(cls,lab,val,unit,sous,tip)=>`<div class="tl ${cls}" data-tip="${tip}"><span class="l">${lab}</span><b>${val}<small>${unit}</small></b><span class="s">${sous}</span></div>`;
   $("#dash").innerHTML=
-   `<div class="ckm" data-tip="${t1}">
-      <span class="ct">Votre position${pf}</span>
-      <div class="hv">${act?evite+" °C":s.actifs+" Md$"}</div>
-      <div class="hs">${act?"réchauffement évité":s.evitees+" mesures évitées"}</div>
-    </div>`+
-   `<div class="ckm" data-tip="<b>Où finit votre partie</b><br>Le modèle est rejoué du tour courant jusqu'en ${AN_FIN}, contraintes figées à leur niveau actuel. Ce n'est pas une extrapolation : c'est la température que votre partie atteindra si plus rien ne bouge.<br>Zone de victoire du camp actif : sous 2,2 °C. Zone grise : 2,2 à 2,8 °C.">
-      <span class="ct">${S.turn>NTURNS?"Résultat "+AN_FIN:"Trajectoire "+AN_FIN}${pf}</span>
-      <div class="hv">${fr(proj,2)} °C</div>
-      <div class="hs">réel 2,70 · sans action 3,48</div>
-    </div>`+
-   `<div class="cksc" data-tip="<b>Votre score</b><br>Il additionne l'avance prise sur les deux jalons datés, les événements attribués, la contrainte moyenne installée et les verrous juridiques obtenus.<br>Le palier est le repère : il dit ce que vaut la partie, pas seulement le total.">
-      <div class="scb">
-        <div class="sct"><div class="scf" style="width:${suiv?Math.min(100,Math.round((sc-pal[0])/(suiv[0]-pal[0])*100)):100}%"></div></div>
-        <div class="scl"><span>${sc} pt${Math.abs(sc)>1?"s":""} · <b>${pal[1]}</b></span><span>${suiv?suiv[1]+" à "+suiv[0]:"palier maximal"}</span></div>
-      </div>
-    </div>`+
-   `<div class="ckk">
-      ${kc("Réchauffement",fr(D?D.T:s.T,2),"°C","<b>Température atteinte</b><br>1,0 °C en 2015, plus 0,00058 °C par gigatonne cumulée depuis. C'est une conséquence, pas un objectif.")}
-      ${kc("Émissions",fr(D?D.emis:totE(s),1),"Gt/an","<b>Émissions mondiales</b><br>35,5 GtCO₂/an en 2015. L'objectif de la partie est de passer sous "+SEUIL_E+", le plus tôt possible.")}
-      ${kc("Décès chaleur",fr(D?D.morts:s.morts,1),"M","<b>Compteur partagé</b><br>Cumul des décès liés à la chaleur depuis 2015. Repère réel 2024-2025 : environ 546 000 par an.")}
-      ${kc("Indice tech.",D?D.tech:s.tech,(s.tech>=40?" ▲▲":s.tech>=30?" ▲":""),"<b>Courbe d'apprentissage</b><br>Monte avec les subventions au déploiement et les percées industrielles.<br>À <b>30</b> : le capital coûte moins cher.<br>À <b>40</b> : les blocs déjà contraints gagnent +2 de contrainte par tour, gratuitement.<br>Actuellement : "+(s.tech>=40?"les blocs contraints progressent seuls":s.tech>=30?"capital plus efficace":"aucun seuil franchi")+".")}
-      <div class="ckc dmg" data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent : climatisation, assurance, irrigation, relocalisation. Les autres non.<br>Repère réel : le 1 % le plus riche émet 75,1 tCO₂/an contre 2,1 t « équitables » (Oxfam, 2026).">
-        <span>Dommages r. / autres</span><b><i>${s.dmgBase}</i> / <u>${s.dmgAutres}</u></b></div>
-    </div>`;
+    tuile("","Réchauffement",fr(T,2)," °C",
+      dern?dl(+(T-A.T).toFixed(2),2,act)+" au dernier tour":"1,00 °C en 2015",
+      "<b>Température atteinte</b><br>1,0 °C en 2015, plus 0,00058 °C par gigatonne cumulée depuis. Elle ne redescend jamais.")+
+    tuile("proj",S.turn>NTURNS?"Résultat "+AN_FIN:"Projection "+AN_FIN,fr(proj,2)," °C",
+      (plan?dl(+(proj-pj0).toFixed(2),2,act)+" avec votre plan · ":dern?dl(+(proj-A.proj).toFixed(2),2,act)+" au dernier tour · ":"")+"sans action "+fr(T_BASELINE,2)+" · réel "+fr(REEL_2100,2),
+      "<b>Où finit votre partie</b><br>Le modèle rejoué jusqu'en "+AN_FIN+", contraintes figées. Ce n'est pas une extrapolation : si plus rien ne bougeait, la partie finirait là."+(plan?"<br><br>Valeur <b>prévue</b> : elle tient compte du plan en cours, pas encore validé.":""))+
+    tuile("","Émissions",fr(em,1)," Gt/an",
+      (dern?dl(+(em-A.emis).toFixed(1),1,act)+" au dernier tour · ":"")+(s.seuilAn?"sous "+SEUIL_E+" depuis "+s.seuilAn:"objectif "+SEUIL_E),
+      "<b>Émissions mondiales</b><br>35,5 GtCO₂/an en 2015. L'objectif de la partie est de passer sous "+SEUIL_E+", le plus tôt possible.")+
+    tuile("",act?"Score · "+fr(Math.max(0,T_BASELINE-proj),2)+" °C évités":"Score · "+s.actifs+" Md$ préservés",sc," pts",
+      (plan?dl(sc-sc0,0,false)+" avec votre plan · ":dern?dl(sc-A.sc,0,false)+" au dernier tour · ":"")+"palier "+pal[1],
+      "<b>Votre score</b><br>L'avance prise sur les deux jalons datés, la contrainte moyenne installée, les verrous juridiques obtenus. Le palier est le repère.")+
+    `<div class="dsec"><span data-tip="<b>Courbe d'apprentissage</b><br>À 30 le capital coûte moins cher, à 40 les blocs contraints progressent seuls.">Indice tech. <b>${D?D.tech:s.tech}</b></span>`+
+    `<span data-tip="<b>Compteur partagé</b><br>Cumul des décès liés à la chaleur depuis 2015. Repère réel : environ 546 000 par an.">Décès chaleur <b>${fr(D?D.morts:s.morts,1)} M</b></span>`+
+    `<span data-tip="<b>Le découplage</b><br>Les blocs riches s'adaptent, les autres non.">Dommages riches / autres <b>${s.dmgBase} / ${s.dmgAutres}</b></span>`+
+    (BILAN&&!D&&!RESO?`<span class="lnk" id="dashBilan">trajectoire et bilan du tour ${BILAN.turn}</span>`:"")+`</div>`;
+  const db=$("#dashBilan"); if(db) db.onclick=bilanTour;
 }
 
 /* ---------- l'agenda du tour ----------
@@ -3902,6 +3999,7 @@ function agenda(s){
   out.push({cls:"adv", t:adv==="att"?"Le camp attentiste joue":"Le camp actif joue",
     r:fmtP(n)+" pt"+(n>1?"s":"")+" + 1 gratuit",
     tip:"Au niveau "+NIV(s).nom+", l'adversaire dispose de "+fmtP(n)+" points de puissance par tour — dans la même monnaie que les vôtres — plus son action gratuite sur l'événement, et les revenus pour tout payer. Vous ne saurez ce qu'il joue qu'à la résolution : c'est la seule part du tour qui vous soit cachée."});
+  const n0=out.length;
   if(s.ev){
     if(s.ev.eff==="prix") out.push({cls:P(false),t:"Flambée des prix",r:"friction +8",
       tip:"L'événement de ce tour ajoute 8 de friction à tous les blocs où aucune compensation n'est installée. Une compensation posée avant la résolution en protège le bloc."});
@@ -3920,6 +4018,7 @@ function agenda(s){
       r:(s.ev.eff==="bascule"?"réel +5 partout · ":"")+(s.attribue===0?"perçu inchangé tant qu'il n'est pas attribué":s.attribue===1?"attribué : l'opinion bougera":"désattribué : aucun effet sur l'opinion"),
       tip:"Un événement ne déplace l'opinion que si un camp l'attribue au climat. Attribuer coûte 1 attention et ne consomme pas de puissance."+(s.ev.fort?"<br><br><b>Événement de palier</b> : il n'apparaît qu'au-delà d'un certain réchauffement, et une fois attribué il déplace l'opinion davantage — +20 sur place, +6 ailleurs.":"")});
   }
+  out.slice(n0).forEach(x=>x.ev=true);
   if(s.turn%2===0){
     const d=s.blocs.filter(b=>b.reg==="demo");
     const alt=d.filter(b=>b.percu<50).length;
@@ -3981,7 +4080,7 @@ function agenda(s){
 function agendaHTML(s){
   return agenda(s).map(a=>`<span class="ag ${a.cls}" data-tip="${a.tip.replace(/"/g,'&quot;')}"><b>${a.t}</b>${a.r?"<i>"+a.r+"</i>":""}</span>`).join("");
 }
-function renderAgenda(){
+function renderAgenda(){   // v0.16 : l'agenda vit dans la ligne « Ce tour » (renderEvent)
   const box=$("#agenda");
   if(!box) return;
   if(RESO||DASHV||S.over){ box.innerHTML=""; box.style.display="none"; return; }
@@ -4089,6 +4188,11 @@ function bilanTour(){
          <div class="agenda dansbilan">${agendaHTML(s)}</div>`:""}
      </div>
      <div class="full">
+       <div class="ms">Où finit la partie, vu de chaque tour
+         <span style="float:right;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">— votre partie · ╌ monde réel</span></div>
+       <div id="traj" class="trajb"></div>
+     </div>
+     <div class="full">
        <div class="ms">Le journal du tour ${A.turn}
          <span class="lnk" id="bjTog" style="float:right;text-transform:none;letter-spacing:0;font-weight:400">${BJOURTOUT?"voir l'essentiel":"tout voir"}</span></div>
        <div class="jour" id="bjour" style="max-height:32vh;margin-top:6px">${logHTML(jour,BJOURTOUT).join("")}</div>
@@ -4100,7 +4204,7 @@ function bilanTour(){
      </div>
    </div>`;
   ouvrirModal(true);
-  carteBilan(s,A);
+  carteBilan(s,A); renderTraj();
   $("#mx").onclick=fermer; $("#bok").onclick=fermer;
   const brj=$("#brejouer"); if(brj) brj.onclick=rejouerTour;
   $("#bauto").onchange=e=>{AUTOBILAN=e.target.checked;};
@@ -4118,8 +4222,7 @@ function renderPlan(){
   const lev=s.plan.filter(e=>e.k!=="attr");
   if(!s.plan.length){
     box.className="plan vide";
-    box.innerHTML=`<div class="pmsg">Aucun levier engagé. <span>Rien n'est appliqué au monde avant que vous validiez le tour :
-      vous pouvez ajouter et retirer vos leviers autant de fois que vous voulez, l'aperçu se recalcule à chaque fois.</span></div>`;
+    box.innerHTML=`<div class="pmsg"><span class="pk">Votre plan</span> vide — choisissez un levier ci-dessous (puis un bloc sur la carte pour un levier de bloc). Rien n'est appliqué avant la validation.</div>`;
     return;
   }
   const pv=PV||s;
@@ -4165,25 +4268,14 @@ function renderPlan(){
   const dtxt=v=>(v>0?"+":"−")+Math.abs(v).toFixed(2);
   box.className="plan"+(planKo()?" alerte":"");
   box.innerHTML=`
-    <div class="phead">
-      <div class="pt">Votre tour <span>${lev.length} levier${lev.length>1?"s":""} engagé${lev.length>1?"s":""} · ${fmtP(pv.actions)} pt${pv.actions>1?"s":""} de puissance restant${pv.actions>1?"s":""}</span></div>
-      <div class="pacts"><span class="lnk" id="pclear">tout retirer</span></div>
-    </div>
-    <div class="pchips">${chips}</div>
-    <div class="pimp">
-      <div class="pi" data-tip="Différence entre la trajectoire calculée sur l'état actuel et celle calculée si votre plan s'applique. Elle ne tient pas compte de ce que jouera l'adversaire.">
-        <span class="pk">Fin de partie en ${AN_FIN}</span>
-        <span class="pv2">${fr(projA,2)} → <b>${fr(projB,2)} °C</b></span>
-        <span class="pdd ${dp<0?(act?"bon":"mal"):dp>0?(act?"mal":"bon"):""}">${dp?dtxt(dp)+" °C":"inchangée"}</span></div>
-      <div class="pi" data-tip="Votre score tel qu'il serait recalculé après application du plan, avant la réponse de l'adversaire et la résolution du monde.">
-        <span class="pk">Score</span>
-        <span class="pv2">${scA} → <b>${scB} pts</b></span>
-        <span class="pdd ${ds>0?"bon":ds<0?"mal":""}">${ds?(ds>0?"+":"−")+Math.abs(ds):"inchangé"}</span></div>
-      <div class="pi" data-tip="Ressources qui seront prélevées à la validation. Un pari raté en rend la moitié.">
-        <span class="pk">Coût engagé</span>
-        <span class="pv2">${[cout.cp?cout.cp+" politique":null,cout.cap?cout.cap+" capital":null,cout.att?cout.att+" attention":null].filter(Boolean).join(" · ")||"gratuit"}</span>
-        <span class="pdd">reste ${r1.cp} · ${r1.cap} · ${r1.att}</span></div>
-    </div>
+    <div class="prow"><span class="pk">Votre plan</span><div class="pchips">${chips}</div>
+      <div class="psum">
+        <span data-tip="Points de puissance engagés par votre plan, sur le budget du tour.">Puissance <b>${fmtP(poidsPlan(s))} / ${fmtP(s.actions)}</b></span>
+        <span data-tip="Ressources qui seront prélevées à la validation. Un pari raté en rend la moitié.">Coût <b>${[cout.cp?cout.cp+" politique":null,cout.cap?cout.cap+" capital":null,cout.att?cout.att+" attention":null].filter(Boolean).join(" · ")||"gratuit"}</b></span>
+        <span data-tip="Différence entre la trajectoire calculée sur l'état actuel et celle calculée si votre plan s'applique. Elle ne tient pas compte de ce que jouera l'adversaire.">${AN_FIN} <b>${fr(projB,2)} °C</b> <span class="pdd ${dp<0?(act?"bon":"mal"):dp>0?(act?"mal":"bon"):""}">${dp?dtxt(dp):"="}</span></span>
+        <span data-tip="Votre score tel qu'il serait recalculé après application du plan, avant la réponse de l'adversaire.">Score <b>${scB}</b> <span class="pdd ${ds>0?"bon":ds<0?"mal":""}">${ds?(ds>0?"+":"−")+Math.abs(ds):"="}</span></span>
+        <span class="lnk" id="pclear">tout retirer</span>
+      </div></div>
     ${mv.length?`<div class="pmv">${mv.map(m=>`<span><b>${m.code}</b> ${m.txt}</span>`).join("")}</div>`:""}
     ${cbs.length?`<div class="pnote combo">⚡ ${cbs.map(k=>"<b>"+k.n+"</b> — "+k.d).join(" · ")}</div>`:""}
     ${paris.length?`<div class="pnote">${paris.length} pari${paris.length>1?"s":""} dans ce plan (${paris.map(p=>p+" %").join(", ")}).
@@ -4197,7 +4289,7 @@ function renderPlan(){
 function cout_(s,c,bk){
   const k=cout(s,c,s.camp), b=bk?B(s,bk):null;
   const cap=k.cap+((s.camp==="actif"&&b&&b.reg==="auto"&&c.seuil)?1:0);
-  return [k.cp?k.cp+" pol.":null,cap?cap+" cap.":null,k.att?k.att+" att.":null].filter(Boolean).join(" · ")||"gratuit";
+  return [k.cp?k.cp+" politique":null,cap?cap+" capital":null,k.att?k.att+" attention":null].filter(Boolean).join(" · ")||"gratuit";
 }
 
 /* ---------- le camp adverse ----------
@@ -4256,6 +4348,8 @@ function renderAdv(){
   // panneau repliable, réglage mémorisé dans le navigateur
   const red=advReduit(), side=document.querySelector(".sideR");
   side.classList.toggle("advReduit",red);
+  if(red){ const der=(S.adv||[]).filter(a=>a.turn===S.turn-1).length;
+    $("#advEtat").innerHTML=fmtP(n)+" pt/tour"+(S.turn>1?" · "+der+" levier"+(der>1?"s":"")+" au dernier tour":""); }
   $("#advTog").textContent = red?"afficher":"réduire";
   $("#advTog").onclick=()=>{ try{ localStorage.setItem("heat.advReduit", red?"0":"1"); }catch(e){} ADV_RED=!red; renderAdv(); };
   const tous=s.adv||[];
@@ -4332,7 +4426,11 @@ function renderMap(){
     d.style.left=b.x+"%"; d.style.top=b.y+"%";
     const bar=(cls,v)=>`<div class="cb ${cls}"><span class="bg"></span><i style="height:${Math.max(0,Math.min(100,v))}%"></i></div>`;
     const row=(cls,lab,v,dv)=>`<div class="c2r"><span>${lab}</span><div class="c2t"><div class="c2f ${cls}" style="width:${Math.min(100,v)}%"></div></div><b>${Math.round(v)}${dv?'<u>'+sgn(dv)+'</u>':''}</b></div>`;
+    // levier de bloc sélectionné : chaque bloc impossible dit pourquoi, sur la carte même
+    const pourquoi = (c&&c.cible==="bloc"&&!ciblable) ? (S.plan.some(e=>e.id===c.id&&e.bk===b.k)?"déjà dans le plan":jouable(s,c,b,s.camp)) : null;
+    if(c&&c.cible==="bloc"&&!ciblable){ d.classList.add("hors"); land.classList.add("hors"); } else land.classList.remove("hors");
     d.innerHTML=
+      (pourquoi?`<div class="why">${String(pourquoi).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué")}</div>`:"")+
       `<div class="halo" style="width:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;height:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;--ho:${(0.05+0.20*Math.min(1,b.e/9)).toFixed(3)}"></div>
        <div class="chip">${bar("contr",v.contr)}${bar("reel",v.reel)}${bar("percu",v.percu)}${bar("fric",v.fr)}<b>${b.code}</b>${advT?`<u class="advm">${advT}</u>`:""}</div>
        <div class="card2">
@@ -4353,6 +4451,14 @@ function renderMap(){
     if(ciblable) land.classList.add("tgt"); else land.classList.remove("tgt");
     box.appendChild(d);
   });
+  const cg=$("#consigne");
+  if(cg){
+    if(c&&c.cible==="bloc"&&!RESO){
+      const n=s.blocs.filter(b=>!jouable(s,c,b,s.camp)).length;
+      cg.innerHTML=`Choisissez un bloc pour <b>${c.n}</b> — ${n?n+" possible"+(n>1?"s":"")+", en bleu":"aucun bloc possible"} · <kbd>Échap</kbd> ou <span class="lnk" id="annul">annuler</span>`;
+      cg.classList.add("on"); $("#annul").onclick=()=>{ sel=null; render(); };
+    } else cg.classList.remove("on");
+  }
   // la mer se réchauffe elle aussi, très légèrement : la carte n'est jamais tout à fait la même
   const svg=box.querySelector("svg.map");
   if(svg){ const c=Math.max(0,Math.min(1,(s.T-1.0)/2.2));
@@ -4398,93 +4504,103 @@ function fourchette(s,c,elig){
     tip:"Meilleur bloc : <b>"+hi.n+", "+hi.p+" %</b>"+(v.length>1?"<br>Moins favorable : "+lo.n+", "+lo.p+" %":"")};
 }
 
+/* ==================== la main ====================
+   v0.16 : une seule main, en bas du plateau, au lieu de deux colonnes de part et
+   d'autre de la carte. Les cartes sont réduites à ce qui décide : titre, effet,
+   puissance et coût en clair ; le reste passe en petites mentions, détaillées
+   dans l'infobulle et dans la fiche. Trois ordres de tri, mémorisés. */
+let HAND_TRI=null;
+function triMain(){
+  if(HAND_TRI===null){ try{ HAND_TRI=localStorage.getItem("heat.tri")||"jouables"; }catch(e){ HAND_TRI="jouables"; } }
+  return HAND_TRI;
+}
+const RESS=[["cp","politique","var(--s-reel)"],["cap","capital","var(--s-traj)"],["att","attention","var(--s-percu)"]];
 function renderHand(){
   const s=V();
   const c=sel?card(sel):null;
-  const [gauche,droite]=repartir(s.hand);
   const engage = S.plan.some(e=>e.k!=="attr");
   const peutRe = s.redraw>0 && s.res[s.camp==="actif"?"actif":"att"].att>=1 && !RESO && !engage;
-  // les deux commandes de la main sont réunies sous l'en-tête de la colonne gauche :
-  // renouveler ce qu'on a, et regarder ce qui n'est pas encore ouvert.
   const av=aVenir(s,s.camp==="actif"?"actif":"att");
   const nPool=pool(s,s.camp==="actif"?"actif":"att").length;
-  $("#handHint").innerHTML=s.hand.length+" en main · <span class=\"lnk\" id=\"vueCompacte\" data-tip=\"Réduit chaque carte à son titre, sa puissance, son coût et une ligne d'effet. Tout le reste reste dans la fiche (le <b>i</b>).\">"+(document.body.classList.contains("compact")?"détails":"compact")+"</span>";
-  $("#vueCompacte").onclick=()=>{ const on=document.body.classList.toggle("compact");
-    try{ localStorage.setItem("heat.compact", on?"1":"0"); }catch(e){}
-    render(); };
-  $("#handInfo").innerHTML="suite de votre main";
+  $("#handHint").innerHTML=s.hand.length+" en main";
+  const tri=triMain();
+  $("#handTri").innerHTML=[["jouables","jouables d'abord"],["cout","par puissance"],["famille","par famille"]]
+    .map(([k,l])=>`<span class="${tri===k?"on":""}" data-tri="${k}">${l}</span>`).join("");
+  $("#handTri").querySelectorAll("[data-tri]").forEach(el=>el.onclick=()=>{ HAND_TRI=el.dataset.tri; try{ localStorage.setItem("heat.tri",HAND_TRI); }catch(e){} renderHand(); });
   $("#handCtl").innerHTML=
     `<span class="hcs" data-tip="Votre main est tirée dans les ${nPool} leviers que la progression a ouverts pour votre camp, pondérés par votre doctrine.">${nPool} ouverts</span>`
    +(s.redraw>0
-      ? `<span id="redraw" class="lnk${peutRe?"":" off"}" data-tip="Rend tous les leviers non joués et en tire douze autres. Les leviers rendus ne reviennent pas avant le tour suivant.<br><br>Coûte 1 attention, une fois par tour.${engage?"<br><br><b style=color:#e88>Retirez d'abord les leviers engagés ce tour.</b>":""}">autres leviers</span>`
+      ? `<span id="redraw" class="lnk${peutRe?"":" off"}" data-tip="Rend tous les leviers non joués et en tire douze autres. Les leviers rendus ne reviennent pas avant le tour suivant.<br><br>Coûte 1 attention, une fois par tour.${engage?"<br><br><b style=color:#e88>Retirez d'abord les leviers engagés ce tour.</b>":""}">renouveler · 1 attention</span>`
       : `<span class="off" data-tip="Vous avez déjà renouvelé votre main ce tour.">main déjà renouvelée</span>`)
    +(av.length
-      ? ` <span class="lnk" id="avenir" data-tip="Les ${av.length} leviers que la progression n'a pas encore ouverts, et ce qu'il faut pour y accéder.">${av.length} à venir</span>`
-      : ` <span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`)
-   +((s.masques||[]).length?` <span class="lnk" id="masques" data-tip="Les leviers que vous avez masqués : ils ne vous sont plus proposés. Cliquez pour en réafficher.">${s.masques.length} masqué${s.masques.length>1?"s":""}</span>`:"");
+      ? `<span class="lnk" id="avenir" data-tip="Les ${av.length} leviers que la progression n'a pas encore ouverts, et ce qu'il faut pour y accéder.">${av.length} à venir</span>`
+      : `<span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`)
+   +((s.masques||[]).length?`<span class="lnk" id="masques" data-tip="Les leviers que vous avez masqués : ils ne vous sont plus proposés. Cliquez pour en réafficher.">${s.masques.length} masqué${s.masques.length>1?"s":""}</span>`:"");
   const bav=$("#avenir"); if(bav) bav.onclick=panneauAVenir;
   const bmq=$("#masques"); if(bmq) bmq.onclick=panneauMasques;
   bindTips($("#handCtl"));
-  let hint="";
-  if(c&&c.cible==="bloc") hint=`<div class="hint">Choisissez un bloc sur la carte — <span style="text-decoration:underline;cursor:pointer" id="annul">annuler</span></div>`;
-  const bloc=ids=>{
-  let h=(sel&&ids.includes(sel))?hint:"";
-  h+=`<div class="hand">`;
-  ids.forEach(id=>{
+  // ce que chaque carte permet en l'état, calculé une fois pour le tri et l'affichage
+  const infos=s.hand.map(id=>{
     const cc=card(id), glob=cc.cible!=="bloc";
-    // périmètre : combien de blocs acceptent ce levier en l'état
     const elig = glob ? null : s.blocs.filter(b=>!jouable(s,cc,b,s.camp));
-    const raison = s.actions<pds(cc) ? "il faut "+fmtP(pds(cc))+" points de puissance, il n'en reste "+fmtP(s.actions)
+    const cher = s.actions<pds(cc);
+    const raison = cher ? "il faut "+fmtP(pds(cc))+" points de puissance, il n'en reste "+fmtP(s.actions)
       : glob ? jouable(s,cc,null,s.camp) : (elig.length?null:motifBlocs(s,cc));
+    return {id,cc,glob,elig,cher,raison};
+  });
+  const ord={jouables:(a,b)=>(!!a.raison-!!b.raison)||(pds(a.cc)-pds(b.cc)),
+             cout:(a,b)=>(pds(a.cc)-pds(b.cc))||a.id.localeCompare(b.id),
+             famille:(a,b)=>a.cc.fam.localeCompare(b.cc.fam)||(pds(a.cc)-pds(b.cc))}[tri]||(()=>0);
+  infos.sort(ord);
+  let h=`<div class="hand">`;
+  infos.forEach(({id,cc,glob,elig,cher,raison})=>{
     const ko=!!raison;
     const kk=cout(s,cc,s.camp);
-    const cost=[kk.cp?kk.cp+" pol.":null,kk.cap?kk.cap+" cap.":null,kk.att?kk.att+" att.":null].filter(Boolean).join(" · ");
+    const cost=RESS.filter(([k])=>kk[k]).map(([k,l,col])=>`<span class="rc" style="--c:${col}">${kk[k]} ${l}</span>`).join("")||`<span class="rc">gratuit</span>`;
     const af=Math.round(affin(cc,s.doc[s.camp==="actif"?"actif":"att"])*100);
+    const dw=af>=70?"aligné":af>=40?"neutre":"opposé";
     const pr=PROBA[cc.id]?fourchette(s,cc,elig):null;
     const nPlan=S.plan.filter(e=>e.id===id).length;
+    const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
+    const ptip = p>=3?"<b>Levier extrême — "+lbl+"</b><br>À lui seul il déplace nettement la trajectoire, retourne l'opinion mondiale ou descend les plafonds."
+      :p>=2?"<b>Levier lourd — "+lbl+"</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue."
+      :"<b>Levier léger — "+lbl+"</b><br>Le moins coûteux du barème.";
+    const ic=[];
+    if(nPlan) ic.push(`<span class="ic plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${lbl} et ses ressources.">×${nPlan} dans le plan</span>`);
+    if(clefDefi(s,id)) ic.push(`<span class="ic defi" data-tip="Ce levier sert directement l'objectif du tour : ★ ${s.defi.t}.">★ objectif</span>`);
+    if((s.rendus||[]).some(x=>x.id===id)) ic.push(`<span class="ic" data-tip="Ce levier a déjà été engagé et défait : il n'a pas été consommé, vous pouvez le rejouer.">↻ rejouable</span>`);
+    if(cc.trap&&s.level===1) ic.push(`<span class="ic ko" data-tip="Niveau Découverte : le rendement réel de ce levier est contesté. Ouvrez la fiche avant de le jouer.">à vérifier</span>`);
+    if(cc.lat) ic.push(`<span class="ic" data-tip="L'effet ne tombera qu'à la résolution du tour indiqué.">dans ${cc.lat} tour${cc.lat>1?"s":""}</span>`);
+    if(cc.seuil) ic.push(`<span class="ic" data-tip="Ce levier exige un soutien perçu d'au moins ${cc.seuil} sur le bloc visé. En régime autoritaire il n'y a pas de seuil, mais chaque mesure coûte 1 capital de plus.">perçu ≥ ${cc.seuil}</span>`);
+    if(pr) ic.push(`<span class="ic pari" data-tip="<b>Ce levier peut échouer.</b> Il faut le faire voter, le gagner ou l'obtenir.<br><br>${pr.tip}<br><br>En cas d'échec, la moitié de la mise est rendue et la tentative laisse 6 de friction.">pari ${pr.txt}</span>`);
+    const k=comboDispo(s,id); if(k) ic.push(`<span class="ic combo" data-tip="<b>${k.n}</b><br>${k.d}<br><br>Jouez ce levier et <b>${card(k.autre).n}</b> dans le même tour pour déclencher la combinaison.">⚡ combo</span>`);
+    if(ko) ic.push(`<span class="ic ko" data-tip="${raison.replace(/"/g,'&quot;')}">${cher?"trop cher ce tour":raison.length>26?"injouable ici":raison}</span>`);
     h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""} ${glob?"glob":"blk"}${nPlan?" planif":""}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
-      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant. Vous pouvez le réafficher depuis la liste des leviers masqués, au-dessus de la main.">⊘</div>
-      <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${nPlan?`<span class="tag plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${fmtP(pds(cc))} point${pds(cc)>1?"s":""} et ses ressources.">×${nPlan} dans le plan</span>`:""}${clefDefi(s,id)?' <span class="tag defi" data-tip="Ce levier sert directement l\'objectif du tour : ★ '+s.defi.t+'.">★ objectif</span>':''}${(s.rendus||[]).some(x=>x.id===id)?' <span class="tag rendu" data-tip="Ce levier a déjà été engagé ici et défait — mesure annulée par l\'adversaire, ou tentative échouée. Il n\'a pas été consommé : vous pouvez le rejouer.">↻ rejouable</span>':''}${cc.trap&&s.level===1?' <span class="tag trap" data-tip="Niveau Découverte : le jeu signale les leviers dont le rendement réel est contesté. Ouvrez la fiche avant de le jouer — aux niveaux supérieurs, ce repère disparaît.">à vérifier</span>':''}
-        <span class="scope ${glob?"g":"b"}" data-tip="${glob
-          ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un seul clic, sans désigner de cible. Un levier mondial ne peut être joué qu'une fois dans la partie."
-          :"<b>Levier de bloc</b><br>Il faut lui désigner une cible sur la carte du monde. Le même levier peut servir sur trois blocs au maximum dans la partie, y compris plusieurs dans le même tour : chaque bloc coûte à nouveau sa puissance et ses ressources."+(elig?"<br><br>Actuellement jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span></div>
+      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant.">⊘</div>
+      <div class="lvh"><span class="lvid">${cc.id}</span><span class="scope ${glob?"g":"b"}" data-tip="${glob
+          ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un clic. Une fois par partie."
+          :"<b>Levier de bloc</b><br>Il faut lui désigner un bloc sur la carte. Trois blocs au maximum dans la partie, y compris plusieurs dans le même tour."+(elig?"<br><br>Jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span><span class="dw ${dw}" data-tip="<b>Doctrine : ${dw} (${af} %)</b><br>L'accord entre ce levier et votre doctrine. Aligné : il vous est proposé plus souvent et rend davantage. Opposé : il reste jouable, il rend moins.">${dw}</span></div>
       <h4>${cc.n}</h4>
       <div class="eff">${gloss(cc.e)}</div>
-      <div class="jauge" data-tip="<b>Influence de votre doctrine : ${af} %</b><br>Mesure l'accord entre ce levier et les quatre curseurs de votre doctrine.<br>Plus elle est haute, plus la carte a de chances de vous être proposée au tirage, et plus son effet est renforcé une fois jouée.<br>Une carte à faible influence reste jouable : elle rend simplement moins.">
-        <span class="jl">doctrine</span><span class="jt"><i class="${af>=70?"hi":af>=40?"mid":"lo"}" style="width:${af}%"></i></span><b>${af} %</b></div>
-      <div class="meta">${(()=>{const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
-        const cls = p>=3?"tag extreme":p>=2?"tag lourd":"tag";
-        const tip = p>=3
-          ?"<b>Levier extrême — "+lbl+" de puissance</b><br>Son ampleur mesurée le place parmi les tout premiers du catalogue : à lui seul il déplace nettement la trajectoire, retourne l'opinion mondiale ou descend les plafonds. Il absorbe à lui seul une bonne part du budget d'un tour."
-          :p>=2
-          ?"<b>Levier lourd — "+lbl+" de puissance</b><br>Son ampleur mesurée le place dans le premier tiers du catalogue : à lui seul il déplace la trajectoire, retourne l'opinion mondiale ou descend les plafonds."
-          :"<b>Levier léger — "+lbl+" de puissance</b><br>Le moins coûteux du barème : il en reste toujours pour plusieurs dans le même tour.";
-        return `<span class="${cls}" data-tip="${tip}">⚖ ${lbl}</span>`;})()}<span class="tag cost">${cost||"gratuit"}</span>
-        ${cc.lat?'<span class="tag lat" data-tip="L\'effet ne tombera qu\'à la résolution du tour indiqué : ce levier engage des ressources maintenant pour un résultat plus tard.">effet dans '+cc.lat+' tour'+(cc.lat>1?'s':'')+'</span>':'<span class="tag" data-tip="L\'effet est appliqué dès la validation du tour.">immédiat</span>'}
-        ${cc.seuil?'<span class="tag" data-tip="Ce levier exige un soutien perçu d\'au moins '+cc.seuil+' sur le bloc visé. En régime autoritaire il n\'y a pas de seuil, mais chaque mesure coûte 1 capital de plus.">perçu ≥ '+cc.seuil+'</span>':''}
-        ${pr?`<span class="tag pari" data-tip="<b>Ce levier peut échouer.</b> Il faut le faire voter, le gagner ou l'obtenir. La probabilité dépend du bloc visé : soutien perçu, friction, régime politique et votre crédibilité.<br><br>${pr.tip}<br><br>En cas d'échec, la moitié de la mise est rendue et la tentative laisse 6 de friction.">pari ${pr.txt}</span>`:""}
-        ${(()=>{const k=comboDispo(s,id);return k?`<span class="tag combo" data-tip="<b>${k.n}</b><br>${k.d}<br><br>Jouez ce levier et <b>${card(k.autre).n}</b> dans le même tour pour déclencher la combinaison.">⚡ combo</span>`:""})()}</div>
+      <div class="lvc"><span class="pts${p>=3?" x":p>=2?" l":""}" data-tip="${ptip}">${lbl}</span>${cost}</div>
+      <div class="lvi">${ic.join("")}</div>
     </div>`;
   });
   h+=`</div>`;
-  return h;
-  };
-  $("#handL").innerHTML=bloc(gauche);
-  $("#handR").innerHTML=bloc(droite);
-  [$("#handL"),$("#handR")].forEach(zone=>{
-    zone.querySelectorAll(".card").forEach(el=>{
-      el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
-        if(e.target.dataset.masq){masquerLevier(e.target.dataset.masq);return;}
-        if(el.classList.contains("no")||RESO)return;
-        const id=el.dataset.id, cc=card(id);
-        if(cc.cible!=="bloc"){                       // levier mondial : aucun bloc à désigner
-          if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
-          return;
-        }
-        sel = sel===id?null:id; render(); };
-    });
-    bindTips(zone);
+  const zone=$("#hand");
+  zone.innerHTML=h;
+  zone.querySelectorAll(".card").forEach(el=>{
+    el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
+      if(e.target.dataset.masq){masquerLevier(e.target.dataset.masq);return;}
+      if(el.classList.contains("no")||RESO)return;
+      const id=el.dataset.id, cc=card(id);
+      if(cc.cible!=="bloc"){
+        if(!jouable(V(),cc,null,V().camp)){ sel=null; planAjouter({k:"lev",id,bk:null}); render(); }
+        return;
+      }
+      sel = sel===id?null:id; render(); };
   });
+  bindTips(zone);
   const rd=$("#redraw");
   if(rd&&peutRe) rd.onclick=()=>{
     const S0=S;
@@ -4493,13 +4609,12 @@ function renderHand(){
     jlog(S0,"t","Main rendue : douze autres leviers proposés (1 attention).");
     simuler(); render();
   };
-  const a=$("#annul"); if(a)a.onclick=()=>{sel=null;render();};
-
 }
 
 let ADV_RED=null;
 function advReduit(){
-  if(ADV_RED===null){ try{ ADV_RED=localStorage.getItem("heat.advReduit")==="1"; }catch(e){ ADV_RED=false; } }
+  // replié par défaut (v0.16) : on l'ouvre quand on veut lire ce qu'il a fait
+  if(ADV_RED===null){ try{ ADV_RED=localStorage.getItem("heat.advReduit")!=="0"; }catch(e){ ADV_RED=true; } }
   return ADV_RED;
 }
 function masquerLevier(id){
@@ -4830,6 +4945,7 @@ function survolTraj(hist,x,y,yHaut,yBas,pas,libelleFin){
 }
 
 function renderTraj(){
+  if(!$("#traj")) return;   // v0.16 : le graphique n'est plus sur le plateau, seulement dans le bilan
   const s=S,W=880,H=132,L=40,R=90,T=10,Bm=22;
   const n=NTURNS+1;
   // pendant la résolution, la courbe s'arrête au tour précédent : le nouveau point
@@ -5204,21 +5320,21 @@ function accueilReprise(){
 /* ==================== guide d'entrée ==================== */
 const GUIDE=[
  {s:"#mapbox", t:"Le monde en huit blocs",
-  d:"Chaque bloc porte <b>quatre jauges</b> : contrainte (bleu), soutien réel (vert), soutien perçu (jaune), friction (rouge). Le <b>halo rouge</b> autour d'un bloc vaut ses émissions — il rétrécit quand elles baissent, et c'est tout l'objet de la partie. La couleur de la terre suit le siècle : elle rougit avec le réchauffement, elle verdit là où la contrainte est installée."},
- {s:"#events", t:"Ce qu'on vous demande",
-  d:"L'événement du tour, l'état de la technologie, l'objectif de la partie — faire <b>plafonner</b> les émissions puis passer sous 20 GtCO₂/an — et le <b>défi du tour</b>, marqué d'une étoile, qui rapporte des ressources s'il est rempli."},
- {s:"#agenda", t:"Ce qui arrivera sans vous",
-  d:"Élections, effets différés, retours de flamme, coups de l'adversaire : tout ce que la résolution appliquera <b>quoi que vous fassiez</b>. Le bandeau se recalcule à chaque levier que vous engagez. Arbitrer sans le lire, c'est jouer à l'aveugle."},
- {s:"#handL", t:"Vos leviers",
-  d:"Douze cartes tirées dans le catalogue ouvert de votre camp, pondérées par votre <b>doctrine</b> (au-dessus). Chaque carte dit sa puissance, son coût, son effet et son périmètre : <b>◍ monde</b> se joue d'un clic, <b>◎ bloc</b> demande une cible sur la carte. Votre <b>budget de puissance</b> suit votre crédibilité ; un levier léger en prend peu, un <b>⚖ levier lourd</b> ou <b>extrême</b> peut en absorber l'essentiel d'un coup. Le <b>i</b> ouvre la fiche complète — mécanisme, ancrage réel daté, contre-levier."},
+  d:"Chaque bloc porte <b>quatre jauges</b> : contrainte (bleu), soutien réel (vert), soutien perçu (jaune), friction (rouge). Le <b>halo rouge</b> autour d'un bloc vaut ses émissions — il rétrécit quand elles baissent, et c'est tout l'objet de la partie. Le plus gros émetteur est tracé en orange."},
+ {s:"#cetour", t:"Ce tour",
+  d:"Une ligne pour tout ce qui se joue ce tour : l'<b>événement</b> (à attribuer au climat, ou non), l'<b>objectif</b> de la partie — passer sous 20 GtCO₂/an le plus tôt possible —, le <b>défi</b> du tour, et ce que la résolution appliquera <b>quoi que vous fassiez</b> : élections, effets différés, coups de l'adversaire. Survolez une pastille pour le détail."},
+ {s:"#handbar", t:"Vos leviers",
+  d:"Douze cartes tirées dans votre catalogue, pondérées par votre <b>doctrine</b>. Chacune dit sa <b>puissance</b> (de 1 à 3,5 points) et son coût en ressources. <b>◍ monde</b> se joue d'un clic ; <b>◎ bloc</b> demande de désigner un bloc sur la carte. Le <b>i</b> ouvre la fiche, le <b>⊘</b> masque un levier qui ne vous intéresse pas."},
  {s:"#plan", t:"Rien n'est joué avant que vous validiez",
-  d:"Les leviers que vous engagez s'empilent ici. Vous pouvez en retirer un à tout moment (× ou Ctrl+Z) et tout remettre à zéro. Pendant ce temps, <b>toutes les valeurs affichées deviennent celles que le plan produirait</b> : jauges, trajectoire, score. Rien ne touche le monde avant « Fin de tour »."},
- {s:"#advPanel", t:"Quelqu'un joue contre vous",
-  d:"L'adversaire joue après vous, à chaque tour. Vous ne voyez jamais sa main — vous voyez <b>ce qu'il a joué</b>, où, et quand c'est le contre-levier d'un des vôtres. Les chiffres rouges sur la carte comptent ses coups par bloc. Ce qu'il a installé continue d'agir sans qu'il ait à y revenir."},
- {s:".cockpit", t:"Où finit la partie",
-  d:"La <b>trajectoire 2100</b> n'est pas une extrapolation : c'est le modèle rejoué jusqu'au bout, contraintes figées. Si plus rien ne bougeait, la partie finirait là. La courbe garde la même lecture tour après tour ; la ligne grise est le monde réel, à 2,70 °C."},
+  d:"Les leviers engagés s'alignent ici, dans l'ordre où ils s'appliqueront (les flèches le changent). La ligne dit la puissance utilisée, le coût et l'effet attendu sur 2100. Retirez-en un à tout moment : l'aperçu se recalcule."},
+ {s:"#advBox", t:"Quelqu'un joue contre vous",
+  d:"L'adversaire joue après vous, à chaque tour. Vous ne voyez jamais sa main — vous voyez <b>ce qu'il a joué</b>, où, et quand c'est le contre-levier d'un des vôtres. Le panneau est replié : « afficher » l'ouvre."},
+ {s:"#dash", t:"Où en est la partie",
+  d:"Quatre chiffres : le réchauffement atteint, la <b>projection 2100</b> — le modèle rejoué jusqu'au bout, contraintes figées —, les émissions et votre score. Avec un plan en cours, projection et score sont ceux que le plan produirait. La courbe tour par tour est dans le bilan."},
+ {s:"#docBox", t:"Votre doctrine",
+  d:"Quatre réglages qui ne jouent aucune carte : ils décident lesquelles vous sont proposées, et ce qu'elles rendent. « régler » les ouvre ; le premier ajustement du tour coûte 1 attention."},
  {s:"#endturn", t:"Fin de tour",
-  d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et le journal complet. <b>Dix-sept tours, de 2015 à 2100.</b>"}
+  d:"Vos leviers sont appliqués, les paris tranchés, l'adversaire répond, la physique tourne cinq ans. Un bilan s'ouvre ensuite : ce qui a changé, bloc par bloc, et pourquoi."}
 ];
 let GI=-1, GUIDE_VU=false;
 function guideOuvrir(i){ GI=i||0; GUIDE_VU=true; $("#guide").classList.add("on"); guidePas(); }
@@ -5252,6 +5368,7 @@ function guidePas(){
     const pv=$("#gprev"); if(pv) pv.onclick=()=>{ GI=Math.max(0,GI-1); guidePas(); };
   },60);
 }
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&sel&&GI<0&&!$("#ovl").classList.contains("open")){ sel=null; render(); } });
 addEventListener("keydown",e=>{ if(GI>=0){ if(e.key==="Escape")guideFermer();
   else if(e.key==="ArrowRight"||e.key===" "){GI++;guidePas();e.preventDefault();}
   else if(e.key==="ArrowLeft"){GI=Math.max(0,GI-1);guidePas();} } });
