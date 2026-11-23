@@ -1402,7 +1402,7 @@ function tirerDefi(s){
   const att=s.camp==="att";
   const camp=att?"att":"actif";
   // un objectif dont tous les leviers clefs sont épuisés ne serait plus atteignable : on ne le tire pas
-  const faisable=d=>!d.clefs||d.clefs.map(card).some(c=>c&&c.c===camp&&!epuise(s,c)&&!verrouLevier(s,c));
+  const faisable=d=>!d.clefs||d.clefs.map(card).some(c=>c&&c.c===camp&&!epuise(s,c)&&!verrouLevier(s,c)&&!masque(s,c.id));
   // chaque camp tire dans ses propres objectifs : jusqu'ici le joueur attentiste
   // héritait aussi de ceux du camp actif, donc d'objectifs qui le récompensaient
   // pour les succès de son adversaire.
@@ -1658,6 +1658,9 @@ function verrouLevier(s,c){
 /* Le catalogue est entier dès le premier niveau. Ce qui l'ouvre au fil de la
    partie, c'est l'époque et le prérequis — pas la difficulté. Le niveau ne règle
    plus que l'adversaire : voir NIVEAUX. */
+/* Les leviers que le joueur a masqués : ils ne lui sont plus tirés (v0.15.8).
+   Seule la main du joueur est concernée, jamais celle de l'adversaire. */
+function masque(s,id){ return !!(s.masques&&s.masques.includes(id)); }
 function pool(s,camp){return CARDS.filter(c=>c.c===camp && !verrouLevier(s,c) && !(c.id==="A50"&&s.reveles<=0));}
 /* les leviers du camp que la progression n'a pas encore ouverts, avec leur raison */
 function aVenir(s,camp){
@@ -1675,7 +1678,7 @@ function tire(s,cand,D){
 function remplir(s,main,camp){
   const p=pool(s,camp), D=s.doc[camp==="actif"?"actif":"att"];
   while(main.length<MAIN){
-    const cand=p.filter(c=>!main.includes(c.id)&&!epuise(s,c)&&!(main===s.hand&&s.ecartees.includes(c.id)));
+    const cand=p.filter(c=>!main.includes(c.id)&&!epuise(s,c)&&!(main===s.hand&&(s.ecartees.includes(c.id)||masque(s,c.id))));
     if(!cand.length)break;
     main.push(tire(s,cand,D).id);
   }
@@ -1781,7 +1784,7 @@ function garantirDefi(s){
   const D=s.defi; if(!D||!D.clefs||!D.clefs.length||s.over) return;
   const camp=s.camp==="actif"?"actif":"att";
   if(s.hand.some(id=>D.clefs.includes(id))) return;
-  const cand=D.clefs.map(card).filter(c=>c&&c.c===camp&&!epuise(s,c)&&!verrouLevier(s,c)&&!s.hand.includes(c.id));
+  const cand=D.clefs.map(card).filter(c=>c&&c.c===camp&&!epuise(s,c)&&!verrouLevier(s,c)&&!s.hand.includes(c.id)&&!masque(s,c.id));
   if(!cand.length) return;
   const Doc=s.doc[camp], ajout=tire(s,cand,Doc).id;
   if(s.hand.length>=MAIN){
@@ -3236,6 +3239,11 @@ function renderAdv(){
   const n=nAdv(s);
   const nom = adv==="att" ? "Climato-attentiste" : "Climato-actif";
   $("#advEtat").innerHTML = fmtP(n)+" pt/tour";
+  // panneau repliable, réglage mémorisé dans le navigateur
+  const red=advReduit(), side=document.querySelector(".sideR");
+  side.classList.toggle("advReduit",red);
+  $("#advTog").textContent = red?"afficher":"réduire";
+  $("#advTog").onclick=()=>{ try{ localStorage.setItem("heat.advReduit", red?"0":"1"); }catch(e){} ADV_RED=!red; renderAdv(); };
   const tous=s.adv||[];
   const dern=tous.filter(a=>a.turn===s.turn-1);
   const parBloc={}; tous.forEach(a=>{ if(a.bk) parBloc[a.bk]=(parBloc[a.bk]||0)+1; });
@@ -3398,8 +3406,10 @@ function renderHand(){
       : `<span class="off" data-tip="Vous avez déjà renouvelé votre main ce tour.">main déjà renouvelée</span>`)
    +(av.length
       ? ` <span class="lnk" id="avenir" data-tip="Les ${av.length} leviers que la progression n'a pas encore ouverts, et ce qu'il faut pour y accéder.">${av.length} à venir</span>`
-      : ` <span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`);
+      : ` <span class="off" data-tip="Tout le catalogue de votre camp est ouvert.">catalogue complet</span>`)
+   +((s.masques||[]).length?` <span class="lnk" id="masques" data-tip="Les leviers que vous avez masqués : ils ne vous sont plus proposés. Cliquez pour en réafficher.">${s.masques.length} masqué${s.masques.length>1?"s":""}</span>`:"");
   const bav=$("#avenir"); if(bav) bav.onclick=panneauAVenir;
+  const bmq=$("#masques"); if(bmq) bmq.onclick=panneauMasques;
   bindTips($("#handCtl"));
   let hint="";
   if(c&&c.cible==="bloc") hint=`<div class="hint">Choisissez un bloc sur la carte — <span style="text-decoration:underline;cursor:pointer" id="annul">annuler</span></div>`;
@@ -3419,7 +3429,7 @@ function renderHand(){
     const pr=PROBA[cc.id]?fourchette(s,cc,elig):null;
     const nPlan=S.plan.filter(e=>e.id===id).length;
     h+=`<div class="card ${sel===id?"sel":""} ${ko?"no":""} ${glob?"glob":"blk"}${nPlan?" planif":""}" data-id="${id}" data-tip="<b>${cc.id} — ${cc.n}</b><br><i>${cc.fam}</i><br>${cc.mec}<br><br><b>Ancrage :</b> ${cc.anc}${raison?'<br><br><b style=color:#e88>Injouable : '+raison+'</b>':''}<br><br><span style=color:#8a8>Cliquez le i pour la fiche complète.</span>">
-      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div>
+      <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant. Vous pouvez le réafficher depuis la liste des leviers masqués, au-dessus de la main.">⊘</div>
       <div class="id">${cc.id} <span class="tag">${cc.fam}</span>${nPlan?`<span class="tag plan" data-tip="Ce levier est déjà dans votre plan sur ${nPlan} bloc${nPlan>1?"s":""}. Vous pouvez l'ajouter sur un autre : chaque bloc coûte à nouveau ${fmtP(pds(cc))} point${pds(cc)>1?"s":""} et ses ressources.">×${nPlan} dans le plan</span>`:""}${clefDefi(s,id)?' <span class="tag defi" data-tip="Ce levier sert directement l\'objectif du tour : ★ '+s.defi.t+'.">★ objectif</span>':''}${(s.rendus||[]).some(x=>x.id===id)?' <span class="tag rendu" data-tip="Ce levier a déjà été engagé ici et défait — mesure annulée par l\'adversaire, ou tentative échouée. Il n\'a pas été consommé : vous pouvez le rejouer.">↻ rejouable</span>':''}${cc.trap&&s.level===1?' <span class="tag trap" data-tip="Niveau Découverte : le jeu signale les leviers dont le rendement réel est contesté. Ouvrez la fiche avant de le jouer — aux niveaux supérieurs, ce repère disparaît.">à vérifier</span>':''}
         <span class="scope ${glob?"g":"b"}" data-tip="${glob
           ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un seul clic, sans désigner de cible. Un levier mondial ne peut être joué qu'une fois dans la partie."
@@ -3450,6 +3460,7 @@ function renderHand(){
   [$("#handL"),$("#handR")].forEach(zone=>{
     zone.querySelectorAll(".card").forEach(el=>{
       el.onclick=e=>{ if(e.target.dataset.fiche){ficheLevier(e.target.dataset.fiche);return;}
+        if(e.target.dataset.masq){masquerLevier(e.target.dataset.masq);return;}
         if(el.classList.contains("no")||RESO)return;
         const id=el.dataset.id, cc=card(id);
         if(cc.cible!=="bloc"){                       // levier mondial : aucun bloc à désigner
@@ -3472,6 +3483,34 @@ function renderHand(){
 
 }
 
+let ADV_RED=null;
+function advReduit(){
+  if(ADV_RED===null){ try{ ADV_RED=localStorage.getItem("heat.advReduit")==="1"; }catch(e){ ADV_RED=false; } }
+  return ADV_RED;
+}
+function masquerLevier(id){
+  if(RESO) return;
+  if(S.plan.some(e=>e.id===id)){ alerteFichier("Ce levier est dans votre plan : retirez-le du plan avant de le masquer.","Levier engagé"); return; }
+  S.masques=(S.masques||[]).concat(id);
+  const i=S.hand.indexOf(id); if(i>=0) S.hand.splice(i,1);
+  if(sel===id) sel=null;
+  jlog(S,"t","Levier masqué : "+card(id).n+" ne vous sera plus proposé.");
+  simuler(); render(); sauverAuto();
+}
+function panneauMasques(){
+  const s=S, l=(s.masques||[]).map(card).filter(Boolean);
+  $("#modal").innerHTML=`<div class="mh"><h2>Leviers masqués</h2><span class="sub">ils ne vous sont plus proposés</span><button class="x" id="mx">×</button></div>
+    <div class="mb" style="display:block">
+      ${l.length?l.map(c=>`<div class="mqrow"><div><b>${c.id} · ${c.n}</b><span>${c.fam} · ${c.e}</span></div><button class="mini" data-unmasq="${c.id}">réafficher</button></div>`).join("")
+        +`<div style="margin-top:12px;display:flex;justify-content:flex-end"><button class="mini" id="mqtout">tout réafficher</button></div>`
+        :`<p class="gx">Aucun levier masqué.</p>`}
+      <p class="gx" style="margin-top:10px">Un levier réaffiché revient dans le tirage : il pourra vous être proposé dès que votre main se renouvelle.</p>
+    </div>`;
+  ouvrirModal(false); $("#mx").onclick=fermer;
+  const refaire=ids=>{ s.masques=(s.masques||[]).filter(x=>!ids.includes(x)); jlog(s,"t","Leviers réaffichés : "+ids.map(x=>card(x).n).join(", ")+"."); sauverAuto(); render(); panneauMasques(); };
+  document.querySelectorAll("[data-unmasq]").forEach(b=>b.onclick=()=>refaire([b.dataset.unmasq]));
+  const tt=$("#mqtout"); if(tt) tt.onclick=()=>refaire(l.map(c=>c.id));
+}
 function clicBloc(k){
   const s=V(), c=sel?card(sel):null;
   if(c&&c.cible==="bloc"){
@@ -4077,8 +4116,8 @@ function importerPartie(apres){
   };
   i.click();
 }
-function alerteFichier(msg){
-  $("#modal").innerHTML=`<div class="mh"><h2>Chargement impossible</h2><span class="sub">rien n'a été modifié</span>
+function alerteFichier(msg,titre){
+  $("#modal").innerHTML=`<div class="mh"><h2>${titre||"Chargement impossible"}</h2><span class="sub">rien n'a été modifié</span>
      <button class="x" id="mx">×</button></div>
    <div class="mb"><div class="full"><p class="gx">${msg}</p></div></div>`;
   ouvrirModal(false); $("#mx").onclick=fermer;

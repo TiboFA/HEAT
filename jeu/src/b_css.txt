@@ -791,4 +791,14 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .gb .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
 .tag.plan{border-color:var(--wire);color:var(--wire);font-weight:700}
 .card.planif{box-shadow:inset 3px 0 0 var(--wire)}
+/* ---- v0.15.8 : masquer un levier, réduire le camp adverse ---- */
+.card .masq{position:absolute;top:5px;right:26px;width:16px;height:16px;border-radius:50%;font-size:11px;line-height:16px;
+ text-align:center;color:var(--muted);cursor:pointer;opacity:0;transition:opacity .15s}
+.card:hover .masq,.card.sel .masq{opacity:1}
+.card .masq:hover{color:var(--wire-hot)}
+@media (hover:none){.card .masq{opacity:.8}}
+.card .id{padding-right:40px}
+.mqrow{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ring);padding:8px 0}
+.mqrow b{display:block;font-size:13px}.mqrow span{font-size:11.5px;color:var(--muted)}
+.sideR.advReduit #advPanel{display:none}
 </style>
