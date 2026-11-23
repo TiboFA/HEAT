@@ -4167,7 +4167,10 @@ function guidePas(){
     const r=el.getBoundingClientRect(), p=8, tr=$("#gtrou"), c=$("#gcard");
     tr.style.left=(r.left-p)+"px"; tr.style.top=(r.top-p)+"px";
     tr.style.width=(r.width+2*p)+"px"; tr.style.height=(r.height+2*p)+"px";
-    c.innerHTML=`<div class="gn">Étape ${GI+1} sur ${GUIDE.length}</div><h4>${st.t}</h4><p>${st.d}</p>
+    const n2=v=>String(v).padStart(2,"0");
+    c.innerHTML=`<i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="gn"><span>Étape ${n2(GI+1)}</span> / ${n2(GUIDE.length)}</div>
+      <div class="gprog">${GUIDE.map((_,i)=>`<i class="${i<GI?"fait":i===GI?"ici":""}"></i>`).join("")}</div>
+      <h4>${st.t}</h4><p>${st.d}</p>
       <div class="gb"><span class="lnk" id="gskip">fermer le guide</span>
         ${GI?'<button class="mini" id="gprev">précédent</button>':''}
         <button class="mini go" id="gnext">${GI===GUIDE.length-1?"jouer":"suivant"}</button></div>`;

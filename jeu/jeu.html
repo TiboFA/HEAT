@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.15.5</title>
+<title>HEAT — version jouable v0.15.6</title>
 <style>:root{
   --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#222221; --sea:#111110;
   --ink:#fff; --ink-2:#c3c2b7; --muted:#a19f98;
@@ -775,6 +775,26 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .mb.bilan .brow,.mb.bilan .btr{border-bottom-color:rgba(63,183,166,.1)}
 .mb.bilan .badv{border-left-color:var(--wire-hot)}
 @media (max-width:560px){.mb.bilan{grid-template-columns:minmax(0,1fr)}.mb.bilan .bav,.mb.bilan .bap,.mb.bilan .bg{font-size:11px}.mb.bilan .bap{white-space:normal}.finmap.bmap .fin-lb .c{font-size:90px}.finmap.bmap .fin-lb tspan+tspan{display:none}.finmap.bmap .fin-lb{display:inline}}
+/* ---- guide filaire (v0.15.6) ---- */
+#gtrou{border:1px solid rgba(63,183,166,.75);border-radius:6px;box-shadow:0 0 0 9999px rgba(3,8,10,.82),0 0 18px rgba(63,183,166,.25) inset}
+#gtrou .cnr,#gcard .cnr{position:absolute;width:14px;height:14px;border:2px solid var(--wire)}
+#gtrou .cnr.tl,#gcard .cnr.tl{top:-3px;left:-3px;border-right:0;border-bottom:0}
+#gtrou .cnr.tr,#gcard .cnr.tr{top:-3px;right:-3px;border-left:0;border-bottom:0}
+#gtrou .cnr.bl,#gcard .cnr.bl{bottom:-3px;left:-3px;border-right:0;border-top:0}
+#gtrou .cnr.br,#gcard .cnr.br{bottom:-3px;right:-3px;border-left:0;border-top:0}
+#gcard{background:
+  repeating-linear-gradient(0deg,rgba(63,183,166,.06) 0 1px,transparent 1px 24px),
+  repeating-linear-gradient(90deg,rgba(63,183,166,.06) 0 1px,transparent 1px 24px),#06090b;
+ border:1px solid rgba(63,183,166,.4);border-radius:4px;box-shadow:0 18px 50px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.6)}
+#gcard .gn{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted);letter-spacing:.14em}
+#gcard .gn span{color:var(--wire)}
+.gprog{display:flex;gap:3px;margin:7px 0 9px}
+.gprog i{flex:1;height:3px;background:rgba(63,183,166,.18)}
+.gprog i.fait{background:rgba(63,183,166,.55)}.gprog i.ici{background:var(--wire);box-shadow:0 0 6px rgba(63,183,166,.7)}
+#gcard h4{color:#e7f4f1}
+.gb .mini.go{background:var(--wire);color:#04120f;border-color:var(--wire);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+ letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.gb .mini:not(.go){border-color:rgba(63,183,166,.4);color:var(--wire)}
 </style>
 </head>
 <body>
@@ -918,7 +938,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.15.5 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.15.6 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -977,7 +997,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
 </div></div>
 
 <div id="fin" style="display:none"></div>
-<div id="guide"><div id="gtrou"></div><div id="gcard"></div></div>
+<div id="guide"><div id="gtrou"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i></div><div id="gcard"></div></div>
 <div id="tip"></div>
 <div id="ovl"><div class="modal" id="modal"></div></div>
 <script>
@@ -5149,7 +5169,10 @@ function guidePas(){
     const r=el.getBoundingClientRect(), p=8, tr=$("#gtrou"), c=$("#gcard");
     tr.style.left=(r.left-p)+"px"; tr.style.top=(r.top-p)+"px";
     tr.style.width=(r.width+2*p)+"px"; tr.style.height=(r.height+2*p)+"px";
-    c.innerHTML=`<div class="gn">Étape ${GI+1} sur ${GUIDE.length}</div><h4>${st.t}</h4><p>${st.d}</p>
+    const n2=v=>String(v).padStart(2,"0");
+    c.innerHTML=`<i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i><div class="gn"><span>Étape ${n2(GI+1)}</span> / ${n2(GUIDE.length)}</div>
+      <div class="gprog">${GUIDE.map((_,i)=>`<i class="${i<GI?"fait":i===GI?"ici":""}"></i>`).join("")}</div>
+      <h4>${st.t}</h4><p>${st.d}</p>
       <div class="gb"><span class="lnk" id="gskip">fermer le guide</span>
         ${GI?'<button class="mini" id="gprev">précédent</button>':''}
         <button class="mini go" id="gnext">${GI===GUIDE.length-1?"jouer":"suivant"}</button></div>`;
