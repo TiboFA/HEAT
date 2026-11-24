@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.18.1</title>
+<title>HEAT — version jouable v0.18.2</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1096,7 +1096,6 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .cockpit:has(.dash.replie){padding:7px 13px}
 .dsec .repl{margin-left:12px}
 .legend #carteTog{margin-left:12px}
-.legend #carteTog .repl{font-size:11px}
 .board.carteMasquee .mapbox{display:none}
 .board.carteMasquee .lg-l{display:none}
 .board.carteMasquee .lg-n{display:inline}
@@ -1109,6 +1108,12 @@ body.compact .card .id>.tag:not(.defi){display:none}
 #langHome{display:flex;justify-content:flex-end;margin:0 2px 8px}
 .topbar .langsw{margin-left:-4px;margin-right:6px}
 .fin .mh #langFin{margin-left:auto;align-self:center}
+/* ---- liens de repli, un seul style (v0.18.2) ----
+   Le même partout, y compris dans les titres de la colonne de droite dont il
+   n'hérite plus les capitales. Placé en dernier : il l'emporte à égalité. */
+span.lnk.repl{font:600 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.03em;text-transform:none;
+ color:var(--wire);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;cursor:pointer}
+span.lnk.repl:hover{color:var(--wire-hi)}
 </style>
 </head>
 <body>
@@ -1254,7 +1259,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.18.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.18.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -4032,9 +4037,14 @@ function replie(k){
   if(!(k in REPLI)){ let v=null; try{ v=localStorage.getItem("heat.repli."+k); }catch(e){} REPLI[k]=v==="1"; }
   return REPLI[k];
 }
-function lienRepli(k,ouvert,ferme,tipO,tipF){
+/* v0.18.2 : un seul vocabulaire et un seul style pour toutes les sections
+   repliables — « ▾ replier » quand elle est ouverte, « ▸ déplier » quand elle
+   est repliée, en lien de classe .repl. Seule la doctrine dit « ▸ régler » :
+   l'ouvrir sert à agir, et coûte de l'attention. */
+const REPLIER="▾ replier", DEPLIER="▸ déplier";
+function lienRepli(k,tipO,tipF,ouvert,ferme){
   const r=replie(k);
-  return `<span class="lnk repl" data-repli="${k}" data-tip="${r?tipF:tipO}">${r?ferme:ouvert}</span>`;
+  return `<span class="lnk repl" data-repli="${k}" data-tip="${r?tipF:tipO}">${r?(ferme||DEPLIER):(ouvert||REPLIER)}</span>`;
 }
 function deplier(k){ REPLI[k]=false; try{ localStorage.setItem("heat.repli."+k,"0"); }catch(e){} }
 document.addEventListener("click",e=>{
@@ -4100,7 +4110,7 @@ function renderEvent(){
   $("#cetour").classList.toggle("replie",rCt);
   $("#cetour").innerHTML=`<span class="k" data-tip="Ce qui se joue ce tour : l'événement, l'objectif de la partie, le défi du tour, et tout ce que la résolution appliquera quoi que vous fassiez.">Ce tour</span>`
     +(rCt?`<span class="ctr">${e?e.t:"aucun événement"}${s.defi?" · ★ "+s.defi.t:""}</span>`:evp+pastilleObjectif(s)+(s.defi?pastilleDefi(s):"")+ag)
-    +lienRepli("cetour","réduire","afficher","Réduit cette ligne à son titre. L'événement et le défi restent nommés.","Réaffiche l'événement, l'objectif, le défi et l'agenda du tour.");
+    +lienRepli("cetour","Replie cette ligne sur son titre. L'événement et le défi restent nommés.","Déplie l'événement, l'objectif, le défi et l'agenda du tour.");
   const ba=$("#battr"); if(ba) ba.onclick=()=>{ if(RESO)return; planAjouter({k:"attr"}); render(); };
   const bu=$("#bunattr"); if(bu) bu.onclick=()=>{ if(RESO)return; planRetirer(planAttr()); render(); };
 }
@@ -4245,9 +4255,9 @@ function renderDash(){
   if(replie("dash")){
     $("#dash").innerHTML=`<div class="dmini"><span>Réchauffement <b>${fr(T,2)} °C</b></span><span class="pj">${S.turn>NTURNS?"Résultat":"Projection"} ${AN_FIN} <b>${fr(proj,2)} °C</b></span>`
       +`<span>Émissions <b>${fr(em,1)} Gt/an</b></span><span>Score <b>${sc} pts</b></span>`
-      +lienRepli("dash","réduire","afficher","","Réaffiche les quatre tuiles, leurs écarts et la ligne secondaire.")+`</div>`;
+      +lienRepli("dash","","Déplie les quatre tuiles, leurs écarts et la ligne secondaire.")+`</div>`;
   } else {
-    const ds=$("#dash .dsec"); if(ds) ds.insertAdjacentHTML("beforeend",lienRepli("dash","réduire","afficher","Réduit le tableau de bord à une ligne de chiffres.",""));
+    const ds=$("#dash .dsec"); if(ds) ds.insertAdjacentHTML("beforeend",lienRepli("dash","Replie le tableau de bord sur une ligne de chiffres.",""));
   }
   $("#dash").classList.toggle("replie",replie("dash"));
   const db=$("#dashBilan"); if(db) db.onclick=bilanTour;
@@ -4621,7 +4631,8 @@ function renderAdv(){
   side.classList.toggle("advReduit",red);
   if(red){ const der=(S.adv||[]).filter(a=>a.turn===S.turn-1).length;
     $("#advEtat").innerHTML=fmtP(n)+" pt/tour"+(S.turn>1?" · "+der+" levier"+(der>1?"s":"")+" au dernier tour":""); }
-  $("#advTog").textContent = red?"afficher":"réduire";
+  const at=$("#advTog"); at.className="lnk repl"; at.textContent = red?DEPLIER:REPLIER;
+  at.dataset.tip = red?"Déplie le panneau : ce que l'adversaire a joué, et ce qu'il a laissé en place.":"Replie le panneau du camp adverse.";
   $("#advTog").onclick=()=>{ try{ localStorage.setItem("heat.advReduit", red?"0":"1"); }catch(e){} ADV_RED=!red; renderAdv(); };
   const tous=s.adv||[];
   const dern=tous.filter(a=>a.turn===s.turn-1);
@@ -4681,9 +4692,10 @@ function renderMap(){
   const grille=$("#blocGrid"); let gh="";
   const rCarte=replie("carte"), bd=document.querySelector(".board");
   if(bd) bd.classList.toggle("carteMasquee",rCarte);
-  const ctg=$("#carteTog"); if(ctg) ctg.innerHTML=lienRepli("carte","masquer la carte","afficher la carte",
-    "Masque la carte. Les huit blocs restent jouables dans une grille de tuiles, avec leurs jauges.",
-    "Réaffiche la carte du monde. Sur ordinateur, la grille de tuiles s'efface alors.");
+  const ctg=$("#carteTog"); if(ctg) ctg.innerHTML=lienRepli("carte",
+    "Replie la carte. Les huit blocs restent jouables dans une grille de tuiles, avec leurs jauges.",
+    "Déplie la carte du monde. Sur ordinateur, la grille de tuiles s'efface alors.",
+    REPLIER+" la carte", DEPLIER+" la carte");
   s.blocs.forEach(b=>{
     const land=document.getElementById("p_"+b.k);
     const ciblable = c && c.cible==="bloc" && !jouable(s,c,b,s.camp);
@@ -5195,7 +5207,8 @@ let docOpen=false;
 function renderDocPanel(){
   const s=S, sv=V(), camp=s.camp==="actif"?"actif":"att", ax=DOCAX[camp], D=s.doc[camp];
   const reste=25-s.docChg, dis=(sv.res[camp].att<1&&s.docChg===0);
-  $("#docEtat").innerHTML = `<span id="docTog" style="text-decoration:underline;cursor:pointer">${docOpen?"replier":"régler"}</span>`;
+  $("#docEtat").innerHTML = `<span id="docTog" class="lnk repl" data-tip="${docOpen?"Replie les réglages de doctrine.":"Déplie les quatre curseurs de doctrine pour les régler. Le premier ajustement du tour coûte 1 attention."}">${docOpen?REPLIER:"▸ régler"}</span>`;
+  bindTips($("#docEtat"));
   if(!docOpen){
     $("#docPanel").innerHTML=`<div class="dsum">`+ax.map(a=>
       `<span data-tip="${a.tip.replace(/"/g,'&quot;')}"><i>${a.t}</i>${D[a.k]<38?a.a:D[a.k]>62?a.z:"équilibre"}</span>`).join("")+`</div>`;
@@ -5303,7 +5316,7 @@ function renderPresse(){
   $("#presse").innerHTML=h;
   const rp=replie("presse");
   $("#presse").style.display=rp?"none":"";
-  const pt=$("#presseTog"); if(pt) pt.innerHTML=lienRepli("presse","réduire","afficher","Replie la presse et les combinaisons du tour.","Réaffiche la presse et les combinaisons du tour.");
+  const pt=$("#presseTog"); if(pt) pt.innerHTML=lienRepli("presse","Replie la presse et les combinaisons du tour.","Déplie la presse et les combinaisons du tour.");
 }
 
 /* Le journal contient tout ce que la machine fait toute seule — dérives, effets
@@ -5337,8 +5350,8 @@ function renderLog(){
   if(f) f.innerHTML=(mq?"":`<span class="lnk" id="jourTog" data-tip="${JOURTOUT
     ?"Vous voyez tout : chaque effet automatique du moteur est écrit, dérives et recharges comprises. Basculer sur l'essentiel ne garde que les décisions des deux camps."
     :"Vous ne voyez que les décisions des deux camps et ce qui les sanctionne. Basculer sur tout affiche l'intégralité des effets automatiques."}">${JOURTOUT?"voir l'essentiel":"tout voir"}</span> · `)
-    +`<span class="lnk" id="jourMasq" data-tip="${mq?"Réaffiche le journal. Il a continué d'être écrit pendant qu'il était masqué."
-      :"Masque le journal pour gagner de la place. Il continue d'être écrit ; le bilan de chaque tour reste disponible."}">${mq?"afficher":"masquer"}</span>`;
+    +`<span class="lnk repl" id="jourMasq" data-tip="${mq?"Déplie le journal. Il a continué d'être écrit pendant qu'il était replié."
+      :"Replie le journal pour gagner de la place. Il continue d'être écrit ; le bilan de chaque tour reste disponible."}">${mq?DEPLIER:REPLIER}</span>`;
   $("#jour").innerHTML=logHTML(s.log,JOURTOUT).slice(-400).join("");
   // le lien est redessiné sous la souris : sans ça, son infobulle resterait affichée
   const tg=$("#jourTog"); if(tg) tg.onclick=()=>{JOURTOUT=!JOURTOUT; tip().style.opacity=0; renderLog();};
@@ -5568,8 +5581,10 @@ function changerLangue(){
 function renderLangue(){
   const a=autreLangue();
   const html=(LANG==="fr"?'<b>FR</b> · <span class="lnk" data-lang="1">EN</span>':'<span class="lnk" data-lang="1">FR</span> · <b>EN</b>');
+  // dans la barre du jeu, la place manque : seule la langue d'arrivée est affichée
+  const court=`<span class="lnk" data-lang="1">${a.code.toUpperCase()}</span>`;
   ["#langHome","#langJeu","#langFin"].forEach(q=>{ const e=$(q); if(!e) return;
-    e.innerHTML=html; e.title=a.tip;
+    e.innerHTML=q==="#langJeu"?court:html; e.title=a.tip;
     e.querySelector("[data-lang]").onclick=changerLangue; });
 }
 function langueAuDemarrage(){
