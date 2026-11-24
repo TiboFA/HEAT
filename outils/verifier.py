@@ -4,7 +4,8 @@
 #   python3 outils/verifier.py --vite   étalonnage sur 10 parties au lieu de 30
 #
 # Cinq contrôles, dans cet ordre :
-#   1. sources   jeu/jeu.html est bien ce que jeu/src/ produit. La v0.12 a été
+#   1. sources   jeu/jeu.html et jeu/en.html sont bien ce que jeu/src/ produit,
+#                et tout le texte a sa traduction anglaise. La v0.12 a été
 #                écrite directement dans jeu.html pendant un temps : un
 #                build.py relancé l'aurait effacée sans rien dire.
 #   2. play3     une partie complète dans l'interface, sans erreur console
@@ -42,9 +43,25 @@ arch = JEU / ("HEAT_jeu_%s.html" % ver)
 ok("archive %s présente et identique" % arch.name,
    arch.exists() and hashlib.md5(arch.read_bytes()).digest() == hashlib.md5(livre.encode('utf-8')).digest())
 
+# la version anglaise : produite au build depuis jeu/i18n/en.json
+sys.path.insert(0, str(RACINE / "outils"))
+import i18n
+en, manque = i18n.construire_en([(SRC / m).read_text(encoding='utf-8') for m in MORCEAUX])
+livre_en = (JEU / "en.html").read_text(encoding='utf-8') if (JEU / "en.html").exists() else ""
+ok("en.html = build(src)", en == livre_en, "" if en == livre_en else "relancer build.py")
+arch_en = JEU / ("HEAT_jeu_%s_en.html" % ver)
+ok("archive %s présente et identique" % arch_en.name, arch_en.exists() and arch_en.read_text(encoding='utf-8') == en)
+ok("aucun texte sans traduction anglaise", not manque,
+   "" if not manque else "%d morceau(x), dont « %s » — compléter jeu/i18n/en.json (python3 outils/i18n.py extraire)" % (len(manque), manque[0][:60]))
+
 print("2. play3")
 out = harnais("play3.py")
 ok("partie complète sans erreur", "errors: none" in out and "over: True" in out, out.strip().splitlines()[-1] if out.strip() else "")
+
+r = subprocess.run([sys.executable, str(RACINE / "outils" / "play3.py")], cwd=JEU, capture_output=True, text=True,
+                   env=dict(__import__("os").environ, HEAT_PAGE="en.html"))
+out = r.stdout + r.stderr
+ok("partie complète sans erreur, en anglais", "errors: none" in out and "over: True" in out, out.strip().splitlines()[-1] if out.strip() else "")
 
 print("3. chk_coh2")
 out = harnais("chk_coh2.py")
