@@ -1085,7 +1085,6 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .cockpit:has(.dash.replie){padding:7px 13px}
 .dsec .repl{margin-left:12px}
 .legend #carteTog{margin-left:12px}
-.legend #carteTog .repl{font-size:11px}
 .board.carteMasquee .mapbox{display:none}
 .board.carteMasquee .lg-l{display:none}
 .board.carteMasquee .lg-n{display:inline}
@@ -1098,4 +1097,10 @@ body.compact .card .id>.tag:not(.defi){display:none}
 #langHome{display:flex;justify-content:flex-end;margin:0 2px 8px}
 .topbar .langsw{margin-left:-4px;margin-right:6px}
 .fin .mh #langFin{margin-left:auto;align-self:center}
+/* ---- liens de repli, un seul style (v0.18.2) ----
+   Le même partout, y compris dans les titres de la colonne de droite dont il
+   n'hérite plus les capitales. Placé en dernier : il l'emporte à égalité. */
+span.lnk.repl{font:600 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.03em;text-transform:none;
+ color:var(--wire);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;cursor:pointer}
+span.lnk.repl:hover{color:var(--wire-hi)}
 </style>
