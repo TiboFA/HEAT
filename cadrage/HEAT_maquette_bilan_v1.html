@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HEAT — bilan de tour allégé</title>
+<style>
+:root{--plane:#0b0d0e;--surface:#141819;--surface-2:#1a1f20;--ink:#eef5f3;--ink-2:#b9c6c3;--muted:#8a9794;--ring:rgba(255,255,255,.09);
+ --wire:#3fb7a6;--wire-hi:#7fe0d2;--hot:#ff7a3d;--good:#4fd18b;--bad:#e88;--sea:#06090b;--traj:#3987e5;--reel:#2bb784;--percu:#c98500;--fric:#d94040}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+.notice{border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:14px 16px;margin-bottom:16px}
+.notice h1{font-size:18px;margin:0}.notice p{margin:6px 0 0;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+.avant{border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:14px;font-size:12.5px;color:var(--ink-2)}
+.avant h2,.apres-t{font:700 11px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.avant ol{margin:0;padding-left:18px}.avant li{margin:3px 0}
+.avant li s{color:var(--muted)}
+.avant .tot{margin-top:10px;color:var(--bad)}
+/* la proposition */
+.modal{border:1px solid rgba(63,183,166,.3);border-radius:6px;background:var(--surface);overflow:hidden}
+.mh{display:flex;align-items:baseline;gap:12px;padding:14px 18px;border-bottom:1px solid var(--ring)}
+.mh h2{margin:0;font-size:17px}.mh .sub{color:var(--muted);font-size:12.5px}
+.mh .go{margin-left:auto;background:var(--wire);color:#03140f;border:0;border-radius:4px;padding:7px 16px;font:800 12px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
+.mb{padding:16px 18px 18px}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:center;padding:14px 16px;border-radius:4px;
+ background:linear-gradient(var(--wire),var(--wire)) 0 0/12px 2px no-repeat,linear-gradient(var(--wire),var(--wire)) 0 0/2px 12px no-repeat,
+ linear-gradient(var(--wire),var(--wire)) 100% 100%/12px 2px no-repeat,linear-gradient(var(--wire),var(--wire)) 100% 100%/2px 12px no-repeat,var(--sea);border:1px solid rgba(63,183,166,.2)}
+.verdict .big{font:700 30px ui-monospace,Menlo,monospace;white-space:nowrap}
+.verdict .big small{font-size:14px;color:var(--muted);font-weight:500}
+.verdict .big .d{font-size:16px;color:var(--bad);margin-left:8px}
+.verdict .lab{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);grid-column:1/-1;margin-bottom:-4px}
+.verdict p{margin:0;color:var(--ink-2);font-size:13.5px}
+.verdict p b{color:var(--ink)}
+.bar{position:relative;height:8px;border-radius:4px;background:#2a2f30;margin-top:8px}
+.bar i{position:absolute;top:-3px;width:2px;height:14px;border-radius:1px}
+.bar .lg{position:absolute;top:12px;font:10px ui-monospace,Menlo,monospace;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 16px}
+.t{border:1px solid rgba(63,183,166,.16);border-radius:3px;padding:7px 10px;background:rgba(20,24,25,.85)}
+.t .l{display:block;font:700 9.5px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--wire)}
+.t b{font:700 16px ui-monospace,Menlo,monospace}.t .s{display:block;font-size:11px;color:var(--muted)}
+.ok{color:var(--good)}.ko{color:var(--bad)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ms{font:700 10px ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);margin:0 0 7px}
+.coup{border-left:3px solid var(--wire);padding:4px 0 4px 10px;margin-bottom:6px;font-size:13px}
+.coup.adv{border-left-color:var(--hot)}
+.coup b{font-weight:600}.coup span{color:var(--muted);font-size:12px}
+.coup .e{display:block;color:var(--ink-2);font-size:12px}
+.tag{display:inline-block;font:600 10px ui-monospace,Menlo,monospace;padding:1px 6px;border-radius:3px;margin-left:4px;vertical-align:1px}
+.tag.ok{background:rgba(79,209,139,.12)}.tag.ko{background:rgba(232,136,136,.12)}.tag.rep{background:rgba(255,122,61,.14);color:var(--hot)}
+.moves{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.mv{border:1px solid var(--ring);border-radius:3px;padding:4px 9px;font-size:12px;background:var(--surface-2)}
+.mv b{font:700 11px ui-monospace,Menlo,monospace;color:var(--ink-2);margin-right:6px}
+.mv .ok,.mv .ko{font-family:ui-monospace,Menlo,monospace;font-size:11.5px}
+.stable{color:var(--muted);font-size:12px;align-self:center}
+.next{margin-top:16px;padding:10px 12px;border:1px dashed rgba(63,183,166,.3);border-radius:4px;font-size:13px;color:var(--ink-2)}
+.next b{color:var(--ink)}
+.det{margin-top:14px;border-top:1px dashed rgba(63,183,166,.22);padding-top:10px;font-size:12.5px;color:var(--muted)}
+.det .repl{font:600 10.5px ui-monospace,Menlo,monospace;color:var(--wire);text-decoration:underline;margin-right:8px}
+.foot{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12px;color:var(--muted)}
+.why{margin-top:16px;border:1px solid var(--ring);border-radius:10px;background:var(--surface);padding:14px 16px;color:var(--ink-2);font-size:13px}
+.why b{color:var(--ink)}
+@media (max-width:860px){.cols{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="notice"><h1>HEAT — le bilan de tour, allégé</h1>
+<p>Les valeurs sont celles d'une vraie partie, au tour 6, au niveau Standard. À gauche, ce que montre le bilan aujourd'hui. À droite, la proposition : un écran au lieu de deux et demi, une réponse en tête (« ce tour m'a-t-il fait avancer ? »), et le reste replié dans le détail.</p></div>
+
+<div class="cols">
+<div class="avant"><h2>Aujourd'hui · 1 774 px</h2>
+<ol>
+<li>La situation : <b>9 indicateurs</b> avant → après</li>
+<li>Pic, seuil, défi du tour</li>
+<li>Vos ressources : 5 lignes</li>
+<li>Les huit blocs : 8 lignes × 4 jauges, <s>surtout des « = »</s></li>
+<li>Le camp adverse a joué</li>
+<li>Leviers redevenus jouables</li>
+<li>Ce que la presse en a retenu</li>
+<li>Le tour suivant commence : 2 encadrés + 4 pastilles</li>
+<li>La courbe de trajectoire</li>
+<li>Le journal complet du tour</li>
+</ol>
+<p class="tot">Le chiffre qui décide la partie (+0,01 °C) est le premier de neuf, au même poids que « dommages · riches ».</p>
+</div>
+
+<div>
+<div class="apres-t">Proposition · environ 620 px, tout tient sans défiler</div>
+<div class="modal">
+ <div class="mh"><h2>Tour 6 — 2040 à 2045</h2><span class="sub">résolu</span><button class="go">Continuer ▸</button></div>
+ <div class="mb">
+
+  <div class="verdict">
+   <div class="lab">Où finit la partie</div>
+   <div class="big">2,52 <small>°C</small><span class="d">+0,01</span></div>
+   <p>Votre plan visait <b>2,47 °C</b>. L'adversaire en a repris <b>0,05</b> — surtout par <b>Investissement d'infrastructure</b> sur le Reste de l'Asie, irréversible.</p>
+   <div style="grid-column:1/-1">
+    <div class="bar">
+     <i style="left:0%;background:var(--muted)"></i><span class="lg" style="left:2%">2,0</span>
+     <i style="left:31%;background:var(--wire)"></i><span class="lg" style="left:31%">plan 2,47</span>
+     <i style="left:35%;background:var(--hot)"></i><span class="lg" style="left:41%">2,52</span>
+     <i style="left:51%;background:#9a9"></i><span class="lg" style="left:51%">monde réel 2,76</span>
+     <i style="left:98%;background:var(--muted)"></i><span class="lg" style="left:93%">sans action 3,48</span>
+    </div>
+   </div>
+  </div>
+
+  <div class="tiles" style="margin-top:26px">
+   <div class="t"><span class="l">Score</span><b>260</b> <span class="ok">+10</span><span class="s">palier Marginal</span></div>
+   <div class="t"><span class="l">Émissions</span><b>35,0</b> <span class="ok">−1,6</span><span class="s">15 Gt avant le seuil</span></div>
+   <div class="t"><span class="l">★ Défi</span><b class="ok">réussi</b><span class="s">Le cap des 2,9 · +6 capital</span></div>
+   <div class="t"><span class="l">Crédibilité</span><b>+19</b> <span class="ko">−13</span><span class="s">d'avance sur l'adversaire</span></div>
+  </div>
+
+  <div class="two">
+   <div>
+    <div class="ms">Vous avez joué</div>
+    <div class="coup"><b>Institution indépendante de suivi</b> <span>Chine</span><span class="tag ok">réussi · 79 %</span><span class="e">perçu +4 par tour sur la Chine, jusqu'à la fin</span></div>
+    <div class="coup"><b>Compensation carbone volontaire</b> <span>Chine</span><span class="e">contrainte +2 — et crédibilité −8 : l'écart s'est vu</span></div>
+   </div>
+   <div>
+    <div class="ms">L'adversaire a joué</div>
+    <div class="coup adv"><b>Investissement d'infrastructure</b> <span>Reste de l'Asie</span><span class="e">plafond −22, irréversible · contrainte −4</span></div>
+    <div class="coup adv"><b>Confiance dans l'innovation</b> <span>mondial</span><span class="e">perçu −5 partout · vos effets différés retardés d'un tour</span></div>
+   </div>
+  </div>
+
+  <div class="ms" style="margin-top:16px">Ce qui a bougé</div>
+  <div class="moves" style="margin-top:0">
+   <span class="mv"><b>CN</b>contrainte <span class="ok">+3</span> · friction <span class="ok">−4</span></span>
+   <span class="mv"><b>AS</b>contrainte <span class="ko">−4</span> · plafond <span class="ko">−22</span></span>
+   <span class="mv"><b>Partout</b>perçu <span class="ko">−3 à −4</span> · réel <span class="ok">+1</span></span>
+   <span class="stable">· les 5 autres blocs : stables</span>
+  </div>
+
+  <div class="next"><b>Tour 7.</b> Dôme de chaleur sur la Chine — à attribuer (1 attention). ★ Défi : amener la Chine à 10 de contrainte (elle est à 58 : déjà rempli).</div>
+
+  <div class="det"><span class="repl">▸ déplier le détail</span>ressources, les huit blocs jauge par jauge, presse, courbe de trajectoire, journal du tour</div>
+  <div class="foot"><input type="checkbox" checked> ouvrir ce bilan automatiquement à chaque fin de tour</div>
+ </div>
+</div>
+</div>
+</div>
+
+<div class="why"><b>Ce qui change, et ce qui ne disparaît pas.</b>
+<ul style="margin:6px 0 0;padding-left:18px">
+<li><b>En tête, une seule réponse</b> : où finit la partie, l'écart avec ce que votre plan visait, et qui l'a repris. C'est le seul chiffre qui décide la partie ; aujourd'hui il est noyé parmi neuf.</li>
+<li><b>Quatre tuiles</b> au lieu de neuf lignes et cinq ressources : score, émissions, défi, crédibilité. Décès et dommages vont dans le détail.</li>
+<li><b>Les coups côte à côte</b>, les vôtres et les siens, chacun avec son effet en une ligne. Les leviers redevenus jouables s'y ajoutent quand il y en a.</li>
+<li><b>Seulement les blocs qui ont bougé</b>, au lieu d'un tableau de 32 cases surtout à « = ».</li>
+<li><b>Le tour suivant en une phrase</b> : il est déjà dans la ligne « Ce tour » au-dessus de la carte, le bilan n'a pas à le redire en six encadrés.</li>
+<li><b>Rien n'est supprimé</b> : ressources, tableau complet, presse, courbe et journal restent dans « ▸ déplier le détail », replié par défaut et retenu d'un tour à l'autre.</li>
+<li>Seule donnée nouvelle à calculer : la projection de votre plan au moment de la validation (« votre plan visait 2,47 »), pour dire ce que l'adversaire et la physique en ont repris.</li>
+</ul></div>
+</div>
+</body>
+</html>
