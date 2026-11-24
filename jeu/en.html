@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.18</title>
+<title>HEAT — version jouable v0.18.1</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1108,6 +1108,7 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .langsw .lnk{color:var(--ink-2)}
 #langHome{display:flex;justify-content:flex-end;margin:0 2px 8px}
 .topbar .langsw{margin-left:-4px;margin-right:6px}
+.fin .mh #langFin{margin-left:auto;align-self:center}
 </style>
 </head>
 <body>
@@ -5218,7 +5219,7 @@ function renderFin(){
   $("#game").style.display="none"; $("#home").style.display="none";
   $("#fin").style.display="";
   $("#fin").innerHTML=`
-   <div class="wrap" style="max-width:1000px"> <div class="app fin" style="padding:0"> <div class="mh"><h2>End of game — ${AN_FIN}</h2><span class="sub">${b.rang}</span></div> <div style="padding:18px 22px 22px"> <div class="finmap" id="finMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i> <div class="finmap-t"><span>The world in ${AN_FIN}</span><b>${fr(b.T,2)} °C</b></div></div> <div class="finband" data-tip="Each stripe is a year. Up to 2014, the observed world (NOAA). From ${AN0}, the temperature reached in your game, turn by turn — and below it, the same if nobody had played."> <div class="fb-row"><span class="fb-l">Your game</span><div class="bandes">${bandesHTML(trajPartie(s))}</div><span class="fb-v">${fr(s.T,2)} °C</span></div> <div class="fb-row ref"><span class="fb-l">No action</span><div class="bandes">${bandesHTML(PASSIF_T)}</div><span class="fb-v">${fr(T_BASELINE,2)} °C</span></div>
+   <div class="wrap" style="max-width:1000px"> <div class="app fin" style="padding:0"> <div class="mh"><h2>End of game — ${AN_FIN}</h2><span class="sub">${b.rang}</span><span class="langsw" id="langFin"></span></div> <div style="padding:18px 22px 22px"> <div class="finmap" id="finMap"><i class="cnr tl"></i><i class="cnr tr"></i><i class="cnr bl"></i><i class="cnr br"></i> <div class="finmap-t"><span>The world in ${AN_FIN}</span><b>${fr(b.T,2)} °C</b></div></div> <div class="finband" data-tip="Each stripe is a year. Up to 2014, the observed world (NOAA). From ${AN0}, the temperature reached in your game, turn by turn — and below it, the same if nobody had played."> <div class="fb-row"><span class="fb-l">Your game</span><div class="bandes">${bandesHTML(trajPartie(s))}</div><span class="fb-v">${fr(s.T,2)} °C</span></div> <div class="fb-row ref"><span class="fb-l">No action</span><div class="bandes">${bandesHTML(PASSIF_T)}</div><span class="fb-v">${fr(T_BASELINE,2)} °C</span></div>
           <div class="fb-ax"><span>1850</span><span style="left:${((AN0-1850)/(AN_FIN-1850+1)*100).toFixed(1)}%">${AN0}</span><span>${AN_FIN}</span></div> </div> <div class="finrow" style="margin-bottom:14px"> <div class="fbox"><div class="lab">Emissions peak</div> <div class="num" style="color:${s.picAn?"var(--s-reel)":"var(--s-fric)"}">${s.picAn||"never"}</div>
             <div class="sub">${s.picAn?"maximum "+fr(s.picE,1)+" GtCO₂/yr — with no action, they rise until 2100":"emissions never stopped rising"}</div></div>
           <div class="fbox"><div class="lab">Below ${SEUIL_E} GtCO₂/yr</div>
@@ -5239,7 +5240,7 @@ function renderFin(){
           ${peutRejouer()?`<button class="mini" id="finRejouer" style="padding:12px 18px">Replay the last turn</button>`:""}
           <button class="again" id="rejouer">Play again</button> <button class="mini" id="revoirjour" style="padding:12px 18px">Review the log</button> </div> </div> </div> </div>`;
   carteFin(s);
-  bindTips($("#fin"));
+  bindTips($("#fin")); renderLangue();
   $("#rejouer").onclick=()=>{location.reload();};
   const frj=$("#finRejouer"); if(frj) frj.onclick=rejouerTour;
   $("#revoirjour").onclick=()=>{
@@ -5373,13 +5374,14 @@ function changerLangue(){
   const a=autreLangue();
   try{ localStorage.setItem("heat.lang",a.code); }catch(e){}
   let h="";
-  if(S && !S.over && $("#game").style.display!=="none"){ try{ sauverAuto(); h="#reprendre"; }catch(e){} }
+  // en cours de partie comme sur l'écran de fin : l'autre page reprend là où l'on est
+  if(S && ($("#game").style.display!=="none" || $("#fin").style.display!=="none")){ try{ sauverAuto(); h="#reprendre"; }catch(e){} }
   location.href=a.url+h;
 }
 function renderLangue(){
   const a=autreLangue();
   const html=(LANG==="fr"?'<b>FR</b> · <span class="lnk" data-lang="1">EN</span>':'<span class="lnk" data-lang="1">FR</span> · <b>EN</b>');
-  ["#langHome","#langJeu"].forEach(q=>{ const e=$(q); if(!e) return;
+  ["#langHome","#langJeu","#langFin"].forEach(q=>{ const e=$(q); if(!e) return;
     e.innerHTML=html; e.title=a.tip;
     e.querySelector("[data-lang]").onclick=changerLangue; });
 }

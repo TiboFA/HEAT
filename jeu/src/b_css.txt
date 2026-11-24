@@ -1097,4 +1097,5 @@ body.compact .card .id>.tag:not(.defi){display:none}
 .langsw .lnk{color:var(--ink-2)}
 #langHome{display:flex;justify-content:flex-end;margin:0 2px 8px}
 .topbar .langsw{margin-left:-4px;margin-right:6px}
+.fin .mh #langFin{margin-left:auto;align-self:center}
 </style>
