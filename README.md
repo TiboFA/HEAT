@@ -16,6 +16,9 @@ Ouvrir **`jeu/jeu.html`** par un double-clic. Ce nom ne change jamais : c'est
 toujours la dernière version, et le numéro s'affiche sur l'écran d'accueil. Un
 raccourci vers ce fichier reste valable d'une version à l'autre.
 
+En anglais : **`jeu/en.html`**, ou le bouton FR · EN en haut de l'écran, qui
+garde la partie en cours.
+
 Aucune installation, aucune dépendance, aucun accès réseau. La partie se
 sauvegarde toute seule dans le navigateur, et peut s'exporter en fichier.
 
@@ -49,6 +52,8 @@ Un guide en huit étapes s'ouvre à la première partie.
 
 ```
 jeu/jeu.html  la dernière version — c'est celle qu'on ouvre
+jeu/en.html   la même, en anglais (produite au build)
+jeu/i18n/     le dictionnaire français → anglais
 jeu/          l'archive des versions, un fichier HTML autonome chacune
 jeu/src/      les sources — cinq morceaux concaténés par build.py
 notes/        une note par version : ce qui a changé, pourquoi, et les mesures

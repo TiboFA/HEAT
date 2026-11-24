@@ -1826,6 +1826,9 @@ function majDates(s){
   }
 }
 function jlog(s,cls,txt){s.log.push({cls,txt});}
+/* singulier ou pluriel, forme entière : en anglais l'adjectif ne s'accorde pas,
+   la traduction remplace chaque forme sans dépendre d'un « s » ajouté */
+function pl(n,un,plusieurs){ return n>1?plusieurs:un; }
 function fr(v,n){return v.toFixed(n).replace(".",",");}
 
 function cout(s,c,camp){
@@ -2178,7 +2181,7 @@ function finTour(s){
   jlog(s,"sh","Dommages");
   jlog(s,"a","Indice de dommages — blocs riches "+s.dmgBase+" / 100, tous les autres "+s.dmgAutres+" / 100.");
   jlog(s,"a","Décès liés à la chaleur : +"+fr(s.morts-mAv,1)+" M sur le tour, "+fr(s.morts,1)+" M cumulés depuis 2015.");
-  jlog(s,"a","Compteur du camp attentiste — actifs fossiles préservés : "+s.actifs+" Md$ ("+sgn(s.actifs-aAv)+" sur le tour, "+s.evitees+" mesure"+(s.evitees>1?"s":"")+" évitée"+(s.evitees>1?"s":"")+").");
+  jlog(s,"a","Compteur du camp attentiste — actifs fossiles préservés : "+s.actifs+" Md$ ("+sgn(s.actifs-aAv)+" sur le tour, "+s.evitees+pl(s.evitees," mesure évitée"," mesures évitées")+").");
   jlog(s,"a","Trajectoire recalculée : la partie finirait à "+fr(projeter(s),2)+" °C en "+AN_FIN+" si plus rien ne bougeait.");
   // 7bis. défi du tour et réaction du monde
   jlog(s,"sh","Défi et presse");
@@ -2250,7 +2253,7 @@ function finTour(s){
   jlog(s,"a",fmtP(s.actions)+" points de puissance disponibles — la crédibilité les fixe — et renouvellement de main réarmé.");
   // ce que la progression vient d'ouvrir : c'est la seule façon de voir le catalogue s'élargir
   const neufs=pool(s,s.camp==="actif"?"actif":"att").filter(c=>!ouvAv.has(c.id));
-  if(neufs.length) jlog(s,"g","▸ <b>"+neufs.length+" nouveau"+(neufs.length>1?"x":"")+" levier"+(neufs.length>1?"s":"")+" ouvert"+(neufs.length>1?"s":"")+"</b> : "+neufs.map(c=>c.n).join(", ")+".");
+  if(neufs.length) jlog(s,"g","▸ <b>"+neufs.length+pl(neufs.length," nouveau levier ouvert"," nouveaux leviers ouverts")+"</b> : "+neufs.map(c=>c.n).join(", ")+".");
 }
 
 function tirerEvenement(s){
@@ -2762,7 +2765,7 @@ function render(garde){
       return `<div class="pui" data-tip="<b>Puissance</b><br>Votre budget du tour : ${fmtP(tot)} points, fixé par votre crédibilité. Chaque levier en consomme sa puissance (de 1 à 3,5). Il en reste ${fmtP(reste)} après votre plan."><span class="pill" style="background:var(--wire)"></span>Puissance <span class="v">${fmtP(reste)} / ${fmtP(tot)}</span><span class="jg">${cases.join("")}</span></div>`;})();
   const np=S.plan.length;
   $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
-    : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+" pt"+(s.actions>1?"s":"")+" restant"+(s.actions>1?"s":"")+")" : "Terminer le tour");
+    : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+pl(s.actions," pt restant"," pts restants")+")" : "Terminer le tour");
   $("#endturn").classList.toggle("armed",np>0);
   renderEvent(); renderAgenda(); renderDash(); renderMap(); renderPlan(); renderAdv(); renderHand(); renderDocPanel(); renderTraj(); renderLog(); renderPresse();
   bindTips(document);
@@ -3407,7 +3410,7 @@ function renderMap(){
          <div class="c2h"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %</span></div>
          ${row("contr","Contrainte",v.contr,dl&&dl.contr)}${row("reel","Réel",v.reel,dl&&dl.reel)}${row("percu","Perçu",v.percu,dl&&dl.percu)}${row("fric","Friction",v.fr,dl&&dl.fr)}
          ${prev?'<div class="c2p">Valeurs prévues — non appliquées avant la validation du tour</div>':''}
-         ${advT?'<div class="c2adv">◂ '+advT+' levier'+(advT>1?'s':'')+' adverse'+(advT>1?'s':'')+' ici'
+         ${advT?'<div class="c2adv">◂ '+advT+pl(advT,' levier adverse ici',' leviers adverses ici')
               +(advL.length?' — dont '+advL.length+' au tour dernier : '+advL.map(a=>card(a.id).n).join(', '):'')+'</div>':''}
          ${b.bloque>0?'<div class="c2a">Préempté — '+b.bloque+' tour(s)</div>'
            :hot?'<div class="c2a">⚠ Retour de flamme imminent</div>'
@@ -3424,7 +3427,7 @@ function renderMap(){
       : b.bloque>0 ? "préempté — "+b.bloque+" tour"+(b.bloque>1?"s":"")
       : ciblable ? "toucher pour jouer ici"
       : hot ? "⚠ retour de flamme imminent"
-      : advL.length ? "◂ "+advL.length+" levier"+(advL.length>1?"s":"")+" adverse"+(advL.length>1?"s":"")+" au tour dernier"
+      : advL.length ? "◂ "+advL.length+pl(advL.length," levier adverse au tour dernier"," leviers adverses au tour dernier")
       : prev ? "valeurs prévues" : "";
     gh+=`<div class="bt${hot?" hot":""}${ciblable?" tgt":""}${pourquoi?" hors":""}${b.bloque>0?" lock":""}${prev?" prev":""}${advL.length?" adv0":""}${(s.ev&&s.ev.attr&&s.ev.bloc===b.k)?" evt":""}" data-k="${b.k}" role="button" tabindex="0">
        <div class="bth"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %${advT?` · ◂${advT}`:""}</span></div>
@@ -3445,7 +3448,7 @@ function renderMap(){
   if(cg){
     if(c&&c.cible==="bloc"&&!RESO){
       const n=s.blocs.filter(b=>!jouable(s,c,b,s.camp)).length;
-      cg.innerHTML=`Choisissez un bloc pour <b>${c.n}</b> — ${n?n+" possible"+(n>1?"s":"")+", en bleu":"aucun bloc possible"} · <kbd>Échap</kbd> ou <span class="lnk" id="annul">annuler</span>`;
+      cg.innerHTML=`Choisissez un bloc pour <b>${c.n}</b> — ${n?n+pl(n," possible"," possibles")+", en bleu":"aucun bloc possible"} · <kbd>Échap</kbd> ou <span class="lnk" id="annul">annuler</span>`;
       cg.classList.add("on"); $("#annul").onclick=()=>{ sel=null; render(); };
     } else cg.classList.remove("on");
   }
@@ -3548,7 +3551,7 @@ function renderHand(){
     const kk=cout(s,cc,s.camp);
     const cost=RESS.filter(([k])=>kk[k]).map(([k,l,col])=>`<span class="rc" style="--c:${col}">${kk[k]} ${l}</span>`).join("")||`<span class="rc">gratuit</span>`;
     const af=Math.round(affin(cc,s.doc[s.camp==="actif"?"actif":"att"])*100);
-    const dw=af>=70?"aligné":af>=40?"neutre":"opposé";
+    const dw=af>=70?"aligné":af>=40?"neutre":"opposé", dwc=af>=70?"al":af>=40?"ne":"op";   // libellé, et classe (qui ne se traduit pas)
     const pr=PROBA[cc.id]?fourchette(s,cc,elig):null;
     const nPlan=S.plan.filter(e=>e.id===id).length;
     const p=pds(cc), lbl=fmtP(p)+" pt"+(p>1?"s":"");
@@ -3569,7 +3572,7 @@ function renderHand(){
       <div class="info" data-fiche="${id}" title="Fiche détaillée">i</div><div class="masq" data-masq="${id}" data-tip="<b>Masquer ce levier</b><br>Il quitte votre main et ne vous sera plus proposé de la partie. Sa place est remplie au tour suivant.">⊘</div>
       <div class="lvh"><span class="lvid">${cc.id}</span><span class="scope ${glob?"g":"b"}" data-tip="${glob
           ?"<b>Levier mondial</b><br>Il agit sur les huit blocs à la fois et se joue d'un clic. Une fois par partie."
-          :"<b>Levier de bloc</b><br>Il faut lui désigner un bloc sur la carte. Trois blocs au maximum dans la partie, y compris plusieurs dans le même tour."+(elig?"<br><br>Jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span><span class="dw ${dw}" data-tip="<b>Doctrine : ${dw} (${af} %)</b><br>L'accord entre ce levier et votre doctrine. Aligné : il vous est proposé plus souvent et rend davantage. Opposé : il reste jouable, il rend moins.">${dw}</span></div>
+          :"<b>Levier de bloc</b><br>Il faut lui désigner un bloc sur la carte. Trois blocs au maximum dans la partie, y compris plusieurs dans le même tour."+(elig?"<br><br>Jouable sur <b>"+elig.length+"</b> bloc"+(elig.length>1?"s":"")+(elig.length?" : "+elig.map(b=>b.nom).join(", "):"")+".":"")}">${glob?"◍ monde":"◎ bloc"+(elig?" · "+elig.length:"")}</span><span class="dw ${dwc}" data-tip="<b>Doctrine : ${dw} (${af} %)</b><br>L'accord entre ce levier et votre doctrine. Aligné : il vous est proposé plus souvent et rend davantage. Opposé : il reste jouable, il rend moins.">${dw}</span></div>
       <h4>${cc.n}</h4>
       <div class="eff">${gloss(cc.e)}</div>
       <div class="lvc"><span class="pts${p>=3?" x":p>=2?" l":""}" data-tip="${ptip}">${lbl}</span>${cost}</div>
@@ -3772,7 +3775,7 @@ function ficheLevier(id){
       const autres=a?a.blocs.filter(x=>x.k!==b.k):[];
       // les effets identiques sur d'autres blocs sont regroupés au lieu d'être comptés
       const grp={}; autres.forEach(x=>{grp[x.txt]=(grp[x.txt]||0)+1;});
-      const sec=Object.entries(grp).map(([t,n])=>t+" sur "+n+" autre"+(n>1?"s":"")+" bloc"+(n>1?"s":""))
+      const sec=Object.entries(grp).map(([t,n])=>t+" sur "+n+pl(n," autre bloc"," autres blocs"))
         .concat(a?a.glob:[]).join(" ; ");
       const bloque = jouable(s,c,b,camp);
       return {nom:b.nom,txt:mien?mien.txt:(a&&a.glob.length?"":"aucun effet direct"),
@@ -3804,7 +3807,7 @@ function ficheLevier(id){
     }).join("");
     phrase=`<ul class="fl-l">${dets}</ul>`;
   }
-  if(Math.abs(mult)>=5) dEff.push(`son effet est <b>${mult>0?"renforcé":"réduit"} de ${Math.abs(mult)} %</b>`);
+  if(Math.abs(mult)>=5) dEff.push(`son effet est <b>${mult>0?"renforcé de":"réduit de"} ${Math.abs(mult)} %</b>`);
   if(camp==="actif"&&D.d2>0) dEff.push(`la friction qu'il crée est <b>réduite de ${Math.round(D.d2*0.45)} %</b>`);
   if(camp==="att") dEff.push(D.d2<50?`la friction qu'il crée est <b>augmentée de ${Math.round((50-D.d2)*0.5)} %</b>`
                                     :`son action sur l'opinion est <b>renforcée de ${Math.round((D.d2-50)*0.4)} %</b>`);
@@ -4234,6 +4237,41 @@ function resumeSauvegarde(txt){
             quand:p.quand?p.quand.slice(0,16).replace("T"," à "):null};
   }catch(e){ return null; }
 }
+/* ---------- langue ----------
+   Le jeu est écrit en français ; la version anglaise (en.html) est produite au
+   build par outils/i18n.py, qui remplace aussi LANG. Changer de langue enregistre
+   la partie en cours et ouvre l'autre page, qui la reprend aussitôt. Le choix est
+   retenu : une visite suivante sur l'autre page y renvoie (en ligne seulement —
+   un fichier téléchargé seul n'a pas son jumeau à côté de lui). */
+const LANG="fr";
+function autreLangue(){
+  return LANG==="fr"
+    ? {code:"en",url:"en.html",tip:"Play in English — the game in progress is kept."}
+    : {code:"fr",url:"jeu.html",tip:"Jouer en français — la partie en cours est conservée."};
+}
+function changerLangue(){
+  const a=autreLangue();
+  try{ localStorage.setItem("heat.lang",a.code); }catch(e){}
+  let h="";
+  if(S && !S.over && $("#game").style.display!=="none"){ try{ sauverAuto(); h="#reprendre"; }catch(e){} }
+  location.href=a.url+h;
+}
+function renderLangue(){
+  const a=autreLangue();
+  const html=(LANG==="fr"?'<b>FR</b> · <span class="lnk" data-lang="1">EN</span>':'<span class="lnk" data-lang="1">FR</span> · <b>EN</b>');
+  ["#langHome","#langJeu"].forEach(q=>{ const e=$(q); if(!e) return;
+    e.innerHTML=html; e.title=a.tip;
+    e.querySelector("[data-lang]").onclick=changerLangue; });
+}
+function langueAuDemarrage(){
+  let pref=null; try{ pref=localStorage.getItem("heat.lang"); }catch(e){}
+  if(pref && pref!==LANG && /^https?:/.test(location.protocol)){ location.replace(autreLangue().url+location.hash); return true; }
+  if(location.hash==="#reprendre"){
+    try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+    const t=lireAuto(); if(t){ GUIDE_VU=true; reprendre(t,true); }
+  }
+  return false;
+}
 function reprendre(txt,silencieux){
   try{
     S=deserialiser(txt);
@@ -4537,6 +4575,8 @@ function initHome(){
     S.hand=[]; S.handAI=[]; refill(S); refillAI(S); sel=null; PV=null; BILAN=null; render(); sauverAuto();
     if(!GUIDE_VU) setTimeout(()=>guideOuvrir(0),420); };
   accueilReprise();
+  renderLangue();
+  langueAuDemarrage();
   addEventListener("beforeunload",()=>{ if(S&&!S.over&&!RESO) sauverAuto(); });
   renderDocHome();
   $("#endturn").onclick=finDeTour;

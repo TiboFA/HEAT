@@ -61,9 +61,9 @@ cd jeu/src
 python3 build.py
 ```
 
-Deux fichiers sont produits : `jeu.html` (le nom stable, celui qu'on ouvre) et
-`HEAT_jeu_vX.Y.html` (l'archive de la version). Les déplacer tous les deux dans
-`jeu/`. Le numéro de version vient du `<title>` de `a_head.html` — c'est le seul
+Quatre fichiers sont produits : `jeu.html` (le nom stable, celui qu'on ouvre) et
+`HEAT_jeu_vX.Y.html` (l'archive de la version), et leurs jumeaux anglais `en.html`
+et `HEAT_jeu_vX.Y_en.html`. Les déplacer tous les quatre dans `jeu/`. Le numéro de version vient du `<title>` de `a_head.html` — c'est le seul
 endroit à modifier pour changer de version, avec `SAVE_V` dans `d_js.txt`.
 
 Avant de publier : `python3 outils/verifier.py` depuis la racine. Il vérifie
@@ -73,6 +73,37 @@ chaque push.
 
 **Ne jamais modifier `jeu/jeu.html` directement** : `build.py` l'écrase. Toute
 modification passe par `jeu/src/`.
+
+## La version anglaise
+
+Le jeu s'écrit en français dans `jeu/src/`. La version anglaise n'est pas un
+second jeu : `build.py` la produit en remplaçant chaque morceau de texte par sa
+traduction, lue dans `jeu/i18n/en.json` (français → anglais). Le moteur est le
+même octet pour octet ; seuls les textes, les décimales (point au lieu de
+virgule) et l'attribut `lang` changent.
+
+Après avoir modifié ou ajouté un texte :
+
+```
+python3 outils/i18n.py extraire
+```
+
+ajoute les nouveaux morceaux à `en.json` avec une traduction vide, et dit combien
+il en manque. Les remplir, puis reconstruire. Tant qu'il en manque, le morceau
+reste en français dans `en.html` et `verifier.py` échoue (« aucun texte sans
+traduction anglaise »). Une valeur `"="` signifie « identique en anglais ».
+
+Deux pièges que l'outil ne voit pas seul :
+
+- une chaîne qui sert aussi de clé dans le code (un nom de classe CSS, une
+  valeur comparée) ne doit pas être traduite : la garder hors de `en.json`, ou
+  y mettre `"="` ;
+- un adjectif accordé par un `"s"` ajouté (`" restant"+(n>1?"s":"")`) donne un
+  anglais faux : écrire les deux formes entières avec `pl(n, singulier, pluriel)`.
+
+Le bouton FR · EN (accueil et barre du haut) enregistre la partie et ouvre l'autre
+page, qui la reprend au même tour. Le journal déjà écrit reste dans la langue où
+il a été écrit.
 
 ## Ce qui ne doit pas entrer dans le dépôt
 
