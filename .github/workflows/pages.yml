@@ -16,11 +16,12 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  publier:
+  # Deux jobs, comme le modèle officiel de GitHub : le paquet du site est déposé
+  # par le premier, déployé par le second. Dans un seul job, le déploiement
+  # cherchait le paquet avant qu'il soit enregistré et échouait une fois sur
+  # deux (« No artifacts named github-pages were found »).
+  paquet:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploiement.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -30,5 +31,12 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+  publier:
+    needs: paquet
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
       - id: deploiement
         uses: actions/deploy-pages@v4
