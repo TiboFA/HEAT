@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.19.1</title>
+<title>HEAT — version jouable v0.20</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1162,6 +1162,38 @@ span.lnk.repl:hover{color:var(--wire-hi)}
  .b2v{grid-template-columns:1fr}.b2v .big{font-size:26px}}
 .mh .b2go{white-space:nowrap}
 @media (max-width:820px){.bilan2+*,.mh .b2go{flex:0 0 auto}#modal .mh:has(.b2go) .sub{display:none}#modal .mh:has(.b2go) h2{font-size:15px}}
+/* ---- fil de résolution (v0.20) ---- */
+#filReso{--cf:linear-gradient(var(--wire),var(--wire));position:fixed;right:18px;top:84px;width:400px;max-height:calc(100vh - 110px);z-index:60;
+ display:none;flex-direction:column;border:1px solid rgba(63,183,166,.3);border-radius:5px;box-shadow:0 12px 40px rgba(0,0,0,.6);
+ background:var(--cf) 0 0/12px 2px no-repeat,var(--cf) 0 0/2px 12px no-repeat,var(--cf) 100% 100%/12px 2px no-repeat,var(--cf) 100% 100%/2px 12px no-repeat,rgba(9,12,13,.97)}
+#filReso.on{display:flex}
+#filReso .flh{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(63,183,166,.2)}
+#filReso .flh b{font:700 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--wire)}
+#filReso .flh .lnk,#filReso .flh button{margin-left:auto}
+#filReso .flh .lnk{font:600 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--wire)}
+#filReso .flh button{background:var(--wire);border-color:var(--wire);color:#03140f;font:800 11px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px}
+#filReso .flb{overflow-y:auto;padding:6px 14px 12px;scrollbar-width:thin}
+.fll{padding:5px 0 5px 9px;border-left:2px solid transparent;font-size:12.5px;line-height:1.45;color:var(--ink-2);animation:fllin .25s ease-out}
+@keyframes fllin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.fll b{color:var(--ink);font-weight:600}
+.fll small{display:block;color:var(--muted);font-size:11px}
+.fll.tt{margin-top:8px;padding-left:0;font:700 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--wire);border-bottom:1px dashed rgba(63,183,166,.18)}
+.fll.tt.r{color:var(--wire-hot)}
+.fll.adv.r{border-left-color:var(--wire-hot)}.fll.adv.g{border-left-color:var(--wire)}
+.fll .rep{display:inline-block;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:0 5px;border-radius:3px;background:rgba(255,122,61,.14);color:var(--wire-hot)}
+.fll.de{border-left-color:rgba(255,255,255,.15)}
+.fll .tir{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;color:var(--muted)}
+.fll .tir.ok{color:#4fd18b}.fll .tir.ko{color:#e88}
+.fll.star{border-left-color:#4fd18b}.fll.miss{border-left-color:#e88}
+.fll.prs{font-style:italic}.fll.prs small{font-style:normal}
+.fll.fin{margin-top:6px;border-left-color:var(--wire-hot);font-size:13.5px}
+.fll .bon{color:#4fd18b;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}.fll .mal{color:#e88;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.fll .chs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.fll .ch{font:600 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:1px 6px;border-radius:3px;background:rgba(255,255,255,.05)}
+.fll .ch.bon{color:#4fd18b}.fll .ch.mal{color:#e88}
+.fll.eff{padding-top:2px}
+@media (max-width:700px){#filReso{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:46vh}}
+.fll.moi{border-left-color:var(--wire)}
 </style>
 </head>
 <body>
@@ -1307,7 +1339,7 @@ span.lnk.repl:hover{color:var(--wire-hi)}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.19.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.20 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -3241,6 +3273,8 @@ function jouer(s,id,bk,camp,prev){
   const rep = advJoue ? (s.mien||[]).filter(m=>{const mc=card(m.id);
       return mc && mc.contre===c.id && (!bk || m.bk===bk);}).map(m=>m.id) : [];
   if(advJoue && !prev) s.fx.push({t:"coup",nom:c.n,id:c.id,k:bk||null,bloc:b?b.nom:null,camp,rep});
+  // v0.20 : vos leviers sans pari sont annoncés eux aussi dans le fil de résolution
+  if(!advJoue && !prev && pr>=100) s.fx.push({t:"moi",nom:c.n,k:bk||null,bloc:b?b.nom:null});
   let ok=true;
   // en prévision, le pari est supposé réussi : le dé n'est jeté qu'à la validation du tour
   if(pr<100&&!prev){
@@ -3896,11 +3930,35 @@ function pulseBloc(k,bad){
   gp.classList.add("fx"); if(bad)gp.classList.add("bad");
   setTimeout(()=>gp.classList.remove("fx","bad"),750);
 }
-function rsHead(txt,cls,sur){
-  $("#reso").innerHTML=`<div class="rsHead ${cls||""}">${sur?`<small>${sur}</small>`:""}${txt}</div>
-    <div class="rsSkip" id="rsSkip">passer ▸</div>`;
-  $("#rsSkip").onclick=()=>{resoStop=true;};
+/* v0.20 : le fil de résolution. Chaque étape de la séquence ajoute une ligne
+   dans une fenêtre qui reste ouverte — au lieu d'un bandeau qui s'efface à
+   l'étape suivante. Défilement automatique, sauf si le joueur est remonté relire.
+   À la fin, la fenêtre attend « Continuer » ; « passer » saute directement au
+   bilan. Les animations sur la carte (jauges, chiffres flottants) restent. */
+function filOuvrir(titre){
+  let f=$("#filReso");
+  if(!f){ f=document.createElement("div"); f.id="filReso"; document.body.appendChild(f); }
+  f.innerHTML=`<div class="flh"><b>${titre}</b><span class="lnk" id="filPasser" data-tip="Applique toutes les étapes restantes d'un coup et ouvre le bilan.">passer ▸</span></div><div class="flb" id="filCorps"></div>`;
+  f.classList.add("on");
+  $("#filPasser").onclick=()=>{ resoStop=true; };
+  bindTips(f);
 }
+function filFermer(){ const f=$("#filReso"); if(f){ f.classList.remove("on"); f.innerHTML=""; } }
+function filLigne(html,cls){
+  const c=$("#filCorps"); if(!c) return null;
+  const enBas = c.scrollHeight-c.scrollTop-c.clientHeight < 40;   // le joueur n'est pas remonté relire
+  const d=document.createElement("div"); d.className="fll "+(cls||""); d.innerHTML=html; c.appendChild(d);
+  if(enBas) c.scrollTop=c.scrollHeight;
+  return d;
+}
+function filFin(continuer){
+  const f=$("#filReso"); if(!f) return;
+  const h=f.querySelector(".flh");
+  h.innerHTML=`<b>Résolution terminée</b><button class="mini go" id="filCont">Continuer ▸</button>`;
+  $("#filCont").onclick=continuer;
+  const c=$("#filCorps"); if(c) c.scrollTop=c.scrollHeight;
+}
+function codeBloc(k){ const b=B(S,k); return b?b.code:k; }
 const LIB={contr:["Contrainte","up","down"],reel:["Soutien réel","re","ko"],
            percu:["Soutien perçu","pc","ko"],fric:["Friction","down","up"]};
 
@@ -3909,86 +3967,89 @@ function resoudre(apres){
   RESO=true; resoStop=false;
   VIS={}; s.blocs.forEach(b=>VIS[b.k]={contr:b.contrAv,reel:b.reelAv,percu:b.percuAv,fr:b.frAv});
   s.blocs.forEach(b=>majBarres(b.k));
-  $("#reso").classList.add("on");
+  filOuvrir("Résolution du tour "+(s.turn-1));
   const file=s.fx.slice(); s.fx=[];
-  let i=0;
+  let i=0, effets=null, titre=null;             // la ligne qui regroupe les petits effets ; le titre de section en attente
   const suite=()=>{
-    if(resoStop){ while(i<file.length) appliquer(file[i++],true); fin(); return; }
-    if(i>=file.length){ fin(); return; }
+    if(resoStop){ while(i<file.length) appliquer(file[i++],true); fin(true); return; }
+    if(i>=file.length){ fin(false); return; }
     const fx=file[i++];
     const d=appliquer(fx,false);
     resoTimer=setTimeout(suite,d);
   };
-  const fin=()=>{
-    RESO=false; VIS=null; $("#reso").classList.remove("on"); $("#reso").innerHTML="";
-    if(apres)apres();
+  const fin=(direct)=>{
+    RESO=false; VIS=null;
+    if(direct){ filFermer(); if(apres) apres(true); return; }
+    if(apres) apres(false);
+    filFin(()=>{ filFermer(); if(apres) apres(true,true); });
   };
+  // un titre de section n'est posé qu'avec la première ligne qui le suit : pas de section vide
+  const poserTitre=()=>{ if(titre){ filLigne(titre[0],titre[1]); titre=null; } };
+  const ligne=(html,cls)=>{ poserTitre(); effets=null; return filLigne(html,cls); };
   const appliquer=(fx,muet)=>{
     if(fx.t==="step"){
-      if(!muet) rsHead(fx.txt,fx.cls,"résolution");
-      return 720;
+      if(!muet){ titre=[fx.txt,"tt "+(fx.cls||"")]; effets=null; }
+      return 380;
     }
     if(fx.t==="de"){
       if(muet) return 0;
       const cls=fx.ok?"ok":"ko";
-      $("#reso").insertAdjacentHTML("beforeend",
-        `<div class="rsDe"><h5>${fx.nom}</h5>
-          <div class="deT"><i style="width:${fx.p}%"></i><u style="left:0"></u></div>
-          <div class="deL"><span>réussite ${fx.p} %</span><span>tirage…</span></div>
-          <div class="deR ${cls}" style="opacity:0">${fx.ok?"Réussi":"Échec"} — ${fx.d}</div></div>`);
-      const box=$("#reso").querySelector(".rsDe");
-      setTimeout(()=>{ const u=box.querySelector("u"); if(u)u.style.left=fx.d+"%"; },60);
-      setTimeout(()=>{ const r=box.querySelector(".deR"); if(r)r.style.opacity=1;
+      const l=ligne(`🎲 <b>${fx.nom}</b>${fx.k?" — "+codeBloc(fx.k):""} · pari ${fx.p} % · <span class="tir">tirage…</span>`,"de");
+      setTimeout(()=>{ const r=l&&l.querySelector(".tir"); if(r){ r.className="tir "+cls; r.textContent=(fx.ok?"réussi":"échec")+" ("+fx.d+")"; }
         if(fx.k)flotte(fx.k,fx.ok?"réussi":"échec",cls); if(fx.k)pulseBloc(fx.k,!fx.ok); },620);
-      setTimeout(()=>box.remove(),1350);
-      return 1400;
+      return 1100;
+    }
+    if(fx.t==="moi"){
+      if(muet) return 0;
+      ligne(`▸ <b>${fx.nom}</b>${fx.bloc?" — "+fx.bloc:" — mondial"}`,"moi");
+      if(fx.k) pulseBloc(fx.k,false);
+      return 650;
     }
     if(fx.t==="coup"){
       if(muet) return 0;
-      const nomCamp = fx.camp==="att" ? "le camp attentiste joue" : "le camp actif joue";
-      rsHead("◂ <b>"+fx.nom+"</b>"+(fx.bloc?" — "+fx.bloc:""), fx.camp==="att"?"r":"g",
-        nomCamp + (fx.rep&&fx.rep.length ? " · réplique à votre "+fx.rep.join(", ") : ""));
+      ligne(`◂ <b>${fx.nom}</b>${fx.bloc?" — "+fx.bloc:" — mondial"}${fx.rep&&fx.rep.length?` <span class="rep">réplique à votre ${fx.rep.join(", ")}</span>`:""}`,fx.camp==="att"?"adv r":"adv g");
       if(fx.k){ flotte(fx.k, fx.nom.length>20?fx.nom.slice(0,19)+"…":fx.nom, "ko"); pulseBloc(fx.k,true); }
-      return 1000;
+      return 900;
     }
     if(fx.t==="jalon"){
       if(muet) return 0;
-      rsHead("★ "+fx.titre+" — <b>"+fx.an+"</b>","g",fx.d);
-      return 2100;
+      ligne(`★ <b>${fx.titre} — ${fx.an}</b><small>${fx.d}</small>`,"star");
+      return 1500;
     }
     if(fx.t==="defi"){
       if(muet) return 0;
-      rsHead((fx.ok?"★ Défi réussi":"☆ Défi manqué")+" — "+fx.titre+(fx.gain?" · "+fx.gain:""),fx.ok?"g":"r","objectif du tour");
-      return 1250;
+      ligne(`${fx.ok?"★ Défi réussi":"☆ Défi manqué"} — <b>${fx.titre}</b>${fx.gain?" · "+fx.gain:""}`,fx.ok?"star":"miss");
+      return 1000;
     }
     if(fx.t==="presse"){
       if(muet) return 0;
-      rsHead(fx.titre,"h",fx.src);
-      return 1150;
+      ligne(`« ${fx.titre} »<small>${fx.src}</small>`,"prs");
+      return 900;
     }
     if(fx.t==="bilan"){
       if(muet) return 0;
       const p=projeter(S), av=DASHV?DASHV.proj:p, d=+(av-p).toFixed(2);
-      rsHead(`${fr(p,2)} °C <span style="font-size:12px;color:${d>0?"#5bd15b":d<0?"#e88":"var(--muted)"}">${d>0?"−"+fr(d,2):d<0?"+"+fr(-d,2):"inchangé"}</span>`,
-             d>0?"g":d<0?"r":"h","projection 2100 après résolution");
-      return 1700;
+      ligne(`Où finit la partie : <b>${fr(p,2)} °C</b> <span class="${d>0?"bon":d<0?"mal":""}">${d>0?"−"+fr(d,2):d<0?"+"+fr(-d,2):"inchangé"}</span>`,"fin");
+      return 1200;
     }
     if(fx.t==="combo"){
       if(muet) return 0;
-      rsHead("⚡ "+fx.nom,fx.adv?"r":"g",fx.adv?"combinaison adverse":"combinaison");
-      return 1250;
+      ligne(`⚡ <b>${fx.nom}</b> <small>${fx.adv?"combinaison adverse":"combinaison"}</small>`,fx.adv?"adv r":"star");
+      return 1000;
     }
     if(fx.t==="lot"){
       fx.deltas.forEach(d=>{ if(VIS[d.k]) VIS[d.k][d.t==="fric"?"fr":d.t]+=d.v; });
       if(muet) return 0;
-      rsHead(fx.txt,fx.cls,"résolution");
+      const ch=fx.deltas.map(d=>{const bon = d.t==="fric" ? d.v<0 : d.v>0;
+        return `<span class="ch ${bon?"bon":"mal"}">${codeBloc(d.k)} ${d.v>0?"+":"−"}${Math.abs(d.v)} ${LIB[d.t][0].toLowerCase()}</span>`;}).join("");
+      ligne(`${fx.txt}${ch?`<span class="chs">${ch}</span>`:""}`,fx.cls||"");
       fx.deltas.forEach(d=>{
         majBarres(d.k);
         const bon = d.t==="fric" ? d.v<0 : d.v>0;
         flotte(d.k,(d.v>0?"+":"")+d.v,bon?LIB[d.t][1]:LIB[d.t][2]);
       });
       if(fx.deltas.length) fx.deltas.forEach(d=>pulseBloc(d.k,false));
-      return 1150;
+      return 1000;
     }
     if(LIB[fx.t]){
       if(!VIS[fx.k]) return 0;
@@ -3997,9 +4058,13 @@ function resoudre(apres){
       if(muet) return 0;
       majBarres(fx.k);
       const bon = fx.t==="fric" ? fx.v<0 : fx.v>0;
+      if(!effets){ poserTitre(); effets=filLigne(`<span class="chs"></span>`,"eff"); }
+      const z=effets&&effets.querySelector(".chs");
+      if(z){ z.insertAdjacentHTML("beforeend",`<span class="ch ${bon?"bon":"mal"}">${codeBloc(fx.k)} ${fx.v>0?"+":"−"}${Math.abs(fx.v)} ${LIB[fx.t][0].toLowerCase()}</span>`);
+        const c=$("#filCorps"); if(c && c.scrollHeight-c.scrollTop-c.clientHeight<80) c.scrollTop=c.scrollHeight; }
       flotte(fx.k,(fx.v>0?"+":"")+fx.v+" "+LIB[fx.t][0].toLowerCase(), bon?LIB[fx.t][1]:LIB[fx.t][2]);
       pulseBloc(fx.k,!bon);
-      return 300;
+      return 260;
     }
     return 0;
   };
@@ -5896,6 +5961,7 @@ function rejouerTour(){
 }
 function finDeTour(){
   if(RESO) return;
+  filFermer();
   const s=S;
   if(planKo()){ render(); return; }   // un levier du plan n'est plus jouable : on ne valide pas à sa place
   TOUR_AVANT = s.level===1 ? {txt:serialiser(), turn:s.turn} : null;
@@ -5929,7 +5995,10 @@ function finDeTour(){
   iaJoue(s);
   finTour(s);
   render(true);
-  resoudre(()=>{ DASHV=null; render(); sauverAuto(); if(AUTOBILAN&&!S.over) bilanTour(); });
+  // apres(ouvrirBilan, dejaRendu) : à la fin naturelle de la séquence, le plateau est mis
+  // à jour tout de suite et le bilan attend « Continuer » dans le fil ; « passer » l'ouvre aussitôt
+  resoudre((ouvrirBilan,dejaRendu)=>{ if(!dejaRendu){ DASHV=null; render(); sauverAuto(); }
+    if(ouvrirBilan && AUTOBILAN && !S.over) bilanTour(); });
 }
 
 /* ---------- accueil ---------- */
