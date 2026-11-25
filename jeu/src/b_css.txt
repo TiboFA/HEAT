@@ -1194,4 +1194,7 @@ span.lnk:not(.repl){font:600 11px ui-monospace,"SF Mono",Menlo,Consolas,monospac
 span.lnk:not(.repl):hover{color:#fff}
 span.lnk.off{color:var(--muted);text-decoration:none;cursor:default;opacity:.7}
 .topbar span.lnk:not(.repl){font-size:10.5px;letter-spacing:0}
+/* v0.20.3 : halo d'émissions visible (il était plus petit que la pastille du bloc) */
+.halo{background:radial-gradient(circle,rgba(230,64,52,var(--ho,.2)) 0%,rgba(230,64,52,calc(var(--ho,.2)*.55)) 45%,transparent 70%)}
+@media (min-width:1400px){.topbar .turn{white-space:nowrap}}
 </style>
