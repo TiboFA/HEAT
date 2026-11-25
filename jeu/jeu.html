@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.18.2</title>
+<title>HEAT — version jouable v0.19</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1114,6 +1114,54 @@ body.compact .card .id>.tag:not(.defi){display:none}
 span.lnk.repl{font:600 10.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.03em;text-transform:none;
  color:var(--wire);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;cursor:pointer}
 span.lnk.repl:hover{color:var(--wire-hi)}
+/* ---- bilan de tour allégé (v0.19) ---- */
+.mb.bilan2,.mb.b2foot{display:block}
+.mb.b2det{border-top:1px dashed rgba(63,183,166,.22)}
+.b2go{margin-left:auto;align-self:center}
+.mh .b2go{background:var(--wire);border-color:var(--wire);color:#03140f;font:800 11.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px}
+.b2v{--cv:linear-gradient(var(--wire),var(--wire));display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 22px;align-items:center;padding:13px 16px 30px;border-radius:4px;border:1px solid rgba(63,183,166,.2);
+ background:var(--cv) 0 0/12px 2px no-repeat,var(--cv) 0 0/2px 12px no-repeat,var(--cv) 100% 100%/12px 2px no-repeat,var(--cv) 100% 100%/2px 12px no-repeat,var(--sea-w)}
+.b2v .lab{grid-column:1/-1;font:700 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--wire);cursor:help}
+.b2v .big{font:700 30px ui-monospace,"SF Mono",Menlo,Consolas,monospace;white-space:nowrap}
+.b2v .big small{font-size:14px;color:var(--muted);font-weight:500}
+.b2v .big span{font-size:16px;margin-left:8px}
+.b2v p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.5}
+.b2v p b{color:var(--ink)}
+.b2bar{grid-column:1/-1;position:relative;height:8px;border-radius:4px;background:#2a2f30;margin-top:8px}
+.b2bar i{position:absolute;top:-3px;width:2px;height:14px;border-radius:1px;transform:translateX(-1px)}
+.b2bar span{position:absolute;top:13px;font:10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.b2bar span.g{transform:none}.b2bar span.dr{transform:translateX(-100%)}
+.bilan2 .ok{color:#4fd18b}.bilan2 .ko{color:#e88}
+.b2ts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 14px}
+.b2t{border:1px solid rgba(63,183,166,.16);border-radius:3px;padding:7px 10px;background:rgba(20,24,25,.85);min-width:0}
+.b2t .l{display:block;font:700 9.5px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--wire)}
+.b2t b{font:700 16px ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.b2t .dl{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px}
+.b2t .s{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b2two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bilan2 .ms{color:var(--wire);margin-bottom:7px}
+.b2c{border-left:3px solid var(--wire);padding:3px 0 3px 10px;margin-bottom:6px;font-size:13px}
+.b2c.adv{border-left-color:var(--wire-hot)}.b2c.rendu{border-left-color:var(--s-reel)}
+.b2c b{font-weight:600}.b2c>span:not(.e):not(.tg){color:var(--muted);font-size:12px}
+.b2c .e{display:block;color:var(--ink-2);font-size:12px}
+.b2c .tg{display:inline-block;font:600 10px ui-monospace,"SF Mono",Menlo,Consolas,monospace;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:1px;background:rgba(255,255,255,.06);color:var(--ink-2)}
+.b2c .tg.ok{background:rgba(79,209,139,.12);color:#4fd18b}.b2c .tg.ko{background:rgba(232,136,136,.12);color:#e88}
+.b2c .tg.rep{background:rgba(255,122,61,.14);color:var(--wire-hot);cursor:help}
+.b2ms{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.b2m{border:1px solid var(--ring);border-radius:3px;padding:3px 9px;font-size:12px;background:var(--surface-2)}
+.b2m b{font:700 11px ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink-2);margin-right:6px}
+.b2m .ok,.b2m .ko{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px}
+.b2st{color:var(--muted);font-size:12px}
+.b2n{margin-top:14px;padding:9px 12px;border:1px dashed rgba(63,183,166,.3);border-radius:4px;font-size:13px;color:var(--ink-2)}
+.b2n b{color:var(--ink)}
+.b2d{margin-top:12px;padding-top:9px;border-top:1px dashed rgba(63,183,166,.22);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.b2d .repl{margin-left:0}
+.b2foot{display:flex !important;align-items:center;gap:10px;padding-top:0}
+.b2foot .bchk{flex:1 1 auto}
+@media (max-width:820px){.b2ts{grid-template-columns:repeat(2,minmax(0,1fr))}.b2two{grid-template-columns:1fr}
+ .b2v{grid-template-columns:1fr}.b2v .big{font-size:26px}}
+.mh .b2go{white-space:nowrap}
+@media (max-width:820px){.bilan2+*,.mh .b2go{flex:0 0 auto}#modal .mh:has(.b2go) .sub{display:none}#modal .mh:has(.b2go) h2{font-size:15px}}
 </style>
 </head>
 <body>
@@ -1259,7 +1307,7 @@ span.lnk.repl:hover{color:var(--wire-hi)}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.18.2 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.19 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -3217,7 +3265,7 @@ function jouer(s,id,bk,camp,prev){
     jlog(s,"t","✕ <b>"+c.n+"</b>"+où+" — échec ("+pr+" % de réussite). Moitié de la mise récupérée, le levier reste disponible.");
   }
   if(!prev){ if(advJoue) s.adv.push({turn:s.turn,id:c.id,bk:bk||null,ok,rep});
-             else s.mien.push({turn:s.turn,id:c.id,bk:bk||null}); }
+             else s.mien.push({turn:s.turn,id:c.id,bk:bk||null,ok,pr}); }
   s.cur=null;
   const h=camp===s.camp?s.hand:s.handAI;
   // en prévision, un levier de bloc reste en main : on peut l'ajouter au plan sur
@@ -4033,8 +4081,8 @@ const RES_TIP={
    porte data-repli : un seul gestionnaire de clic pour toutes. Le camp adverse
    et le journal gardent leurs propres réglages, antérieurs. */
 const REPLI={};
-function replie(k){
-  if(!(k in REPLI)){ let v=null; try{ v=localStorage.getItem("heat.repli."+k); }catch(e){} REPLI[k]=v==="1"; }
+function replie(k,parDefaut){
+  if(!(k in REPLI)){ let v=null; try{ v=localStorage.getItem("heat.repli."+k); }catch(e){} REPLI[k]= v===null ? !!parDefaut : v==="1"; }
   return REPLI[k];
 }
 /* v0.18.2 : un seul vocabulaire et un seul style pour toutes les sections
@@ -4052,6 +4100,7 @@ document.addEventListener("click",e=>{
   const k=t.dataset.repli; REPLI[k]=!replie(k);
   try{ localStorage.setItem("heat.repli."+k, REPLI[k]?"1":"0"); }catch(_){}
   tip().style.opacity=0; render();
+  if(t.closest("#modal") && $("#modal .bilan2")) bilanTour();   // le détail du bilan se replie sur place
 });
 function render(garde){
   const s=V();
@@ -4384,61 +4433,114 @@ function instantane(s){
     blocs:s.blocs.map(b=>({k:b.k,contr:b.contr,reel:b.reel,percu:b.percu,fr:b.fr,cap:b.cap}))};
 }
 function bilanTour(){
+  /* v0.19 : un écran au lieu de deux et demi. En tête la seule question qui
+     compte — où finit la partie, et ce que la résolution a fait du plan —, puis
+     quatre tuiles, les coups des deux camps côte à côte, les seuls blocs qui ont
+     bougé, et le tour suivant en une phrase. Tout le reste (ressources, tableau
+     des huit blocs, presse, courbe, journal) est dans le détail, replié par
+     défaut et retenu d'un tour à l'autre. */
   if(!BILAN) return;
-  const s=S, A=BILAN, act=s.camp==="actif";
+  const s=S, A=BILAN, act=s.camp==="actif", moi=act?"actif":"att", lui=act?"att":"actif";
   const d=(a,b)=>+(b-a).toFixed(2);
   const dl=(v,bon)=>v?`<span class="dl ${bon?"bon":"mal"}">${v>0?"+":"−"}${Math.abs(v)}</span>`:`<span class="dl nul">=</span>`;
   const dlf=(v,bon,n)=>v?`<span class="dl ${bon?"bon":"mal"}">${v>0?"+":"−"}${fr(Math.abs(v),n||2)}</span>`:`<span class="dl nul">=</span>`;
   const nT=s.T, nP=projeter(s), nS=score(s), pal=palier(nS);
   const dP=d(A.proj,nP), dS=nS-A.sc;
+  const bonT=v=>act?v<0:v>0;                     // une baisse de température sert le camp actif
   const ligne=(lab,av,ap,delta,tip)=>`<div class="brow"${tip?` data-tip="${tip}"`:""}>
       <span class="bk">${lab}</span><span class="bav">${av}</span><span class="bfl">→</span><span class="bap">${ap}</span>${delta}</div>`;
-  const rj=s.res[act?"actif":"att"], ra=A.res[act?"actif":"att"];
-  const blocs=s.blocs.map((b,i)=>{
-    const o=A.blocs[i];
-    const dc=Math.round(b.contr-o.contr), dr=Math.round(b.reel-o.reel),
-          dp=Math.round(b.percu-o.percu), df=Math.round(b.fr-o.fr);
-    const rien=!dc&&!dr&&!dp&&!df;
-    return `<div class="btr${rien?" calme":""}">
-      <span class="bcode">${b.code}</span><span class="bnom">${b.nom}</span>
-      <span class="bg contr">${Math.round(b.contr)}${dl(dc,act?dc>0:dc<0)}</span>
-      <span class="bg reel">${Math.round(b.reel)}${dl(dr,act?dr>0:dr<0)}</span>
-      <span class="bg percu">${Math.round(b.percu)}${dl(dp,act?dp>0:dp<0)}</span>
-      <span class="bg fric">${Math.round(b.fr)}${dl(df,act?df<0:df>0)}</span>
-      <span class="bet">${b.verrou?"loi-cadre":b.bloque>0?"préempté "+b.bloque+"t":b.fr>SEUIL_FR?"friction critique":b.compens?"compensé":""}</span>
-    </div>`;
-  }).join("");
-  const jour=s.log.slice(A.logAv);
-  $("#modal").innerHTML=`
-   <div class="mh"><h2>Tour ${A.turn} résolu — ${A.year} à ${A.year+YPT}</h2>
-     <span class="sub">ce qui a changé, et pourquoi</span>
-     <button class="x" id="mx">×</button></div>
-   <div class="mb bilan">
+  const rj=s.res[moi], ra=A.res[moi];
+
+  // --- le verdict
+  const plan=A.projPlan!=null?A.projPlan:A.proj, repris=d(plan,nP);
+  const mesCoups=(s.mien||[]).filter(m=>m.turn===A.turn);
+  const unEchec=mesCoups.some(m=>m.ok===false);
+  const phrase = !mesCoups.length
+    ? `Vous n'avez rien joué ce tour. L'adversaire et cinq ans de physique ont fait le reste.`
+    : Math.abs(repris)<0.005
+      ? `Votre plan visait <b>${fr(plan,2)} °C</b> : il a tenu.`
+      : (bonT(-repris)
+          ? `Votre plan visait <b>${fr(plan,2)} °C</b>. L'adversaire et la physique du tour en ont repris <b>${fr(Math.abs(repris),2)}</b>.`
+          : `Votre plan visait <b>${fr(plan,2)} °C</b>. La résolution a fait mieux, de <b>${fr(Math.abs(repris),2)}</b>.`)
+        + (unEchec?` Un de vos paris a échoué.`:"");
+  // réglette : de 1,5 à 3,6 °C
+  const pos=v=>Math.max(0,Math.min(100,(v-1.5)/(3.6-1.5)*100)).toFixed(1)+"%";
+  const reg=[[1.5,fr(1.5,1),"var(--muted)"],[plan,"plan","var(--wire)"],[nP,"","var(--wire-hot)"],[REEL_2100,"monde réel","#9a9"],[T_BASELINE,"sans action","var(--muted)"]];
+  const regle=`<div class="b2bar">${reg.map(([v,l,c],i)=>`<i style="left:${pos(v)};background:${c}"></i>`+(l?`<span style="left:${pos(v)}" class="${i===0?"g":i===4?"dr":""}">${l} ${i?fr(v,2):""}</span>`:"")).join("")}</div>`;
+
+  // --- les tuiles
+  const tuile=(l,v,dv,sous)=>`<div class="b2t"><span class="l">${l}</span><b>${v}</b> ${dv}<span class="s">${sous}</span></div>`;
+  const eA=A.res[moi].cred-A.res[lui].cred, eJ=s.res[moi].cred-s.res[lui].cred;
+  const ec=v=>v>0?"+"+v:v<0?"−"+Math.abs(v):"0";
+  const tuiles=tuile("Score",nS,dl(dS,dS>0),"palier "+pal[1])
+    + tuile("Émissions",fr(totE(s),1),dlf(d(A.emis,totE(s)),act?totE(s)<A.emis:totE(s)>A.emis,1),
+        s.seuilAn?"★ sous "+SEUIL_E+" depuis "+s.seuilAn:fr(Math.max(0,totE(s)-SEUIL_E),1)+" Gt avant le seuil")
+    + (DEFI_RES?tuile("★ Défi",`<span class="${DEFI_RES.ok?"ok":"ko"}">${DEFI_RES.ok?"réussi":"manqué"}</span>`,"",DEFI_RES.t+(DEFI_RES.ok&&DEFI_RES.gain?" · "+DEFI_RES.gain:""))
+                :tuile("Réchauffement",fr(nT,2)+" °C",dlf(d(A.T,nT),false),"atteint en "+(A.year+YPT)))
+    + tuile("Crédibilité",ec(eJ),dl(eJ-eA,eJ>eA),eJ>=0?"d'avance sur l'adversaire":"de retard sur l'adversaire");
+
+  // --- les coups
+  const coup=(c,b,cls,tag,eff)=>`<div class="b2c ${cls}"><b>${c.n}</b> <span>${b?b.nom:"mondial"}</span>${tag}<span class="e">${eff}</span></div>`;
+  const miens=mesCoups.map(m=>{const c=card(m.id); if(!c) return "";
+      const tag = m.ok===false?`<span class="tg ko">échoué${m.pr<100?" · "+m.pr+" %":""}</span>`:(m.pr!=null&&m.pr<100?`<span class="tg ok">réussi · ${m.pr} %</span>`:"");
+      return coup(c,m.bk?B(s,m.bk):null,"",tag,c.e);}).join("")
+    + (s.rendus||[]).filter(x=>x.turn===A.turn).map(x=>{const c=card(x.id); return c?coup(c,x.bk?B(s,x.bk):null,"rendu",`<span class="tg">↻ rejouable</span>`,"Ce qu'il avait installé a été défait ; le levier peut être rejoué."):"";}).join("");
+  const sesCoups=(s.adv||[]).filter(a=>a.turn===A.turn);
+  const siens=sesCoups.map(a=>{const c=card(a.id);
+      const tag=(a.ok?"":`<span class="tg ko">échoué</span>`)+(a.rep&&a.rep.length?`<span class="tg rep" data-tip="C'est le contre-levier de votre ${a.rep.join(", ")} : il ne subit pas votre coup, il y répond.">réplique à ${a.rep.join(", ")}</span>`:"");
+      return coup(c,a.bk?B(s,a.bk):null,"adv",tag,c.e);}).join("");
+
+  // --- ce qui a bougé : les blocs dont une jauge a varié d'au moins 2
+  const J=[["contr","contrainte",x=>act?x>0:x<0],["cap","plafond",x=>act?x>0:x<0],["reel","réel",x=>act?x>0:x<0],["percu","perçu",x=>act?x>0:x<0],["fr","friction",x=>act?x<0:x>0]];
+  const mv=s.blocs.map((b,i)=>{const o=A.blocs[i];
+      const ch=J.map(([k,l,bon])=>{const v=Math.round(b[k]-o[k]); return {l,v,bon:bon(v)};}).filter(x=>Math.abs(x.v)>=2)
+        .sort((x,y)=>Math.abs(y.v)-Math.abs(x.v)).slice(0,3);
+      return {b,ch,poids:ch.reduce((a,x)=>a+Math.abs(x.v),0)};}).filter(x=>x.ch.length).sort((x,y)=>y.poids-x.poids);
+  const montres=mv.slice(0,5), autres=s.blocs.length-montres.length;
+  const bouge=montres.map(x=>`<span class="b2m"><b>${x.b.code}</b>${x.ch.map(c=>`${c.l} <span class="${c.bon?"ok":"ko"}">${c.v>0?"+":"−"}${Math.abs(c.v)}</span>`).join(" · ")}</span>`).join("")
+    + `<span class="b2st">${montres.length?(autres?"· "+pl(autres,"l'autre bloc : changements mineurs","les "+autres+" autres blocs : changements mineurs"):""):"aucun bloc n'a bougé de plus de 1"}</span>`;
+
+  // --- le tour suivant
+  const suite = S.over ? "" : `<div class="b2n"><b>Tour ${s.turn}.</b> `
+    + (s.ev?`${s.ev.t}${s.ev.blocNom?" — "+s.ev.blocNom:""}${s.ev.attr?" : à attribuer (1 attention).":"."} `:"")
+    + (s.defi?`★ Défi : ${s.defi.t} — ${s.defi.d}`:"")+`</div>`;
+
+  // --- le détail, replié par défaut
+  const detOuvert=!replie("bilanDetail",true);
+  let detail="";
+  if(detOuvert){
+    const blocs=s.blocs.map((b,i)=>{
+      const o=A.blocs[i];
+      const dc=Math.round(b.contr-o.contr), dr=Math.round(b.reel-o.reel),
+            dp=Math.round(b.percu-o.percu), df=Math.round(b.fr-o.fr);
+      const rien=!dc&&!dr&&!dp&&!df;
+      return `<div class="btr${rien?" calme":""}">
+        <span class="bcode">${b.code}</span><span class="bnom">${b.nom}</span>
+        <span class="bg contr">${Math.round(b.contr)}${dl(dc,act?dc>0:dc<0)}</span>
+        <span class="bg reel">${Math.round(b.reel)}${dl(dr,act?dr>0:dr<0)}</span>
+        <span class="bg percu">${Math.round(b.percu)}${dl(dp,act?dp>0:dp<0)}</span>
+        <span class="bg fric">${Math.round(b.fr)}${dl(df,act?df<0:df>0)}</span>
+        <span class="bet">${b.verrou?"loi-cadre":b.bloque>0?"préempté "+b.bloque+"t":b.fr>SEUIL_FR?"friction critique":b.compens?"compensé":""}</span>
+      </div>`;
+    }).join("");
+    const jour=s.log.slice(A.logAv);
+    detail=`<div class="mb bilan b2det">
      <div>
-       <div class="ms">La situation</div>
-       ${ligne("Où finit la partie",fr(A.proj,2)+" °C",fr(nP,2)+" °C",dlf(dP,act?dP<0:dP>0),"Le modèle rejoué jusqu'en "+AN_FIN+", contraintes figées. C'est le chiffre qui décide de la partie, et en "+AN_FIN+" ce sera le résultat.")}
+       <div class="ms">Tous les indicateurs</div>
        ${ligne("Réchauffement",fr(A.T,2)+" °C",fr(nT,2)+" °C",dlf(d(A.T,nT),false),"Température atteinte à cette date. Elle ne redescend jamais : le cumul de CO₂ est irréversible à cette échelle.")}
-       ${ligne("Émissions",fr(A.emis,1)+" Gt",fr(totE(s),1)+" Gt",dlf(d(A.emis,totE(s)),act?totE(s)<A.emis:totE(s)>A.emis,1),"Somme des huit blocs, en GtCO₂ par an.")}
        ${ligne("Indice technologique",A.tech,s.tech,dl(s.tech-A.tech,act),"À 30 le capital coûte moins cher. À 40 les blocs contraints progressent seuls.")}
        ${ligne("Décès cumulés",fr(A.morts,1)+" M",fr(s.morts,1)+" M",dlf(d(A.morts,s.morts),false,1),"Décès liés à la chaleur depuis 2015. Repère réel : environ 546 000 par an.")}
        ${ligne("Dommages · riches",A.dmgBase,s.dmgBase,dl(s.dmgBase-A.dmgBase,false),"Les blocs riches encaissent environ un tiers des dommages : climatisation, assurance, relocalisation.")}
        ${ligne("Dommages · les autres",A.dmgAutres,s.dmgAutres,dl(s.dmgAutres-A.dmgAutres,false),"Tous les autres blocs, sans capacité d'adaptation équivalente.")}
-       ${ligne("Score",A.sc+" pts",nS+" pts <b>"+pal[1]+"</b>",dl(dS,dS>0),"Votre score de camp, recalculé après résolution.")}
        <div class="brow" data-tip="Premier jalon : l'année où les émissions mondiales cessent de monter. Dans une partie sans action, elles ne plafonnent jamais.">
          <span class="bk">Pic des émissions</span><span class="bap" style="grid-column:2/-1;text-align:left">${s.picAn?"<span style='color:var(--s-reel)'>★ passé en "+s.picAn+"</span> — maximum "+fr(s.picE,1)+" GtCO₂/an":"pas encore — "+fr(totE(s),1)+" GtCO₂/an et en hausse"}</span></div>
-       <div class="brow" data-tip="Second jalon : l'année où le monde passe sous ${SEUIL_E} GtCO₂/an. Ce qui compte est la date, pas le fait : chaque tranche de cinq ans gagnée retire du CO₂ au cumul.">
-         <span class="bk">Sous ${SEUIL_E} GtCO₂/an</span><span class="bap" style="grid-column:2/-1;text-align:left">${s.seuilAn?"<span style='color:var(--s-reel)'>★ franchi en "+s.seuilAn+"</span>":"reste "+fr(Math.max(0,totE(s)-SEUIL_E),1)+" Gt à retirer"}</span></div>
-       ${DEFI_RES?`<div class="brow"><span class="bk">Défi du tour</span><span class="bap" style="grid-column:2/-1;text-align:left">${DEFI_RES.ok?"★":"☆"} ${DEFI_RES.t} — <span style="color:${DEFI_RES.ok?"var(--s-reel)":"var(--s-fric)"}">${DEFI_RES.ok?"réussi"+(DEFI_RES.gain?" · "+DEFI_RES.gain:""):"manqué"}</span></span></div>`:""}
        <div class="ms" style="margin-top:15px">Vos ressources pour le tour ${s.turn}</div>
        ${ligne("Capital politique",ra.cp,rj.cp,dl(rj.cp-ra.cp,rj.cp>ra.cp))}
        ${ligne("Capital",ra.cap,rj.cap,dl(rj.cap-ra.cap,rj.cap>ra.cap))}
        ${ligne("Attention",ra.att,rj.att,dl(rj.att-ra.att,rj.att>ra.att))}
-       ${ligne("Crédibilité",ra.cred,rj.cred,dl(rj.cred-ra.cred,rj.cred>ra.cred),"Votre niveau. Ce qui compte est la ligne suivante.")}
-       ${(()=>{const c=s.camp==="actif"?"actif":"att", o=c==="actif"?"att":"actif";
-           const ea=A.res[c].cred-A.res[o].cred, ej=s.res[c].cred-s.res[o].cred;
-           const ec=v=>v>0?"+"+v:v<0?"−"+Math.abs(v):"0";
-           return ligne("Écart avec l'adversaire",ec(ea),ec(ej),dl(ej-ea,ej>ea),
-             "C'est le chiffre utile : il pèse sur vos paris et règle la vitesse à laquelle le perçu rattrape le réel, de 5 à 25 % par tour.");})()}
+       ${ligne("Crédibilité",ra.cred,rj.cred,dl(rj.cred-ra.cred,rj.cred>ra.cred),"Votre niveau. Ce qui compte est l'écart avec l'adversaire, dans la tuile au-dessus.")}
+       ${s.presse&&s.presse.length?`<div class="ms" style="margin-top:15px">Ce que la presse en a retenu</div>
+         ${s.presse.map(m=>`<div class="bpr">« ${m.t} »<span>${m.s}</span></div>`).join("")}`:""}
      </div>
      <div>
        <div class="ms">Les huit blocs</div>
@@ -4446,27 +4548,6 @@ function bilanTour(){
        <div class="bthead"><span></span><span></span><span>contr.</span><span>réel</span><span>perçu</span><span>fric.</span><span></span></div>
        ${blocs}
        <p class="gx" style="margin-top:10px">Les écarts sont lus de votre point de vue : vert quand la variation vous sert, rouge quand elle sert l'autre camp.</p>
-       ${(()=>{const der=(s.adv||[]).filter(a=>a.turn===A.turn);
-          const nomAdv=s.camp==="actif"?"Le camp attentiste":"Le camp actif";
-          if(!der.length) return `<div class="ms" style="margin-top:15px">${nomAdv}</div><p class="gx">Il n'a rien pu jouer ce tour : plus rien de jouable dans sa main.</p>`;
-          return `<div class="ms" style="margin-top:15px">${nomAdv} a joué ${der.length} levier${der.length>1?"s":""}</div>`
-            + der.map(a=>{const c=card(a.id), b=a.bk?B(s,a.bk):null;
-              return `<div class="badv"><b>${c.id} · ${c.n}</b><span>${b?b.nom:"mondial"}${a.ok?"":" · échoué"}</span>
-                <i>${c.e}</i>${a.rep&&a.rep.length?`<u>C'est le contre-levier de votre ${a.rep.join(", ")} — il ne subit pas votre coup, il y répond.</u>`:""}</div>`;}).join("");
-        })()}
-       ${(()=>{const rd=(s.rendus||[]).filter(x=>x.turn===A.turn);
-          if(!rd.length) return "";
-          return `<div class="ms" style="margin-top:15px">Leviers redevenus jouables</div>`
-            + rd.map(x=>{const c=card(x.id); if(!c) return "";
-                return `<div class="badv" style="border-left-color:var(--s-reel)"><b>${c.id} · ${c.n}</b><span>${x.bk?B(s,x.bk).nom:"mondial"}</span>
-                  <i>Ce qu'il avait installé a été défait. Le levier n'est pas consommé : il peut être rejoué.</i></div>`;}).join("");
-        })()}
-       ${s.presse&&s.presse.length?`<div class="ms" style="margin-top:15px">Ce que la presse en a retenu</div>
-         ${s.presse.map(m=>`<div class="bpr">« ${m.t} »<span>${m.s}</span></div>`).join("")}`:""}
-       ${s.ev?`<div class="ms" style="margin-top:15px">Le tour ${s.turn} commence</div>
-         <div class="bnext"><b>${s.ev.t}</b> — ${s.ev.blocNom}. ${s.ev.txt}</div>
-         ${s.defi?`<div class="bnext">★ <b>${s.defi.t}</b> — ${s.defi.d}</div>`:""}
-         <div class="agenda dansbilan">${agendaHTML(s)}</div>`:""}
      </div>
      <div class="full">
        <div class="ms">Où finit la partie, vu de chaque tour
@@ -4478,18 +4559,46 @@ function bilanTour(){
          <span class="lnk" id="bjTog" style="float:right;text-transform:none;letter-spacing:0;font-weight:400">${BJOURTOUT?"voir l'essentiel":"tout voir"}</span></div>
        <div class="jour" id="bjour" style="max-height:32vh;margin-top:6px">${logHTML(jour,BJOURTOUT).join("")}</div>
      </div>
-     <div class="full bfoot">
-       <label class="bchk"><input type="checkbox" id="bauto" ${AUTOBILAN?"checked":""}> ouvrir ce bilan automatiquement à chaque fin de tour</label>
-       ${peutRejouer()?`<button class="mini" id="brejouer" data-tip="Niveau Découverte : revenir avant la résolution de ce tour, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">Rejouer ce tour</button>`:""}
-       <button class="mini" id="bok">Continuer</button>
+   </div>`;
+  }
+
+  $("#modal").innerHTML=`
+   <div class="mh"><h2>Tour ${A.turn} — ${A.year} – ${A.year+YPT}</h2><span class="sub">résolu</span>
+     <button class="mini go b2go" id="bok">Continuer ▸</button></div>
+   <div class="mb bilan2">
+     <div class="b2v">
+       <div class="lab" data-tip="Le modèle rejoué jusqu'en ${AN_FIN}, contraintes figées. C'est le chiffre qui décide de la partie.">Où finit la partie</div>
+       <div class="big">${fr(nP,2)} <small>°C</small>${dP?`<span class="${bonT(dP)?"ok":"ko"}">${dP>0?"+":"−"}${fr(Math.abs(dP),2)}</span>`:""}</div>
+       <p>${phrase}</p>
+       ${regle}
      </div>
+     <div class="b2ts">${tuiles}</div>
+     <div class="b2two">
+       <div><div class="ms">Vous avez joué</div>${miens||`<p class="gx">Rien ce tour.</p>`}</div>
+       <div><div class="ms">L'adversaire a joué</div>${siens||`<p class="gx">Rien : plus rien de jouable dans sa main.</p>`}</div>
+     </div>
+     <div class="ms" style="margin-top:14px">Ce qui a bougé</div>
+     <div class="b2ms">${bouge}</div>
+     ${suite}
+     <div class="b2d">${lienRepli("bilanDetail","Replie le détail du bilan.","Déplie le détail : tous les indicateurs, vos ressources, les huit blocs jauge par jauge, la presse, la courbe de trajectoire et le journal du tour.",REPLIER+" le détail",DEPLIER+" le détail")}
+       ${detOuvert?"":`<span class="gx">indicateurs, ressources, les huit blocs jauge par jauge, presse, courbe, journal</span>`}</div>
+   </div>
+   ${detail}
+   <div class="mb b2foot">
+     <label class="bchk"><input type="checkbox" id="bauto" ${AUTOBILAN?"checked":""}> ouvrir ce bilan automatiquement à chaque fin de tour</label>
+     ${peutRejouer()?`<button class="mini" id="brejouer" data-tip="Niveau Découverte : revenir avant la résolution de ce tour, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">Rejouer ce tour</button>`:""}
    </div>`;
   ouvrirModal(true);
-  carteBilan(s,A); renderTraj();
-  $("#mx").onclick=fermer; $("#bok").onclick=fermer;
+  // réglette : quand deux étiquettes se touchent, on garde la plus importante
+  // (plan, monde réel, sans action, puis l'origine)
+  const sp=[...document.querySelectorAll("#modal .b2bar span")], ordre=[1,2,3,0];
+  const vus=[];
+  ordre.forEach(i=>{ const e=sp[i]; if(!e) return; const r=e.getBoundingClientRect();
+    if(vus.some(v=>r.left<v.right+6 && r.right>v.left-6)) e.style.visibility="hidden"; else vus.push(r); });
+  if(detOuvert){ carteBilan(s,A); renderTraj(); $("#bjTog").onclick=()=>{BJOURTOUT=!BJOURTOUT;bilanTour();}; }
+  $("#bok").onclick=fermer;
   const brj=$("#brejouer"); if(brj) brj.onclick=rejouerTour;
   $("#bauto").onchange=e=>{AUTOBILAN=e.target.checked;};
-  $("#bjTog").onclick=()=>{BJOURTOUT=!BJOURTOUT;bilanTour();};
   bindTips($("#modal"));
 }
 
@@ -5781,11 +5890,13 @@ function finDeTour(){
   const s=S;
   if(planKo()){ render(); return; }   // un levier du plan n'est plus jouable : on ne valide pas à sa place
   TOUR_AVANT = s.level===1 ? {txt:serialiser(), turn:s.turn} : null;
+  const projPlan = PV ? projeter(PV) : null;   // lue avant d'effacer l'état prévisionnel
   sel=null; PV=null;
   // instantané des jauges et du tableau de bord : la séquence rejouée repartira de là,
   // et le résultat ne s'affichera pas avant d'avoir été révélé
   s.blocs.forEach(b=>{b.contrAv=b.contr;b.reelAv=b.reel;b.percuAv=b.percu;b.frAv=b.fr;});
   BILAN=instantane(s);
+  BILAN.projPlan = projPlan!=null ? projPlan : BILAN.proj;   // ce que le plan visait, paris supposés réussis
   DASHV={evite:T_BASELINE-projeter(s),proj:projeter(s),sc:score(s),T:s.T,morts:s.morts,emis:totE(s),tech:s.tech};
   s.fx=[];
   // validation : c'est ici, et seulement ici, que le plan touche le monde et que les dés sont jetés
