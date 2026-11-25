@@ -2806,8 +2806,8 @@ function render(garde){
       for(let i=0;i<Math.ceil(tot);i++){ const v=reste-i; cases.push(`<i class="${v>=1?"u":v>=0.5?"h":""}"></i>`); }
       return `<div class="pui" data-tip="<b>Puissance</b><br>Votre budget du tour : ${fmtP(tot)} points, fixé par votre crédibilité. Chaque levier en consomme sa puissance (de 1 à 3,5). Il en reste ${fmtP(reste)} après votre plan."><span class="pill" style="background:var(--wire)"></span>Puissance <span class="v">${fmtP(reste)} / ${fmtP(tot)}</span><span class="jg">${cases.join("")}</span></div>`;})();
   const np=S.plan.length;
-  $("#endturn").textContent = np ? "Valider le tour ("+np+" levier"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
-    : (s.actions>0 ? "Passer le tour ("+fmtP(s.actions)+pl(s.actions," pt restant"," pts restants")+")" : "Terminer le tour");
+  $("#endturn").textContent = np ? "Valider · "+np+" levier"+(np>1?"s":"")+" · "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")
+    : (s.actions>0 ? "Passer · "+fmtP(s.actions)+pl(s.actions," pt"," pts") : "Terminer le tour");   // v0.20.3 : court, la barre du haut tient sur une ligne
   $("#endturn").classList.toggle("armed",np>0);
   renderEvent(); renderAgenda(); renderDash(); renderMap(); renderPlan(); renderAdv(); renderHand(); renderDocPanel(); renderTraj(); renderLog(); renderPresse();
   bindTips(document);
@@ -3508,7 +3508,7 @@ function renderMap(){
     if(c&&c.cible==="bloc"&&!ciblable){ d.classList.add("hors"); land.classList.add("hors"); } else land.classList.remove("hors");
     d.innerHTML=
       (pourquoi?`<div class="why">${String(pourquoi).replace(/perçu insuffisant \((\d+) \/ (\d+) requis\)/,"perçu $1 / $2").replace("déjà appliqué sur ce bloc","déjà appliqué")}</div>`:"")+
-      `<div class="halo" style="width:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;height:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;--ho:${(0.05+0.20*Math.min(1,b.e/9)).toFixed(3)}"></div>
+      `<div class="halo" style="width:${(50+Math.sqrt(Math.max(0,b.e))*26).toFixed(0)}px;height:${(50+Math.sqrt(Math.max(0,b.e))*26).toFixed(0)}px;--ho:${(0.12+0.28*Math.min(1,b.e/9)).toFixed(3)}"></div>
        <div class="chip">${bar("contr",v.contr)}${bar("reel",v.reel)}${bar("percu",v.percu)}${bar("fric",v.fr)}<b>${b.code}</b>${advT?`<u class="advm">${advT}</u>`:""}</div>
        <div class="card2">
          <div class="c2h"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %</span></div>

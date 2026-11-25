@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.20.2</title>
+<title>HEAT — version jouable v0.20.3</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1205,6 +1205,9 @@ span.lnk:not(.repl){font:600 11px ui-monospace,"SF Mono",Menlo,Consolas,monospac
 span.lnk:not(.repl):hover{color:#fff}
 span.lnk.off{color:var(--muted);text-decoration:none;cursor:default;opacity:.7}
 .topbar span.lnk:not(.repl){font-size:10.5px;letter-spacing:0}
+/* v0.20.3 : halo d'émissions visible (il était plus petit que la pastille du bloc) */
+.halo{background:radial-gradient(circle,rgba(230,64,52,var(--ho,.2)) 0%,rgba(230,64,52,calc(var(--ho,.2)*.55)) 45%,transparent 70%)}
+@media (min-width:1400px){.topbar .turn{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -4133,8 +4136,8 @@ function render(garde){
       for(let i=0;i<Math.ceil(tot);i++){ const v=reste-i; cases.push(`<i class="${v>=1?"u":v>=0.5?"h":""}"></i>`); }
       return `<div class="pui" data-tip="<b>Power</b><br>Your budget for the turn: ${fmtP(tot)} points, set by your credibility. Each lever uses its power (from 1 to 3.5). There are ${fmtP(reste)} left after your plan."><span class="pill" style="background:var(--wire)"></span>Power <span class="v">${fmtP(reste)} / ${fmtP(tot)}</span><span class="jg">${cases.join("")}</span></div>`;})();
   const np=S.plan.length;
-  $("#endturn").textContent = np ? "Confirm the turn ("+np+" lever"+(np>1?"s":"")+", "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")+")"
-    : (s.actions>0 ? "Pass the turn ("+fmtP(s.actions)+pl(s.actions," pt left"," pts left")+")" : "End the turn");
+  $("#endturn").textContent = np ? "Confirm · "+np+" lever"+(np>1?"s":"")+" · "+fmtP(poidsPlan(S))+" pt"+(poidsPlan(S)>1?"s":"")
+    : (s.actions>0 ? "Pass · "+fmtP(s.actions)+pl(s.actions," pt"," pts") : "End the turn");   // v0.20.3 : court, la barre du haut tient sur une ligne
   $("#endturn").classList.toggle("armed",np>0);
   renderEvent(); renderAgenda(); renderDash(); renderMap(); renderPlan(); renderAdv(); renderHand(); renderDocPanel(); renderTraj(); renderLog(); renderPresse();
   bindTips(document);
@@ -4812,7 +4815,7 @@ function renderMap(){
     if(c&&c.cible==="bloc"&&!ciblable){ d.classList.add("hors"); land.classList.add("hors"); } else land.classList.remove("hors");
     d.innerHTML=
       (pourquoi?`<div class="why">${String(pourquoi).replace(/perceived support too low \((\d+) \/ (\d+) required\)/,"perceived $1 / $2").replace("already applied on this bloc","already applied")}</div>`:"")+
-      `<div class="halo" style="width:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;height:${(26+Math.sqrt(Math.max(0,b.e))*13).toFixed(0)}px;--ho:${(0.05+0.20*Math.min(1,b.e/9)).toFixed(3)}"></div>
+      `<div class="halo" style="width:${(50+Math.sqrt(Math.max(0,b.e))*26).toFixed(0)}px;height:${(50+Math.sqrt(Math.max(0,b.e))*26).toFixed(0)}px;--ho:${(0.12+0.28*Math.min(1,b.e/9)).toFixed(3)}"></div>
        <div class="chip">${bar("contr",v.contr)}${bar("reel",v.reel)}${bar("percu",v.percu)}${bar("fric",v.fr)}<b>${b.code}</b>${advT?`<u class="advm">${advT}</u>`:""}</div>
        <div class="card2">
          <div class="c2h"><b>${b.nom}</b><span>${(100*b.e/totE(s)).toFixed(0)} %</span></div>
