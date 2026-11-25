@@ -19,3 +19,7 @@ Chaque étape (votre levier, le pari, le coup adverse, l'élection, le défi, la
 Vos leviers sans pari n'étaient pas annoncés pendant la résolution : seuls les paris et les coups adverses l'étaient. Dans le fil, leurs effets se seraient accrochés au levier précédent. Chacun de vos leviers a maintenant sa ligne (testé sur trois tours : tous les leviers joués y sont nommés).
 
 Aucune règle ni donnée modifiée ; étalonnage inchangé.
+
+## Outils
+
+Les harnais qui sautaient la séquence de résolution cliquaient le « passer » de l'ancien bandeau (`#rsSkip`) ; ils cliquent désormais celui du fil (`#filPasser`) : play3, chk_dl et les scripts de capture.

@@ -24,7 +24,7 @@ with sync_playwright() as p:
             pg.wait_for_timeout(60)
         if pg.locator("#battr").count() and pg.locator("#battr").is_enabled(): pg.click("#battr")
         pg.click("#endturn"); pg.wait_for_timeout(400)
-        sk=pg.locator("#rsSkip")
+        sk=pg.locator("#filPasser")
         if sk.count(): sk.click()
         pg.wait_for_timeout(900)
     tour(); tour()

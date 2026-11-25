@@ -18,7 +18,7 @@ with sync_playwright() as p:
             else: pg.keyboard.press("Escape")
         pg.wait_for_timeout(50)
     pg.click("#endturn"); pg.wait_for_timeout(300)
-    sk=pg.locator("#rsSkip")
+    sk=pg.locator("#filPasser")
     if sk.count(): sk.click()
     pg.wait_for_timeout(900)
     print(pg.evaluate("""()=>[...document.querySelectorAll('.btr')].slice(0,3).map(tr=>
