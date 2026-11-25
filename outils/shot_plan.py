@@ -59,7 +59,7 @@ with sync_playwright() as p:
     pg.screenshot(path="p_avant.png")
     pg.click("#endturn"); pg.wait_for_timeout(600)
     pg.screenshot(path="p_reso.png")
-    sk=pg.locator("#rsSkip")
+    sk=pg.locator("#filPasser")
     if sk.count(): sk.click()
     pg.wait_for_timeout(900)
     g=snap(); print("apres ", g)
