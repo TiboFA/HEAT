@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.19</title>
+<title>HEAT — version jouable v0.19.1</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1307,7 +1307,7 @@ span.lnk.repl:hover{color:var(--wire-hi)}
     </div>
   </details>
 
-  <div class="vers">HEAT v0.19 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
+  <div class="vers">HEAT v0.19.1 — 112 leviers, chiffres calibrés sur le monde réel, modèle volontairement simple.
     Un seul fichier HTML, sans dépendance ni accès réseau.</div>
 </div>
 
@@ -4970,7 +4970,16 @@ function renderHand(){
       : glob ? jouable(s,cc,null,s.camp) : (elig.length?null:motifBlocs(s,cc));
     return {id,cc,glob,elig,cher,raison};
   });
-  const ord={jouables:(a,b)=>(!!a.raison-!!b.raison)||(pds(a.cc)-pds(b.cc)),
+  // v0.19.1 : l'ordre « jouables d'abord » est lu sur l'état du début du tour
+  // (S, sans le plan), pas sur le prévisionnel. Sinon chaque levier ajouté au plan
+  // renvoyait en fin de liste les cartes devenues trop chères, et un levier de bloc
+  // encore jouable une seconde fois remontait en tête : les cartes changeaient de
+  // place sous la souris. Elles se grisent désormais sur place.
+  const jouableDebut=id=>{ const cc=card(id);
+    if(S.actions<pds(cc)) return false;
+    return cc.cible!=="bloc" ? !jouable(S,cc,null,S.camp) : S.blocs.some(b=>!jouable(S,cc,b,S.camp)); };
+  infos.forEach(x=>{ x.j0=jouableDebut(x.id); });
+  const ord={jouables:(a,b)=>(b.j0-a.j0)||(pds(a.cc)-pds(b.cc)),
              cout:(a,b)=>(pds(a.cc)-pds(b.cc))||a.id.localeCompare(b.id),
              famille:(a,b)=>a.cc.fam.localeCompare(b.cc.fam)||(pds(a.cc)-pds(b.cc))}[tri]||(()=>0);
   infos.sort(ord);

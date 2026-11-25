@@ -3609,7 +3609,16 @@ function renderHand(){
       : glob ? jouable(s,cc,null,s.camp) : (elig.length?null:motifBlocs(s,cc));
     return {id,cc,glob,elig,cher,raison};
   });
-  const ord={jouables:(a,b)=>(!!a.raison-!!b.raison)||(pds(a.cc)-pds(b.cc)),
+  // v0.19.1 : l'ordre « jouables d'abord » est lu sur l'état du début du tour
+  // (S, sans le plan), pas sur le prévisionnel. Sinon chaque levier ajouté au plan
+  // renvoyait en fin de liste les cartes devenues trop chères, et un levier de bloc
+  // encore jouable une seconde fois remontait en tête : les cartes changeaient de
+  // place sous la souris. Elles se grisent désormais sur place.
+  const jouableDebut=id=>{ const cc=card(id);
+    if(S.actions<pds(cc)) return false;
+    return cc.cible!=="bloc" ? !jouable(S,cc,null,S.camp) : S.blocs.some(b=>!jouable(S,cc,b,S.camp)); };
+  infos.forEach(x=>{ x.j0=jouableDebut(x.id); });
+  const ord={jouables:(a,b)=>(b.j0-a.j0)||(pds(a.cc)-pds(b.cc)),
              cout:(a,b)=>(pds(a.cc)-pds(b.cc))||a.id.localeCompare(b.id),
              famille:(a,b)=>a.cc.fam.localeCompare(b.cc.fam)||(pds(a.cc)-pds(b.cc))}[tri]||(()=>0);
   infos.sort(ord);
