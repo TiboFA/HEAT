@@ -2569,6 +2569,9 @@ function codeBloc(k){ const b=B(S,k); return b?b.code:k; }
 const LIB={contr:["Contrainte","up","down"],reel:["Soutien réel","re","ko"],
            percu:["Soutien perçu","pc","ko"],fric:["Friction","down","up"]};
 
+/* rythme de la séquence de résolution : les durées de chaque étape sont
+   multipliées par ce facteur (v0.20.1 : 0,65, un tiers plus vite qu'en v0.20) */
+const RYTHME=0.65;
 function resoudre(apres){
   const s=S;
   RESO=true; resoStop=false;
@@ -2582,7 +2585,7 @@ function resoudre(apres){
     if(i>=file.length){ fin(false); return; }
     const fx=file[i++];
     const d=appliquer(fx,false);
-    resoTimer=setTimeout(suite,d);
+    resoTimer=setTimeout(suite,d*RYTHME);
   };
   const fin=(direct)=>{
     RESO=false; VIS=null;
@@ -2603,7 +2606,7 @@ function resoudre(apres){
       const cls=fx.ok?"ok":"ko";
       const l=ligne(`🎲 <b>${fx.nom}</b>${fx.k?" — "+codeBloc(fx.k):""} · pari ${fx.p} % · <span class="tir">tirage…</span>`,"de");
       setTimeout(()=>{ const r=l&&l.querySelector(".tir"); if(r){ r.className="tir "+cls; r.textContent=(fx.ok?"réussi":"échec")+" ("+fx.d+")"; }
-        if(fx.k)flotte(fx.k,fx.ok?"réussi":"échec",cls); if(fx.k)pulseBloc(fx.k,!fx.ok); },620);
+        if(fx.k)flotte(fx.k,fx.ok?"réussi":"échec",cls); if(fx.k)pulseBloc(fx.k,!fx.ok); },620*RYTHME);
       return 1100;
     }
     if(fx.t==="moi"){
