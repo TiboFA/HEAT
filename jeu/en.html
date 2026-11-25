@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.20.1</title>
+<title>HEAT — version jouable v0.20.2</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1194,6 +1194,17 @@ span.lnk.repl:hover{color:var(--wire-hi)}
 .fll.eff{padding-top:2px}
 @media (max-width:700px){#filReso{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:46vh}}
 .fll.moi{border-left-color:var(--wire)}
+/* ---- liens d'action, un seul style (v0.20.2) ----
+   Tous les liens qui naviguent ou déclenchent une action (partie, guide, bilan,
+   renouveler, à venir, masqués, tout voir, tout retirer, annuler, passer, FR · EN…)
+   partagent ce style : chasse fixe, vert d'eau clair, souligné. Les liens de repli
+   (.repl, « ▾ replier / ▸ déplier ») gardent le leur, plus soutenu et fléché.
+   Placé en dernier : il l'emporte sur les réglages locaux de taille et de couleur. */
+span.lnk:not(.repl){font:600 11px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.02em;text-transform:none;
+ color:var(--wire-hi);text-decoration:underline;text-underline-offset:2px;cursor:pointer;white-space:nowrap}
+span.lnk:not(.repl):hover{color:#fff}
+span.lnk.off{color:var(--muted);text-decoration:none;cursor:default;opacity:.7}
+.topbar span.lnk:not(.repl){font-size:10.5px;letter-spacing:0}
 </style>
 </head>
 <body>
@@ -4101,11 +4112,11 @@ function render(garde){
   const tn=DASHV?Math.max(1,s.turn-1):s.turn, ty=DASHV?s.year-YPT:s.year;
   $("#turn").innerHTML="Turn <b>"+tn+"</b> / "+NTURNS+" · <b>"+ty+" – "+(ty+YPT)+"</b> · "+
     (s.camp==="actif"?"Active":"Wait-and-see")+" · <b>"+fr(DASHV?DASHV.T:s.T,2)+" °C</b>"+
-    (DASHV?"":` <span class="proj" data-tip="Temperature reached in ${AN_FIN} if nobody plays after this turn, your plan included. With no action: ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b> in ${AN_FIN}</span>`)+
+    (DASHV?"":` <span class="proj" data-tip="Temperature reached in ${AN_FIN} if nobody plays after this turn, your plan included. With no action: ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b></span>`)+
     (!RESO?` · <span class="lnk" id="ouvrirPartie" data-tip="Autosave, game file to export or load, back to the home screen.">game</span>`:"")+
     (!RESO?` · <span class="lnk" id="ouvrirGuide" data-tip="Reopens the guide: the eight areas of the screen, in the order you use them.">guide</span>`:"")+
-    (peutRejouer()&&!DASHV?` · <span class="lnk" id="rejouerTour" data-tip="Discovery level: go back to before the resolution of turn ${TOUR_AVANT.turn}, with the same plan, to try another one. Chance is the same: an identical plan will give the same result.">replay turn ${TOUR_AVANT.turn}</span>`:"")+
-    (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Reopens the report for turn ${BILAN.turn}: what changed, bloc by bloc, and the full log of that turn.">report ${BILAN.turn}</span>`:"");
+    (peutRejouer()&&!DASHV?` · <span class="lnk" id="rejouerTour" data-tip="Discovery level: go back to before the resolution of turn ${TOUR_AVANT.turn}, with the same plan, to try another one. Chance is the same: an identical plan will give the same result.">replay</span>`:"")+
+    (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Reopens the report for turn ${BILAN.turn}: what changed, bloc by bloc, and the full log of that turn.">report</span>`:"");
   const rb=$("#revoirBilan"); if(rb) rb.onclick=bilanTour;
   const rj=$("#rejouerTour"); if(rj) rj.onclick=rejouerTour;
   const og=$("#ouvrirGuide"); if(og) og.onclick=()=>guideOuvrir(0);

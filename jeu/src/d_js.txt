@@ -2785,11 +2785,11 @@ function render(garde){
   const tn=DASHV?Math.max(1,s.turn-1):s.turn, ty=DASHV?s.year-YPT:s.year;
   $("#turn").innerHTML="Tour <b>"+tn+"</b> / "+NTURNS+" · <b>"+ty+" – "+(ty+YPT)+"</b> · "+
     (s.camp==="actif"?"Actif":"Attentiste")+" · <b>"+fr(DASHV?DASHV.T:s.T,2)+" °C</b>"+
-    (DASHV?"":` <span class="proj" data-tip="Température atteinte en ${AN_FIN} si plus personne ne joue après ce tour, votre plan compris. Sans action : ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b> en ${AN_FIN}</span>`)+
+    (DASHV?"":` <span class="proj" data-tip="Température atteinte en ${AN_FIN} si plus personne ne joue après ce tour, votre plan compris. Sans action : ${fr(T_BASELINE,2)} °C.">→ <b>${fr(projeter(s),2)} °C</b></span>`)+
     (!RESO?` · <span class="lnk" id="ouvrirPartie" data-tip="Sauvegarde automatique, fichier de partie à exporter ou à charger, retour à l'accueil.">partie</span>`:"")+
     (!RESO?` · <span class="lnk" id="ouvrirGuide" data-tip="Rouvre le guide : les huit zones de l'écran, dans l'ordre où on s'en sert.">guide</span>`:"")+
-    (peutRejouer()&&!DASHV?` · <span class="lnk" id="rejouerTour" data-tip="Niveau Découverte : revenir avant la résolution du tour ${TOUR_AVANT.turn}, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">rejouer le tour ${TOUR_AVANT.turn}</span>`:"")+
-    (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Rouvre le bilan du tour ${BILAN.turn} : ce qui a changé, bloc par bloc, et le journal complet de ce tour.">bilan du tour ${BILAN.turn}</span>`:"");
+    (peutRejouer()&&!DASHV?` · <span class="lnk" id="rejouerTour" data-tip="Niveau Découverte : revenir avant la résolution du tour ${TOUR_AVANT.turn}, avec le même plan, pour en essayer un autre. Le hasard est le même : un plan identique donnera le même résultat.">rejouer</span>`:"")+
+    (BILAN&&!DASHV&&!RESO?` · <span class="lnk" id="revoirBilan" data-tip="Rouvre le bilan du tour ${BILAN.turn} : ce qui a changé, bloc par bloc, et le journal complet de ce tour.">bilan</span>`:"");
   const rb=$("#revoirBilan"); if(rb) rb.onclick=bilanTour;
   const rj=$("#rejouerTour"); if(rj) rj.onclick=rejouerTour;
   const og=$("#ouvrirGuide"); if(og) og.onclick=()=>guideOuvrir(0);
