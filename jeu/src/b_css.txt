@@ -1183,4 +1183,15 @@ span.lnk.repl:hover{color:var(--wire-hi)}
 .fll.eff{padding-top:2px}
 @media (max-width:700px){#filReso{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:46vh}}
 .fll.moi{border-left-color:var(--wire)}
+/* ---- liens d'action, un seul style (v0.20.2) ----
+   Tous les liens qui naviguent ou déclenchent une action (partie, guide, bilan,
+   renouveler, à venir, masqués, tout voir, tout retirer, annuler, passer, FR · EN…)
+   partagent ce style : chasse fixe, vert d'eau clair, souligné. Les liens de repli
+   (.repl, « ▾ replier / ▸ déplier ») gardent le leur, plus soutenu et fléché.
+   Placé en dernier : il l'emporte sur les réglages locaux de taille et de couleur. */
+span.lnk:not(.repl){font:600 11px ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.02em;text-transform:none;
+ color:var(--wire-hi);text-decoration:underline;text-underline-offset:2px;cursor:pointer;white-space:nowrap}
+span.lnk:not(.repl):hover{color:#fff}
+span.lnk.off{color:var(--muted);text-decoration:none;cursor:default;opacity:.7}
+.topbar span.lnk:not(.repl){font-size:10.5px;letter-spacing:0}
 </style>
