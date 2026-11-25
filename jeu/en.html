@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HEAT — version jouable v0.20.4</title>
+<title>HEAT — version jouable v0.20.5</title>
 <!-- Icône (v0.16.1) : le H à deux thermomètres, froid à gauche, chaud à droite.
      SVG pour l'onglet, PNG 180 px pour l'écran d'accueil des téléphones. Voir cadrage/HEAT_icones_v3.html. -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306090b'/%3E%3Crect x='13' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='40' y='10' width='11' height='42' rx='5.5' fill='%23eef5f3'/%3E%3Crect x='22' y='27' width='20' height='10' fill='%23eef5f3'/%3E%3Crect x='15.5' y='38' width='6' height='14' rx='3' fill='%233b82d6'/%3E%3Ccircle cx='18.5' cy='51' r='8' fill='%233b82d6'/%3E%3Crect x='42.5' y='15' width='6' height='37' rx='3' fill='%23ef6a4a'/%3E%3Ccircle cx='45.5' cy='51' r='8' fill='%23ef6a4a'/%3E%3C/svg%3E">
@@ -1210,8 +1210,8 @@ span.lnk.off{color:var(--muted);text-decoration:none;cursor:default;opacity:.7}
 @media (min-width:1400px){.topbar .turn{white-space:nowrap}}
 /* v0.20.4 : le bloc survolé passe au premier plan — sa fiche ne glisse plus sous les pastilles voisines */
 .gp:hover,.gp:focus-within{z-index:25}
-/* v0.20.4 : le fil de résolution est centré en largeur (il était collé à droite) */
-@media (min-width:701px){#filReso{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 32px))}}
+/* v0.20.4 : le fil de résolution est centré en largeur ; v0.20.5 : en bas de l'écran, la carte reste visible */
+@media (min-width:701px){#filReso{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100vw - 32px));top:auto;bottom:16px;max-height:min(36vh,340px)}}
 </style>
 </head>
 <body>
